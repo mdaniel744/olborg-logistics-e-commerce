@@ -63,8 +63,7 @@
         },
         "distance_sales_destination_vat": {
           "type": "boolean",
-          "default": true,
-          "description": "German consumers pay German destination VAT"
+          "default": true
         },
         "b2b_zero_rating_enabled": {
           "type": "boolean",
@@ -186,5 +185,23 @@
   },
   "required": [
     "singleton_key"
-  ]
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }
