@@ -1,0 +1,121 @@
+{
+  "name": "QuoteRequest",
+  "type": "object",
+  "properties": {
+    "quote_number": {
+      "type": "string"
+    },
+    "language": {
+      "type": "string",
+      "enum": [
+        "pl",
+        "de"
+      ]
+    },
+    "market": {
+      "type": "string",
+      "enum": [
+        "PL",
+        "DE"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "variant_label": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "free_text_products": {
+      "type": "string"
+    },
+    "delivery_country": {
+      "type": "string"
+    },
+    "delivery_postal_code": {
+      "type": "string"
+    },
+    "delivery_city": {
+      "type": "string"
+    },
+    "delivery_address": {
+      "type": "string"
+    },
+    "unloading_method": {
+      "type": "string"
+    },
+    "site_access_notes": {
+      "type": "string"
+    },
+    "customer_type": {
+      "type": "string",
+      "enum": [
+        "private",
+        "business"
+      ]
+    },
+    "customer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "company": {
+          "type": "string"
+        },
+        "vat_id": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        }
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "photo_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "in_review",
+        "quoted",
+        "accepted",
+        "declined",
+        "closed"
+      ],
+      "default": "new"
+    },
+    "admin_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "quote_number"
+  ]
+}

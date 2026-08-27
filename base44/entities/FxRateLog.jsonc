@@ -1,0 +1,30 @@
+{
+  "name": "FxRateLog",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string"
+    },
+    "reference_rate": {
+      "type": "number"
+    },
+    "markup_percent": {
+      "type": "number"
+    },
+    "published_rate": {
+      "type": "number"
+    },
+    "manual_override": {
+      "type": "boolean"
+    },
+    "changed_by": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "published_rate"
+  ]
+}
