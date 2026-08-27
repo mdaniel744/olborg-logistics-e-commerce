@@ -48,7 +48,7 @@ export default function Footer() {
               <img
                 src="https://media.base44.com/images/public/6a901448048a3205edc04025/23bb84640_Olborgmainlogo.png"
                 alt="Olborg Container Logistics"
-                className="h-20 md:h-24 w-auto object-contain"
+                className="h-28 md:h-32 w-auto object-contain"
               />
             </div>
             <address className="not-italic text-sm text-white/70 space-y-2.5">

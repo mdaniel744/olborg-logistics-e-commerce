@@ -29,12 +29,12 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-[#E0E2E5]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="flex items-center justify-between h-20 md:h-24">
+        <div className="flex items-center justify-between h-28 md:h-32">
           <Link to={pathFor("home", lang)} className="flex items-center shrink-0" aria-label="Olborg Logistics">
             <img
               src="https://media.base44.com/images/public/6a901448048a3205edc04025/23bb84640_Olborgmainlogo.png"
               alt="Olborg Container Logistics"
-              className="h-16 md:h-20 w-auto object-contain"
+              className="h-24 md:h-28 w-auto object-contain"
             />
           </Link>
 
