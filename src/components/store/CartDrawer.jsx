@@ -36,7 +36,7 @@ export default function CartDrawer() {
         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
             <p className="text-[#6B7075]">{t("cart.empty")}</p>
-            <Button asChild className="bg-[#1A1C1E] hover:bg-black rounded-none" onClick={() => setDrawerOpen(false)}>
+            <Button asChild className="bg-[#1A1C1E] hover:bg-black text-white rounded-none" onClick={() => setDrawerOpen(false)}>
               <Link to={pathFor("shop", lang)} onClick={() => setDrawerOpen(false)}>{t("cart.emptyCta")}</Link>
             </Button>
           </div>

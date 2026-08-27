@@ -31,7 +31,7 @@ export default function CartPage() {
       {items.length === 0 ? (
         <div className="py-16 text-center">
           <p className="text-[#6B7075] mb-6">{t("cart.empty")}</p>
-          <Button asChild className="bg-[#1A1C1E] hover:bg-black rounded-none">
+          <Button asChild className="bg-[#1A1C1E] hover:bg-black text-white rounded-none">
             <Link to={pathFor("shop", lang)}>{t("cart.emptyCta")}</Link>
           </Button>
         </div>

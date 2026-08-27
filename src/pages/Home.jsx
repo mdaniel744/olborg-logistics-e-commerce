@@ -144,7 +144,7 @@ export default function Home() {
             </p>
             <h2 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-[#1A1C1E]">{t("home.deliveryTitle")}</h2>
             <p className="mt-4 text-[#3A3E42] leading-relaxed">{t("home.deliveryText")}</p>
-            <Button asChild className="mt-6 bg-[#1A1C1E] hover:bg-black rounded-none font-semibold">
+            <Button asChild className="mt-6 bg-[#1A1C1E] hover:bg-black text-white rounded-none font-semibold">
               <Link to={pathFor("delivery", lang)}>
                 <Calculator className="w-4 h-4 mr-2" />
                 {t("home.deliveryCta")}

@@ -263,7 +263,7 @@ export const translations = {
       why1: "Klare Produktinformationen",
       why1d: "Vollständige Spezifikationen, Maße und Zustand jedes Containers.",
       why2: "Neue und gebrauchte Container",
-      why2d: "One-Trip-Container sowie geprüfte Gebrauchtcontainer.",
+      why2d: "One Trip Container sowie geprüfte Gebrauchtcontainer.",
       why3: "Lieferung in Polen und Deutschland",
       why3d: "Transport an Ihre Adresse mit Preisberechnung nach Postleitzahl.",
       why4: "Direkte Online-Bestellung",

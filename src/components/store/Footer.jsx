@@ -28,11 +28,11 @@ export default function Footer() {
 
   const landingLabel = (c) => {
     const labels = {
-      size10: lang === "de" ? "10-Fuß-Container" : "Kontenery 10 stóp",
-      size20: lang === "de" ? "20-Fuß-Container" : "Kontenery 20 stóp",
-      size40: lang === "de" ? "40-Fuß-Container" : "Kontenery 40 stóp",
-      highCube: lang === "de" ? "High-Cube-Container" : "Kontenery High Cube",
-      openSide: lang === "de" ? "Open-Side-Container" : "Kontenery Open Side",
+      size10: lang === "de" ? "10 Fuß Container" : "Kontenery 10 stóp",
+      size20: lang === "de" ? "20 Fuß Container" : "Kontenery 20 stóp",
+      size40: lang === "de" ? "40 Fuß Container" : "Kontenery 40 stóp",
+      highCube: lang === "de" ? "High Cube Container" : "Kontenery High Cube",
+      openSide: lang === "de" ? "Open Side Container" : "Kontenery Open Side",
       used: lang === "de" ? "Gebrauchte Container" : "Kontenery używane",
     };
     return labels[c.key] || c.key;

@@ -77,7 +77,7 @@ export default function DeliveryCalculator({ items, compact }) {
             />
           </div>
           <div className="flex items-end">
-            <Button type="submit" className="bg-[#1A1C1E] hover:bg-black rounded-none w-full sm:w-auto">
+            <Button type="submit" className="bg-[#1A1C1E] hover:bg-black text-white rounded-none w-full sm:w-auto">
               {t("product.calculate")}
             </Button>
           </div>

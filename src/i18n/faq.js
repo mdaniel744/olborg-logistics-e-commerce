@@ -12,9 +12,9 @@ export const FAQ = [
       },
       {
         q_pl: "Czym różni się kontener High Cube od Standard?",
-        q_de: "Was unterscheidet einen High-Cube- von einem Standard-Container?",
+        q_de: "Was unterscheidet einen High Cube- von einem Standard-Container?",
         a_pl: "Kontener High Cube jest o ok. 30 cm wyższy (2,89 m zamiast 2,59 m zewnętrznie), co daje więcej przestrzeni ładunkowej.",
-        a_de: "Ein High-Cube-Container ist ca. 30 cm höher (2,89 m statt 2,59 m außen) und bietet dadurch mehr Laderaum.",
+        a_de: "Ein High Cube-Container ist ca. 30 cm höher (2,89 m statt 2,59 m außen) und bietet dadurch mehr Laderaum.",
       },
       {
         q_pl: "Czym różni się kontener nowy od używanego?",
