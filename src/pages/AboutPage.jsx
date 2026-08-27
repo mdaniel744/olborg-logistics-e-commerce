@@ -58,7 +58,7 @@ export default function AboutPage() {
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
         {c.values.map(([h, d], i) => (
           <div key={i} className="bg-white border border-[#E0E2E5] p-5">
-            <p className="font-mono text-[#E65100] text-xs">{String(i + 1).padStart(2, "0")}</p>
+            <p className="font-mono text-[#F5A623] text-xs">{String(i + 1).padStart(2, "0")}</p>
             <p className="font-heading font-bold text-[#1A1C1E] mt-2">{h}</p>
             <p className="text-sm text-[#6B7075] mt-1">{d}</p>
           </div>
@@ -66,7 +66,7 @@ export default function AboutPage() {
       </div>
 
       <div className="mt-10 text-center">
-        <Button asChild className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold h-12 px-8">
+        <Button asChild className="bg-[#F5A623] hover:bg-[#C74600] rounded-none font-semibold h-12 px-8">
           <Link to={pathFor("shop", lang)}>{c.cta}</Link>
         </Button>
       </div>

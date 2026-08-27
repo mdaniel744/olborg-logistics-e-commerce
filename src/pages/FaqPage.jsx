@@ -16,7 +16,7 @@ export default function FaqPage() {
 
       {FAQ.map((group, gi) => (
         <section key={gi} className="mt-10">
-          <h2 className="font-mono text-xs uppercase tracking-widest text-[#E65100] mb-2">
+          <h2 className="font-mono text-xs uppercase tracking-widest text-[#F5A623] mb-2">
             {lang === "de" ? group.category_de : group.category_pl}
           </h2>
           <Accordion type="single" collapsible className="bg-white border border-[#E0E2E5] px-4">
@@ -38,7 +38,7 @@ export default function FaqPage() {
         <p className="font-heading font-bold text-lg">
           {lang === "de" ? "Ihre Frage ist nicht dabei?" : "Nie znalazłeś odpowiedzi?"}
         </p>
-        <Button asChild className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold shrink-0">
+        <Button asChild className="bg-[#F5A623] hover:bg-[#C74600] rounded-none font-semibold shrink-0">
           <Link to={pathFor("contact", lang)}>{t("nav.contact")}</Link>
         </Button>
       </div>

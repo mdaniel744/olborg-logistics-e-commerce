@@ -47,13 +47,13 @@ export default function Home() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-36">
           <div className="max-w-2xl">
-            <p className="font-mono text-xs tracking-[0.3em] text-[#FF8A3C] uppercase mb-4">PL · DE — 10ft / 20ft / 40ft</p>
+            <p className="font-mono text-xs tracking-[0.3em] text-[#F5A623] uppercase mb-4">PL · DE — 10ft / 20ft / 40ft</p>
             <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight">
               {t("hero.h1")}
             </h1>
             <p className="mt-5 text-white/80 text-lg leading-relaxed">{t("hero.sub")}</p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Button asChild size="lg" className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold text-base h-12 px-8">
+              <Button asChild size="lg" className="bg-[#F5A623] hover:bg-[#DB930D] text-[#1A1C1E] rounded-none font-semibold text-base h-12 px-8">
                 <Link to={pathFor("shop", lang)}>{t("hero.ctaPrimary")}</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-none border-white/40 bg-transparent text-white hover:bg-white hover:text-[#1A1C1E] font-semibold text-base h-12 px-8">
@@ -62,7 +62,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="h-px bg-[#E65100]" aria-hidden="true" />
+        <div className="h-1 bg-[#F5A623]" aria-hidden="true" />
       </section>
 
       {/* Shop by size */}
@@ -75,7 +75,7 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#1A1C1E]/70 to-transparent" />
               <div className="absolute bottom-0 inset-x-0 p-5 flex items-center justify-between">
                 <span className="font-heading text-3xl font-bold text-white">{c.size}</span>
-                <ArrowRight className="w-5 h-5 text-[#FF8A3C] group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 text-[#F5A623] group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
           ))}
@@ -107,7 +107,7 @@ export default function Home() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
           <div className="flex items-end justify-between mb-8">
             <h2 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-[#1A1C1E]">{t("home.featuredTitle")}</h2>
-            <Link to={pathFor("shop", lang)} className="font-mono text-sm text-[#E65100] hover:underline shrink-0">
+            <Link to={pathFor("shop", lang)} className="font-mono text-sm text-[#A9700A] hover:underline shrink-0">
               {t("nav.allContainers")} →
             </Link>
           </div>
@@ -126,7 +126,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
             {whyItems.map((item, i) => (
               <div key={i}>
-                <item.icon className="w-6 h-6 text-[#FF8A3C] mb-3" />
+                <item.icon className="w-6 h-6 text-[#F5A623] mb-3" />
                 <h3 className="font-semibold text-sm">{item.title}</h3>
                 <p className="text-sm text-white/60 mt-1.5 leading-relaxed">{item.desc}</p>
               </div>
@@ -139,7 +139,7 @@ export default function Home() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
           <div>
-            <p className="font-mono text-xs tracking-[0.3em] text-[#E65100] uppercase mb-3">
+            <p className="font-mono text-xs tracking-[0.3em] text-[#A9700A] uppercase mb-3">
               <MapPin className="w-4 h-4 inline mr-1" /> PL → DE
             </p>
             <h2 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-[#1A1C1E]">{t("home.deliveryTitle")}</h2>
@@ -162,7 +162,7 @@ export default function Home() {
           <ol className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6">
             {steps.map((step, i) => (
               <li key={i} className="relative">
-                <span className="font-mono text-xs text-[#E65100] font-bold">{String(i + 1).padStart(2, "0")}</span>
+                <span className="font-mono text-xs text-[#A9700A] font-bold">{String(i + 1).padStart(2, "0")}</span>
                 <p className="text-sm font-medium text-[#1A1C1E] mt-1.5 leading-snug">{step}</p>
                 {i < steps.length - 1 && <div className="hidden lg:block absolute top-2 -right-3 w-2 h-px bg-[#E0E2E5]" />}
               </li>

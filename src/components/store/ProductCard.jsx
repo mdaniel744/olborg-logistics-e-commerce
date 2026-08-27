@@ -65,7 +65,7 @@ export default function ProductCard({ product }) {
               <p className="text-sm text-[#6B7075]">{t("common.onRequest")}</p>
             )}
           </div>
-          <ArrowRight className="w-4 h-4 text-[#E65100] group-hover:translate-x-1 transition-transform" />
+          <ArrowRight className="w-4 h-4 text-[#A9700A] group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
     </Link>

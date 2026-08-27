@@ -26,14 +26,14 @@ export default function GuidesPage() {
             <Link
               key={g.slug}
               to={`${pathFor("guides", lang)}/${slug}`}
-              className="group bg-white border border-[#E0E2E5] hover:border-[#E65100] transition-colors flex flex-col"
+              className="group bg-white border border-[#E0E2E5] hover:border-[#F5A623] transition-colors flex flex-col"
             >
               <div className="aspect-[16/9] overflow-hidden bg-[#E0E2E5]">
                 <Image src={g.image} alt={title} className="w-full h-full object-cover" />
               </div>
               <div className="p-5 flex-1 flex flex-col">
                 <h2 className="font-heading font-bold text-[#1A1C1E] leading-snug">{title}</h2>
-                <span className="mt-auto pt-4 font-mono text-xs text-[#E65100] inline-flex items-center gap-1">
+                <span className="mt-auto pt-4 font-mono text-xs text-[#F5A623] inline-flex items-center gap-1">
                   {t("common.seeDetails")} <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                 </span>
               </div>

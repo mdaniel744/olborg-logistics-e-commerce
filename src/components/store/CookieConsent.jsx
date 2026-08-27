@@ -51,7 +51,7 @@ export default function CookieConsent() {
           </div>
         )}
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button onClick={() => save(true, true)} className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold">
+          <Button onClick={() => save(true, true)} className="bg-[#F5A623] hover:bg-[#C74600] rounded-none font-semibold">
             {t("cookie.accept")}
           </Button>
           <Button onClick={() => save(false, false)} variant="outline" className="rounded-none border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white">

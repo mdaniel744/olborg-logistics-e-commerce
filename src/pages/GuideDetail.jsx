@@ -32,7 +32,7 @@ export default function GuideDetail() {
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 py-10 md:py-14">
       <nav className="font-mono text-xs text-[#6B7075] mb-6" aria-label="Breadcrumb">
-        <Link to={pathFor("guides", lang)} className="hover:text-[#E65100]">{t("nav.guides")}</Link>
+        <Link to={pathFor("guides", lang)} className="hover:text-[#F5A623]">{t("nav.guides")}</Link>
         <span className="mx-2">/</span>
         <span className="text-[#1A1C1E]">{title}</span>
       </nav>
@@ -45,7 +45,7 @@ export default function GuideDetail() {
       </div>
       <div className="mt-12 bg-[#1A1C1E] text-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="font-heading font-bold text-lg">{t("hero.ctaPrimary")}</p>
-        <Button asChild className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold shrink-0">
+        <Button asChild className="bg-[#F5A623] hover:bg-[#C74600] rounded-none font-semibold shrink-0">
           <Link to={pathFor("shop", lang)}>{t("nav.shop")}</Link>
         </Button>
       </div>

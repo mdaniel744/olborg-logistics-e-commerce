@@ -19,7 +19,7 @@ function CopyRow({ label, value, copyLabel, copiedLabel }) {
     <div className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
       <span className="text-[#6B7075] shrink-0">{label}</span>
       <span className="font-mono font-semibold text-right break-all">{value}</span>
-      <button type="button" onClick={copy} className="shrink-0 text-[#6B7075] hover:text-[#E65100]" aria-label={copyLabel}>
+      <button type="button" onClick={copy} className="shrink-0 text-[#6B7075] hover:text-[#F5A623]" aria-label={copyLabel}>
         {copied ? <Check className="w-4 h-4 text-[#2E7D32]" /> : <Copy className="w-4 h-4" />}
       </button>
     </div>
@@ -59,7 +59,7 @@ export default function OrderConfirmation() {
         <p className="font-mono text-sm text-[#6B7075] mt-3">
           {t("confirmation.orderNumber")}: <span className="font-bold text-[#1A1C1E]">{order.order_number}</span>
         </p>
-        <span className="inline-block mt-3 bg-[#FFF3E0] text-[#E65100] font-mono text-xs font-semibold px-3 py-1.5">
+        <span className="inline-block mt-3 bg-[#FFF3E0] text-[#F5A623] font-mono text-xs font-semibold px-3 py-1.5">
           {t("confirmation.awaitingPayment")}
         </span>
       </div>
@@ -100,7 +100,7 @@ export default function OrderConfirmation() {
           </dl>
           {order.totals.label && <p className="font-mono text-[11px] text-[#6B7075] mt-2">{order.totals.label}</p>}
           {order.delivery_quote_required && (
-            <p className="text-xs text-[#E65100] mt-2">{t("product.deliveryQuoteRequired")}</p>
+            <p className="text-xs text-[#F5A623] mt-2">{t("product.deliveryQuoteRequired")}</p>
           )}
         </section>
       )}
@@ -108,8 +108,8 @@ export default function OrderConfirmation() {
       <div className="mt-8 text-center text-sm text-[#6B7075]">
         <p>{t("confirmation.questions")}</p>
         <p className="mt-1 font-mono">
-          <a href="tel:+48505611446" className="text-[#E65100] hover:underline">+48 505 611 446</a> ·{" "}
-          <a href="mailto:info@olborglogistics.com" className="text-[#E65100] hover:underline">info@olborglogistics.com</a>
+          <a href="tel:+48505611446" className="text-[#F5A623] hover:underline">+48 505 611 446</a> ·{" "}
+          <a href="mailto:info@olborglogistics.com" className="text-[#F5A623] hover:underline">info@olborglogistics.com</a>
         </p>
         <Button asChild variant="outline" className="mt-6 rounded-none border-[#1A1C1E]">
           <Link to={pathFor("home", lang)}>{t("common.continueShopping")}</Link>

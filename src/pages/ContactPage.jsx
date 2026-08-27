@@ -21,18 +21,18 @@ export default function ContactPage() {
       <p className="mt-3 text-[#3A3E42] max-w-2xl leading-relaxed">{t("contact.subtitle")}</p>
 
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <a href={`tel:${phone.replace(/\s/g, "")}`} className="bg-white border border-[#E0E2E5] p-5 hover:border-[#E65100] transition-colors">
-          <Phone className="w-5 h-5 text-[#E65100]" />
+        <a href={`tel:${phone.replace(/\s/g, "")}`} className="bg-white border border-[#E0E2E5] p-5 hover:border-[#F5A623] transition-colors">
+          <Phone className="w-5 h-5 text-[#F5A623]" />
           <p className="font-mono text-xs uppercase tracking-widest text-[#6B7075] mt-3">{t("contact.phone")}</p>
           <p className="font-semibold text-[#1A1C1E] mt-1">{phone}</p>
         </a>
-        <a href={`mailto:${email}`} className="bg-white border border-[#E0E2E5] p-5 hover:border-[#E65100] transition-colors">
-          <Mail className="w-5 h-5 text-[#E65100]" />
+        <a href={`mailto:${email}`} className="bg-white border border-[#E0E2E5] p-5 hover:border-[#F5A623] transition-colors">
+          <Mail className="w-5 h-5 text-[#F5A623]" />
           <p className="font-mono text-xs uppercase tracking-widest text-[#6B7075] mt-3">{t("contact.email")}</p>
           <p className="font-semibold text-[#1A1C1E] mt-1 break-all">{email}</p>
         </a>
         <div className="bg-white border border-[#E0E2E5] p-5">
-          <MapPin className="w-5 h-5 text-[#E65100]" />
+          <MapPin className="w-5 h-5 text-[#F5A623]" />
           <p className="font-mono text-xs uppercase tracking-widest text-[#6B7075] mt-3">{t("contact.address")}</p>
           <p className="font-semibold text-[#1A1C1E] mt-1 text-sm">
             {company.name || "Olborg Logistics Sp. z o.o."}<br />
@@ -45,7 +45,7 @@ export default function ContactPage() {
 
       <div className="mt-10 bg-[#1A1C1E] text-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="font-heading font-bold text-lg">{t("product.quoteHint")}</p>
-        <Button asChild className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold shrink-0">
+        <Button asChild className="bg-[#F5A623] hover:bg-[#C74600] rounded-none font-semibold shrink-0">
           <Link to={pathFor("quote", lang)}>{t("common.requestQuote")}</Link>
         </Button>
       </div>

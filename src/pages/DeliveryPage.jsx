@@ -31,7 +31,7 @@ export default function DeliveryPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {factors.map((f, i) => (
             <div key={i} className="flex items-start gap-3 bg-white border border-[#E0E2E5] p-4">
-              <f.icon className="w-5 h-5 text-[#E65100] shrink-0 mt-0.5" />
+              <f.icon className="w-5 h-5 text-[#F5A623] shrink-0 mt-0.5" />
               <p className="text-sm text-[#3A3E42]">{f.text}</p>
             </div>
           ))}
@@ -43,7 +43,7 @@ export default function DeliveryPage() {
           <p className="font-heading font-bold text-lg">{t("product.deliveryQuoteRequired")}</p>
           <p className="text-sm text-white/70 mt-1">{t("product.quoteHint")}</p>
         </div>
-        <Button asChild className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold shrink-0">
+        <Button asChild className="bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold shrink-0">
           <Link to={pathFor("quote", lang)}>{t("common.requestQuote")}</Link>
         </Button>
       </div>

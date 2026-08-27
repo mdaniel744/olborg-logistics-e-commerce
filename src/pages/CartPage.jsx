@@ -76,7 +76,7 @@ export default function CartPage() {
             </dl>
             <p className="font-mono text-[11px] text-[#6B7075] mt-2">{vatLabel(lang, rate, treatment, settings)}</p>
             <p className="text-xs text-[#6B7075] mt-3">{t("cart.deliveryCalculated")}</p>
-            <Button asChild className="w-full mt-4 bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold h-11">
+            <Button asChild className="w-full mt-4 bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-11">
               <Link to={pathFor("checkout", lang)}>{t("common.goToCheckout")}</Link>
             </Button>
             <Button asChild variant="ghost" className="w-full mt-2 rounded-none text-[#6B7075]">

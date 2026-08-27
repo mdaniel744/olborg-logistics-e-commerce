@@ -86,7 +86,7 @@ export default function CartDrawer() {
                 </div>
               </div>
               <p className="text-xs text-[#6B7075]">{t("cart.deliveryCalculated")}</p>
-              <Button asChild className="w-full bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold h-11">
+              <Button asChild className="w-full bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-11">
                 <Link to={pathFor("checkout", lang)} onClick={() => setDrawerOpen(false)}>{t("common.goToCheckout")}</Link>
               </Button>
               <Button asChild variant="outline" className="w-full rounded-none border-[#1A1C1E]">

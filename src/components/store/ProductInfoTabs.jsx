@@ -18,13 +18,13 @@ export default function ProductInfoTabs({ product }) {
           <ReactMarkdown>{description || ""}</ReactMarkdown>
         </div>
         <div className="mt-6 flex flex-wrap gap-4 font-mono text-xs">
-          <Link to={pathFor("shippingPolicy", lang)} className="text-[#E65100] hover:underline">
+          <Link to={pathFor("shippingPolicy", lang)} className="text-[#F5A623] hover:underline">
             → {lang === "de" ? "Versand und Lieferung" : "Dostawa i transport"}
           </Link>
-          <Link to={pathFor("returns", lang)} className="text-[#E65100] hover:underline">
+          <Link to={pathFor("returns", lang)} className="text-[#F5A623] hover:underline">
             → {lang === "de" ? "Rückgabe und Rückerstattung" : "Zwroty i zwroty płatności"}
           </Link>
-          <Link to={pathFor("faq", lang)} className="text-[#E65100] hover:underline">→ FAQ</Link>
+          <Link to={pathFor("faq", lang)} className="text-[#F5A623] hover:underline">→ FAQ</Link>
         </div>
       </section>
       <section>

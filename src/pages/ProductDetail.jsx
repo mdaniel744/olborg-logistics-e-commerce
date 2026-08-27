@@ -103,9 +103,9 @@ export default function ProductDetail() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14">
       {/* Breadcrumb */}
       <nav className="font-mono text-xs text-[#6B7075] mb-6" aria-label="Breadcrumb">
-        <Link to={pathFor("home", lang)} className="hover:text-[#E65100]">{t("nav.home")}</Link>
+        <Link to={pathFor("home", lang)} className="hover:text-[#F5A623]">{t("nav.home")}</Link>
         <span className="mx-2">/</span>
-        <Link to={pathFor("shop", lang)} className="hover:text-[#E65100]">{t("nav.shop")}</Link>
+        <Link to={pathFor("shop", lang)} className="hover:text-[#F5A623]">{t("nav.shop")}</Link>
         <span className="mx-2">/</span>
         <span className="text-[#1A1C1E]">{lang === "de" ? product.name_de : product.name_pl}</span>
       </nav>
@@ -158,7 +158,7 @@ export default function ProductDetail() {
               <p className="font-heading text-xl font-bold text-[#1A1C1E]">{t("common.onRequest")}</p>
             )}
             <p className={`mt-2 inline-flex items-center gap-1.5 font-mono text-xs font-semibold ${
-              availabilityKey === "inStock" ? "text-[#2E7D32]" : availabilityKey === "onRequest" ? "text-[#E65100]" : "text-red-600"
+              availabilityKey === "inStock" ? "text-[#2E7D32]" : availabilityKey === "onRequest" ? "text-[#F5A623]" : "text-red-600"
             }`}>
               <span className="w-1.5 h-1.5 rounded-full bg-current" />
               {t(`common.${availabilityKey}`)}
@@ -200,7 +200,7 @@ export default function ProductDetail() {
             <Button
               onClick={handleAddToCart}
               disabled={!price || availabilityKey === "outOfStock"}
-              className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold h-12 px-8 text-base flex-1 sm:flex-none"
+              className="bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-12 px-8 text-base flex-1 sm:flex-none"
             >
               {t("common.addToCart")}
             </Button>

@@ -138,7 +138,7 @@ export default function Checkout() {
           {/* 1. Customer */}
           <section className="bg-white border border-[#E0E2E5] p-5 sm:p-6">
             <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
-              <span className="font-mono text-[#E65100] mr-2">01</span>{t("checkout.stepCustomer")}
+              <span className="font-mono text-[#F5A623] mr-2">01</span>{t("checkout.stepCustomer")}
             </h2>
             <RadioGroup value={customerType} onValueChange={(v) => { setCustomerType(v); setVatResult(null); }} className="flex gap-4 mb-5">
               <label className={`flex-1 border p-3 cursor-pointer flex items-center gap-2 text-sm font-medium ${customerType === "private" ? "border-[#1A1C1E] bg-[#F8F9FA]" : "border-[#E0E2E5]"}`}>
@@ -170,7 +170,7 @@ export default function Checkout() {
           {/* 2. Addresses + delivery */}
           <section className="bg-white border border-[#E0E2E5] p-5 sm:p-6">
             <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
-              <span className="font-mono text-[#E65100] mr-2">02</span>{t("checkout.stepDelivery")}
+              <span className="font-mono text-[#F5A623] mr-2">02</span>{t("checkout.stepDelivery")}
             </h2>
             <p className="font-mono text-xs uppercase tracking-widest text-[#6B7075] mb-3">{t("checkout.billingAddress")}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -202,7 +202,7 @@ export default function Checkout() {
             {delivery && (
               <div className="mt-4 border-t border-[#E0E2E5] pt-3 text-sm">
                 {delivery.quoteRequired ? (
-                  <p className="font-semibold text-[#E65100]">{t("product.deliveryQuoteRequired")}</p>
+                  <p className="font-semibold text-[#F5A623]">{t("product.deliveryQuoteRequired")}</p>
                 ) : (
                   <p className="flex justify-between">
                     <span className="text-[#6B7075]">{t("product.deliveryCost")} ({t("common.netto")})</span>
@@ -216,7 +216,7 @@ export default function Checkout() {
           {/* 3. Payment */}
           <section className="bg-white border border-[#E0E2E5] p-5 sm:p-6">
             <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
-              <span className="font-mono text-[#E65100] mr-2">03</span>{t("checkout.stepPayment")}
+              <span className="font-mono text-[#F5A623] mr-2">03</span>{t("checkout.stepPayment")}
             </h2>
             <div className="border border-[#1A1C1E] bg-[#F8F9FA] p-4">
               <p className="font-semibold text-sm">{t("checkout.bankTransfer")}</p>
@@ -267,7 +267,7 @@ export default function Checkout() {
           <Button
             type="submit"
             disabled={!termsOk || submitting}
-            className="w-full mt-4 bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold h-12 text-base"
+            className="w-full mt-4 bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-12 text-base"
           >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("checkout.placeOrder")}
           </Button>

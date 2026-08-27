@@ -40,32 +40,31 @@ export default function Footer() {
 
   return (
     <footer className="bg-[#1A1C1E] text-white mt-20">
-      <div className="h-px bg-[#E65100]" aria-hidden="true" />
+      <div className="h-px bg-[#F5A623]" aria-hidden="true" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           <div>
-            <div className="flex items-center gap-2.5 mb-5">
-              <span className="w-8 h-8 bg-[#E65100] flex items-center justify-center">
-                <span className="font-mono font-bold text-white text-sm">OL</span>
-              </span>
-              <span className="font-bold tracking-tight text-lg">
-                OLBORG<span className="block text-[10px] font-mono tracking-[0.25em] text-white/50">LOGISTICS</span>
-              </span>
+            <div className="mb-5">
+              <img
+                src="https://media.base44.com/images/public/6a901448048a3205edc04025/23bb84640_Olborgmainlogo.png"
+                alt="Olborg Container Logistics"
+                className="h-14 w-auto object-contain"
+              />
             </div>
             <address className="not-italic text-sm text-white/70 space-y-2.5">
               <p className="font-semibold text-white">Olborg Logistics Sp. z o.o.</p>
               <p className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#E65100]" />
+                <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#F5A623]" />
                 Jana III Sobieskiego 9/23
                 <br />
                 99-200 Poddębice, {lang === "de" ? "Polen" : "Polska"}
               </p>
               <p className="flex items-center gap-2">
-                <Phone className="w-4 h-4 shrink-0 text-[#E65100]" />
+                <Phone className="w-4 h-4 shrink-0 text-[#F5A623]" />
                 <a href="tel:+48505611446" className="hover:text-white">+48 505 611 446</a>
               </p>
               <p className="flex items-center gap-2">
-                <Mail className="w-4 h-4 shrink-0 text-[#E65100]" />
+                <Mail className="w-4 h-4 shrink-0 text-[#F5A623]" />
                 <a href="mailto:info@olborglogistics.com" className="hover:text-white">info@olborglogistics.com</a>
               </p>
             </address>
@@ -75,11 +74,11 @@ export default function Footer() {
             <h3 className="font-mono text-xs tracking-[0.2em] text-white/50 uppercase mb-4">{t("footer.shopTitle")}</h3>
             <ul className="space-y-2.5 text-sm">
               <li>
-                <Link to={pathFor("shop", lang)} className="text-white/80 hover:text-[#E65100]">{t("nav.allContainers")}</Link>
+                <Link to={pathFor("shop", lang)} className="text-white/80 hover:text-[#F5A623]">{t("nav.allContainers")}</Link>
               </li>
               {shopLinks.map((c) => (
                 <li key={c.key}>
-                  <Link to={c[lang]} className="text-white/80 hover:text-[#E65100]">{landingLabel(c)}</Link>
+                  <Link to={c[lang]} className="text-white/80 hover:text-[#F5A623]">{landingLabel(c)}</Link>
                 </li>
               ))}
             </ul>
@@ -90,7 +89,7 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               {infoLinks.map((l) => (
                 <li key={l.key}>
-                  <Link to={pathFor(l.key, lang)} className="text-white/80 hover:text-[#E65100]">{l.label}</Link>
+                  <Link to={pathFor(l.key, lang)} className="text-white/80 hover:text-[#F5A623]">{l.label}</Link>
                 </li>
               ))}
             </ul>
@@ -101,13 +100,13 @@ export default function Footer() {
             <ul className="space-y-2.5 text-sm">
               {policyLinks.map((l) => (
                 <li key={l.key}>
-                  <Link to={pathFor(l.key, lang)} className="text-white/80 hover:text-[#E65100]">{l.label}</Link>
+                  <Link to={pathFor(l.key, lang)} className="text-white/80 hover:text-[#F5A623]">{l.label}</Link>
                 </li>
               ))}
               <li>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent("open-cookie-settings"))}
-                  className="text-white/80 hover:text-[#E65100]"
+                  className="text-white/80 hover:text-[#F5A623]"
                 >
                   {t("footer.cookieSettings")}
                 </button>

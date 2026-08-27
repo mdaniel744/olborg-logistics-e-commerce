@@ -45,7 +45,7 @@ export default function DeliveryCalculator({ items, compact }) {
       <form onSubmit={calculate} className="space-y-3">
         {!compact && (
           <p className="flex items-center gap-2 font-semibold text-[#1A1C1E]">
-            <Truck className="w-4 h-4 text-[#E65100]" />
+            <Truck className="w-4 h-4 text-[#A9700A]" />
             {t("product.checkDelivery")}
           </p>
         )}
@@ -93,7 +93,7 @@ export default function DeliveryCalculator({ items, compact }) {
           {result.quoteRequired ? (
             <div className="text-sm">
               <p className="font-semibold text-[#1A1C1E]">{t("product.deliveryQuoteRequired")}</p>
-              <Button asChild variant="link" className="px-0 text-[#E65100]">
+              <Button asChild variant="link" className="px-0 text-[#A9700A]">
                 <Link to={pathFor("quote", lang)}>{t("common.requestQuote")} →</Link>
               </Button>
             </div>

@@ -133,7 +133,7 @@ export default function QuotePage() {
         {/* Products */}
         <section className="bg-white border border-[#E0E2E5] p-5 sm:p-6">
           <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
-            <span className="font-mono text-[#E65100] mr-2">01</span>{t("quote.stepProducts")}
+            <span className="font-mono text-[#F5A623] mr-2">01</span>{t("quote.stepProducts")}
           </h2>
           <div className="space-y-3">
             {rows.map((row, i) => (
@@ -175,7 +175,7 @@ export default function QuotePage() {
         {/* Delivery */}
         <section className="bg-white border border-[#E0E2E5] p-5 sm:p-6">
           <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
-            <span className="font-mono text-[#E65100] mr-2">02</span>{t("quote.stepDelivery")}
+            <span className="font-mono text-[#F5A623] mr-2">02</span>{t("quote.stepDelivery")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -217,7 +217,7 @@ export default function QuotePage() {
         {/* Customer */}
         <section className="bg-white border border-[#E0E2E5] p-5 sm:p-6">
           <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
-            <span className="font-mono text-[#E65100] mr-2">03</span>{t("quote.stepCustomer")}
+            <span className="font-mono text-[#F5A623] mr-2">03</span>{t("quote.stepCustomer")}
           </h2>
           <RadioGroup value={customerType} onValueChange={setCustomerType} className="flex gap-4 mb-4">
             <label className="flex items-center gap-2 text-sm font-medium"><RadioGroupItem value="private" /> {t("checkout.private")}</label>
@@ -254,11 +254,11 @@ export default function QuotePage() {
         {/* Notes + photos */}
         <section className="bg-white border border-[#E0E2E5] p-5 sm:p-6">
           <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
-            <span className="font-mono text-[#E65100] mr-2">04</span>{t("quote.stepNotes")}
+            <span className="font-mono text-[#F5A623] mr-2">04</span>{t("quote.stepNotes")}
           </h2>
           <Textarea value={form.notes} onChange={set("notes")} className="rounded-none" rows={3} placeholder={t("checkout.notes")} />
           <div className="mt-4">
-            <label className="inline-flex items-center gap-2 border border-dashed border-[#E0E2E5] px-4 py-3 text-sm text-[#6B7075] cursor-pointer hover:border-[#E65100]">
+            <label className="inline-flex items-center gap-2 border border-dashed border-[#E0E2E5] px-4 py-3 text-sm text-[#6B7075] cursor-pointer hover:border-[#F5A623]">
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImagePlus className="w-4 h-4" />}
               {lang === "de" ? "Fotos vom Lieferort hinzufügen" : "Dodaj zdjęcia miejsca dostawy"} ({t("common.optional")})
               <input type="file" accept="image/*" multiple className="hidden" onChange={uploadPhotos} disabled={uploading || photos.length >= 6} />
@@ -281,7 +281,7 @@ export default function QuotePage() {
         <div>
           <p className="text-xs text-[#6B7075] mb-3">{t("quote.nonBinding")}</p>
           {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
-          <Button type="submit" disabled={submitting} className="bg-[#E65100] hover:bg-[#C74600] rounded-none font-semibold h-12 px-10 text-base">
+          <Button type="submit" disabled={submitting} className="bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-12 px-10 text-base">
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("quote.submit")}
           </Button>
         </div>
