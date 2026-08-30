@@ -3,15 +3,16 @@
 import React, { useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
-import { useLang, usePageMeta } from "@/lib/i18n";
+import { useLang } from "@/lib/i18n";
 import { useProducts, useSettings } from "@/lib/useSettings";
 import { variantGross } from "@/lib/vat";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ProductCard from "@/components/store/ProductCard";
 import FilterChips from "@/components/store/FilterChips";
+import ShopEditorialContent from "@/components/store/ShopEditorialContent";
 
 // presetFilter comes from SEO landing routes; title/description override page meta
-export default function Shop({ presetFilter, title, description }) {
+export default function Shop({ presetFilter, title, description, embedded = false }) {
   const { lang, market, t } = useLang();
   const { products, isLoading } = useProducts();
   const { settings } = useSettings();
@@ -34,8 +35,6 @@ export default function Shop({ presetFilter, title, description }) {
   };
 
   const pageTitle = title || (lang === "de" ? "Container kaufen — neu und gebraucht" : "Kontenery na sprzedaż — nowe i używane");
-  usePageMeta(pageTitle, description || t("hero.sub"));
-
   const filtered = useMemo(() => {
     let list = products.filter((p) => {
       if (size && p.size !== size) return false;
@@ -68,9 +67,13 @@ export default function Shop({ presetFilter, title, description }) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14">
-      <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-[#1A1C1E]">{pageTitle}</h1>
-      {description && <p className="mt-3 text-[#3A3E42] max-w-3xl leading-relaxed">{description}</p>}
+    <div className={embedded ? "pt-7" : "max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14"}>
+      {!embedded && (
+        <>
+          <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight text-[#1A1C1E]">{pageTitle}</h1>
+          {description && <p className="mt-3 text-[#3A3E42] max-w-3xl leading-relaxed">{description}</p>}
+        </>
+      )}
 
       <div className="mt-8 border-y border-[#E0E2E5] py-4">
         <div className="mb-3 flex items-center justify-between gap-4">
@@ -82,7 +85,7 @@ export default function Shop({ presetFilter, title, description }) {
             {lang === "de" ? "Seitlich scrollen" : "Przewiń w bok"}
           </p>
         </div>
-        <div className="group relative">
+        <div className="group/filter-strip relative">
           <div
             ref={filterScrollerRef}
             className="w-full max-w-full snap-x snap-proximity touch-pan-x scroll-smooth overflow-x-auto overscroll-x-contain pb-2 [-webkit-overflow-scrolling:touch] [scrollbar-color:#D3941B_#F1F2F3] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#D3941B] [&::-webkit-scrollbar-track]:bg-[#F1F2F3] [&::-webkit-scrollbar]:h-1.5"
@@ -113,7 +116,7 @@ export default function Shop({ presetFilter, title, description }) {
           <button
             type="button"
             onClick={() => scrollFilters(-1)}
-            className="pointer-events-none absolute left-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-[#E0A12D] bg-white/95 text-[#8A5A05] opacity-0 shadow-lg backdrop-blur-sm transition-[opacity,background-color] hover:bg-[#FFF0D2] focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 md:flex"
+            className="pointer-events-none absolute left-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-[#E0A12D] bg-white/95 text-[#8A5A05] opacity-0 shadow-lg backdrop-blur-sm transition-[opacity,background-color] hover:bg-[#FFF0D2] focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover/filter-strip:pointer-events-auto group-hover/filter-strip:opacity-100 md:flex"
             aria-label={lang === "de" ? "Filter nach links scrollen" : "Przewiń filtry w lewo"}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -121,7 +124,7 @@ export default function Shop({ presetFilter, title, description }) {
           <button
             type="button"
             onClick={() => scrollFilters(1)}
-            className="pointer-events-none absolute right-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-[#E0A12D] bg-white/95 text-[#8A5A05] opacity-0 shadow-lg backdrop-blur-sm transition-[opacity,background-color] hover:bg-[#FFF0D2] focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100 md:flex"
+            className="pointer-events-none absolute right-2 top-1/2 z-20 hidden h-11 w-11 -translate-y-1/2 items-center justify-center border border-[#E0A12D] bg-white/95 text-[#8A5A05] opacity-0 shadow-lg backdrop-blur-sm transition-[opacity,background-color] hover:bg-[#FFF0D2] focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover/filter-strip:pointer-events-auto group-hover/filter-strip:opacity-100 md:flex"
             aria-label={lang === "de" ? "Filter nach rechts scrollen" : "Przewiń filtry w prawo"}
           >
             <ChevronRight className="h-5 w-5" />
@@ -142,6 +145,8 @@ export default function Shop({ presetFilter, title, description }) {
           ))}
         </div>
       )}
+
+      {!embedded && <ShopEditorialContent filters={{ size, type, condition }} />}
     </div>
   );
 }

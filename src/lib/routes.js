@@ -25,6 +25,7 @@ export const CATEGORY_LANDINGS = [
   { key: "size10", pl: "/kontenery-10-stop", de: "/de/10-fuss-container", filter: { size: "10ft" } },
   { key: "size20", pl: "/kontenery-20-stop", de: "/de/20-fuss-container", filter: { size: "20ft" } },
   { key: "size40", pl: "/kontenery-40-stop", de: "/de/40-fuss-container", filter: { size: "40ft" } },
+  { key: "standard", pl: "/kontenery-standard", de: "/de/standard-container", filter: { type: "standard" } },
   { key: "highCube", pl: "/kontenery-high-cube", de: "/de/high-cube-container", filter: { type: "high_cube" } },
   { key: "openSide", pl: "/kontenery-open-side", de: "/de/open-side-container", filter: { type: "open_side" } },
   { key: "used", pl: "/kontenery-uzywane", de: "/de/gebrauchte-container", filter: { condition: "used" } },

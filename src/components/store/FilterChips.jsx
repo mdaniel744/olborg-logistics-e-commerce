@@ -10,7 +10,7 @@ function Chip({ active, onClick, children, disabled, eyebrow, image }) {
       onClick={onClick}
       disabled={disabled}
       aria-pressed={active}
-      className={`group relative box-border inline-flex min-h-[112px] w-[104px] snap-start shrink-0 flex-col items-center justify-end border-b-[3px] px-2 pb-2 pt-1 text-center transition-colors sm:min-h-[124px] sm:w-[138px] sm:border-b-4 sm:px-3 sm:pb-3 sm:pt-2 lg:min-h-[132px] lg:w-[156px] ${
+      className={`relative box-border inline-flex min-h-[112px] w-[104px] snap-start shrink-0 flex-col items-center justify-end border-b-[3px] px-2 pb-2 pt-1 text-center transition-[transform,background-color,border-color,box-shadow] duration-300 ease-out hover:z-10 hover:scale-[1.035] hover:shadow-[0_10px_24px_rgba(26,28,30,0.12)] motion-reduce:transform-none sm:min-h-[124px] sm:w-[138px] sm:border-b-4 sm:px-3 sm:pb-3 sm:pt-2 lg:min-h-[132px] lg:w-[156px] ${
         active
           ? "border-[#F5A623] bg-[#FFF0D2] text-[#1A1C1E]"
           : "border-transparent bg-transparent text-[#1A1C1E] hover:border-[#E0A12D] hover:bg-[#FFF8EA]"
@@ -23,7 +23,7 @@ function Chip({ active, onClick, children, disabled, eyebrow, image }) {
           width={256}
           height={160}
           sizes="(min-width: 1024px) 128px, (min-width: 640px) 112px, 96px"
-          className="h-full w-full object-contain drop-shadow-[0_5px_5px_rgba(26,28,30,0.22)] transition-transform duration-300 group-hover:scale-105"
+          className="h-full w-full object-contain drop-shadow-[0_5px_5px_rgba(26,28,30,0.22)]"
         />
       </span>
       <span className="mt-0.5 min-w-0 sm:mt-1">

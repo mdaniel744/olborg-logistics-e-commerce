@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import CategoryLanding from "@/components/store/CategoryLanding";
 import { PRODUCTS } from "@/data/catalog";
 import { CATEGORY_LANDINGS } from "@/lib/routes";
+import { getCategoryContent } from "@/data/categoryContent";
 import AboutPage from "@/features/storefront/AboutPage";
 import CartPage from "@/features/storefront/CartPage";
 import Checkout from "@/features/storefront/Checkout";
@@ -19,8 +20,8 @@ import Shop from "@/features/storefront/Shop";
 
 const staticRoutes = {
   de: { component: Home, title: "Seecontainer kaufen" },
-  kontenery: { component: Shop, title: "Kontenery na sprzedaż" },
-  "de/container": { component: Shop, title: "Container kaufen" },
+  kontenery: { component: Shop, title: "Kontenery na sprzedaż", description: "Nowe i używane kontenery 10, 20 i 40 stóp — Standard, High Cube i Open Side, z dostawą w Polsce i Niemczech." },
+  "de/container": { component: Shop, title: "Container kaufen", description: "Neue und gebrauchte Container in 10, 20 und 40 Fuß — Standard, High Cube und Open Side, mit Lieferung in Polen und Deutschland." },
   dostawa: { component: DeliveryPage, title: "Dostawa kontenerów" },
   "de/lieferung": { component: DeliveryPage, title: "Container-Lieferung" },
   poradnik: { component: GuidesPage, title: "Poradnik kontenerowy" },
@@ -101,7 +102,19 @@ export async function generateMetadata({ params }) {
         route.language === "de" ? product.short_description_de : product.short_description_pl,
     };
   }
-  return { title: route.title || "Olborg Logistics" };
+  if (route.type === "landing") {
+    const language = segments[0] === "de" ? "de" : "pl";
+    const content = getCategoryContent(route.landing.key, language);
+    return {
+      title: content?.title || "Olborg Logistics",
+      description: content?.description,
+      alternates: {
+        canonical: route.landing[language],
+        languages: { pl: route.landing.pl, de: route.landing.de },
+      },
+    };
+  }
+  return { title: route.title || "Olborg Logistics", description: route.description };
 }
 
 export default async function StoreRoute({ params }) {

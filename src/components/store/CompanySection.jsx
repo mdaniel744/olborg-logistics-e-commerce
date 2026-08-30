@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
 import { pathFor } from "@/lib/routes";
 
-const IMG_DEPOT = "/images/depot.png";
-const IMG_DELIVERY = "/images/delivery.png";
+const IMG_DEPOT = "/images/container-yard-blue-side-opening.jpg";
+const IMG_DELIVERY = "/images/olborg-container-crane-delivery.webp";
 
 const COPY = {
   pl: {
@@ -73,13 +73,13 @@ export default function CompanySection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <figure className="sm:col-span-2">
             <div className="aspect-[16/9] bg-[#E0E2E5] overflow-hidden border border-[#E0E2E5]">
-              <Image src={IMG_DEPOT} alt={c.caption} className="w-full h-full" />
+              <Image src={IMG_DEPOT} alt={c.caption} className="h-full w-full object-cover object-center" />
             </div>
             <figcaption className="font-mono text-[11px] text-[#6B7075] mt-2">{c.caption}</figcaption>
           </figure>
           <figure className="sm:col-span-2">
-            <div className="aspect-[16/9] bg-[#E0E2E5] overflow-hidden border border-[#E0E2E5]">
-              <Image src={IMG_DELIVERY} alt={c.caption2} className="w-full h-full" />
+            <div className="aspect-[4/3] bg-[#E0E2E5] overflow-hidden border border-[#E0E2E5]">
+              <Image src={IMG_DELIVERY} alt={c.caption2} className="h-full w-full object-cover object-center" />
             </div>
             <figcaption className="font-mono text-[11px] text-[#6B7075] mt-2">{c.caption2}</figcaption>
           </figure>

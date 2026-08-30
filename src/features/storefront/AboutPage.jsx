@@ -6,7 +6,8 @@ import { Image } from "@/components/ui/image";
 import { Button } from "@/components/ui/button";
 import { useLang, usePageMeta } from "@/lib/i18n";
 import { pathFor } from "@/lib/routes";
-import { IMAGES } from "@/lib/images";
+
+const ABOUT_IMAGE = "/images/about-olborg-container-truck.webp";
 
 const CONTENT = {
   pl: {
@@ -118,7 +119,7 @@ export default function AboutPage() {
           ))}
         </div>
         <div className="aspect-[4/3] overflow-hidden rounded-xl border border-[#D7DADF] bg-white">
-          <Image src={IMAGES.hero} alt={c.imageAlt} loading="eager" className="w-full h-full object-cover" />
+          <Image src={ABOUT_IMAGE} alt={c.imageAlt} loading="eager" className="h-full w-full object-cover object-center" />
         </div>
       </section>
 

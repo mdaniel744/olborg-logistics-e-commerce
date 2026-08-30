@@ -13,6 +13,7 @@ export default function Header() {
   const { count, setDrawerOpen } = useCart();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
   const router = useRouter();
 
   const primaryNavItems = [
@@ -24,9 +25,16 @@ export default function Header() {
     { label: t("nav.guides"), to: pathFor("guides", lang) },
     { label: t("nav.faq"), to: pathFor("faq", lang) },
   ];
+  const languageOptions = [
+    { code: "pl", short: "PL", label: "Polski", flag: "/images/flags/poland.png" },
+    { code: "de", short: "DE", label: "Deutsch", flag: "/images/flags/germany.png" },
+  ];
+  const currentLanguage = languageOptions.find((option) => option.code === lang) || languageOptions[0];
 
   const switchLang = (target) => {
     localStorage.setItem("olborg_lang", target);
+    setLanguageOpen(false);
+    setMobileOpen(false);
     router.push(altPath(target));
   };
 
@@ -35,14 +43,14 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-24 md:h-28">
           <Link href={pathFor("home", lang)} className="flex items-center shrink-0" aria-label="Olborg Logistics">
-            <span className="relative block h-14 w-16 sm:h-16 sm:w-20 md:h-20 md:w-24">
+            <span className="relative block h-12 w-40 sm:h-14 sm:w-44 md:w-48 lg:w-52">
               <Image
-                src="/images/logo-olb-standard-color.png"
-                alt="Olborg Logistics"
+                src="/images/olborg-logo-header.png"
+                alt=""
                 fill
-                sizes="(min-width: 768px) 96px, (min-width: 640px) 80px, 64px"
                 priority
-                className="object-contain"
+                sizes="(min-width: 1024px) 208px, (min-width: 768px) 192px, 176px"
+                className="object-contain object-left"
               />
             </span>
           </Link>
@@ -83,19 +91,42 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            <div className="flex items-center font-mono text-xs font-semibold" role="group" aria-label="Language">
+            <div
+              className="relative hidden lg:block"
+              onBlur={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget)) setLanguageOpen(false);
+              }}
+            >
               <button
-                onClick={() => switchLang("pl")}
-                className={`min-h-10 min-w-10 rounded-md px-2 py-1 ${lang === "pl" ? "bg-[#1A1C1E] text-white" : "text-[#5F656B] hover:text-[#1A1C1E]"}`}
+                type="button"
+                onClick={() => setLanguageOpen((open) => !open)}
+                className="flex h-11 min-w-[76px] items-center justify-center gap-2 border border-transparent px-2 text-sm font-semibold text-[#343A40] transition-colors hover:border-[#D7DADF] hover:bg-[#F3F4F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5A623] focus-visible:ring-offset-2"
+                aria-label={lang === "de" ? "Sprache wählen" : "Wybierz język"}
+                aria-haspopup="menu"
+                aria-expanded={languageOpen}
               >
-                PL
+                <Image src={currentLanguage.flag} alt="" width={26} height={26} className="h-6 w-6 object-contain" />
+                <span>{currentLanguage.short}</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${languageOpen ? "rotate-180" : ""}`} />
               </button>
-              <button
-                onClick={() => switchLang("de")}
-                className={`min-h-10 min-w-10 rounded-md px-2 py-1 ${lang === "de" ? "bg-[#1A1C1E] text-white" : "text-[#5F656B] hover:text-[#1A1C1E]"}`}
-              >
-                DE
-              </button>
+              {languageOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-44 border border-[#D7DADF] bg-white p-1.5 shadow-xl" role="menu">
+                  {languageOptions.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={lang === option.code}
+                      onClick={() => switchLang(option.code)}
+                      className={`flex min-h-11 w-full items-center gap-3 px-3 py-2 text-left text-sm font-semibold transition-colors ${lang === option.code ? "bg-[#FFF0D2] text-[#1A1C1E]" : "text-[#4B5157] hover:bg-[#F3F4F5] hover:text-[#1A1C1E]"}`}
+                    >
+                      <Image src={option.flag} alt="" width={26} height={26} className="h-6 w-6 object-contain" />
+                      <span className="flex-1">{option.label}</span>
+                      {lang === option.code && <span className="h-2 w-2 bg-[#F5A623]" aria-hidden="true" />}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <button
               onClick={() => setDrawerOpen(true)}
@@ -112,7 +143,15 @@ export default function Header() {
             <Button asChild className="hidden md:inline-flex bg-[#F5A623] hover:bg-[#DB930D] text-[#1A1C1E] rounded-none font-semibold">
               <Link href={pathFor("quote", lang)}>{t("nav.quoteCta")}</Link>
             </Button>
-            <button className="flex min-h-11 min-w-11 items-center justify-center lg:hidden p-2" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu" aria-expanded={mobileOpen}>
+            <button
+              className="flex min-h-11 min-w-11 items-center justify-center p-2 lg:hidden"
+              onClick={() => {
+                setMobileOpen((open) => !open);
+                setLanguageOpen(false);
+              }}
+              aria-label="Menu"
+              aria-expanded={mobileOpen}
+            >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
@@ -173,6 +212,36 @@ export default function Header() {
             >
               {t("nav.contact")}
             </Link>
+            <div className="border-b border-[#F0F1F3] py-2">
+              <button
+                type="button"
+                onClick={() => setLanguageOpen((open) => !open)}
+                className="flex min-h-12 w-full items-center gap-3 py-2 text-left font-semibold text-[#1A1C1E]"
+                aria-haspopup="menu"
+                aria-expanded={languageOpen}
+              >
+                <Image src={currentLanguage.flag} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+                <span className="flex-1">{lang === "de" ? "Sprache" : "Język"}: {currentLanguage.label}</span>
+                <ChevronDown className={`h-4 w-4 transition-transform ${languageOpen ? "rotate-180" : ""}`} />
+              </button>
+              {languageOpen && (
+                <div className="grid grid-cols-2 gap-2 pb-2" role="menu">
+                  {languageOptions.map((option) => (
+                    <button
+                      key={option.code}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={lang === option.code}
+                      onClick={() => switchLang(option.code)}
+                      className={`flex min-h-12 items-center gap-3 border px-3 py-2 text-sm font-semibold ${lang === option.code ? "border-[#F5A623] bg-[#FFF0D2] text-[#1A1C1E]" : "border-[#D7DADF] bg-white text-[#4B5157]"}`}
+                    >
+                      <Image src={option.flag} alt="" width={26} height={26} className="h-6 w-6 object-contain" />
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-2 pt-2 pb-1">
               {CATEGORY_LANDINGS.slice(0, 4).map((c) => (
                 <Link key={c.key} href={c[lang]} onClick={() => setMobileOpen(false)} className="flex min-h-10 items-center text-sm text-[#5F656B] py-1">
