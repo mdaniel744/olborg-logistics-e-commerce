@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -15,8 +14,13 @@ export default function VatIdField({ value, onChange, onResult }) {
     if (!value) return;
     setState("loading");
     try {
-      const res = await base44.functions.invoke("validateVatId", { vat_id: value });
-      const data = res.data;
+      const response = await fetch("/api/vat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vat_id: value }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "VAT validation failed");
       if (data.valid) {
         setState("valid");
         onResult({ validated: true, valid: true, vat_id: data.vat_id, company_name: data.company_name, checked_at: data.checked_at, reference: data.reference });
@@ -32,7 +36,7 @@ export default function VatIdField({ value, onChange, onResult }) {
 
   return (
     <div>
-      <Label htmlFor="vat-id" className="text-xs font-mono text-[#6B7075]">{t("checkout.vatId")} *</Label>
+      <Label htmlFor="vat-id" className="text-sm text-[#4B5157]">{t("checkout.vatId")} *</Label>
       <div className="flex gap-2 mt-1">
         <Input
           id="vat-id"
@@ -45,7 +49,7 @@ export default function VatIdField({ value, onChange, onResult }) {
           {state === "loading" ? <Loader2 className="w-4 h-4 animate-spin" /> : t("checkout.validateVat")}
         </Button>
       </div>
-      {state === "loading" && <p className="text-xs text-[#6B7075] mt-1.5 font-mono">{t("checkout.vatValidating")}</p>}
+      {state === "loading" && <p className="text-sm text-[#4B5157] mt-1.5">{t("checkout.vatValidating")}</p>}
       {state === "valid" && (
         <p className="text-xs text-[#2E7D32] mt-1.5 flex items-start gap-1.5">
           <CheckCircle2 className="w-4 h-4 shrink-0" /> {t("checkout.vatValid")}

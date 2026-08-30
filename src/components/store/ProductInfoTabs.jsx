@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { useLang } from "@/lib/i18n";
 import { pathFor } from "@/lib/routes";
@@ -14,17 +14,17 @@ export default function ProductInfoTabs({ product }) {
         <h2 className="font-heading text-xl font-bold text-[#1A1C1E] border-b border-[#E0E2E5] pb-3 mb-4">
           {t("product.description")}
         </h2>
-        <div className="prose prose-sm max-w-none text-[#3A3E42] leading-relaxed">
+        <div className="prose max-w-none long-form-content [&_h2]:mt-8 [&_h3]:mt-6 [&_li]:my-1.5">
           <ReactMarkdown>{description || ""}</ReactMarkdown>
         </div>
-        <div className="mt-6 flex flex-wrap gap-4 font-mono text-xs">
-          <Link to={pathFor("shippingPolicy", lang)} className="text-[#F5A623] hover:underline">
+        <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3 text-sm font-semibold">
+          <Link href={pathFor("shippingPolicy", lang)} className="text-[#795207] underline-offset-4 hover:underline">
             → {lang === "de" ? "Versand und Lieferung" : "Dostawa i transport"}
           </Link>
-          <Link to={pathFor("returns", lang)} className="text-[#F5A623] hover:underline">
+          <Link href={pathFor("returns", lang)} className="text-[#795207] underline-offset-4 hover:underline">
             → {lang === "de" ? "Rückgabe und Rückerstattung" : "Zwroty i zwroty płatności"}
           </Link>
-          <Link to={pathFor("faq", lang)} className="text-[#F5A623] hover:underline">→ FAQ</Link>
+          <Link href={pathFor("faq", lang)} className="text-[#795207] underline-offset-4 hover:underline">→ FAQ</Link>
         </div>
       </section>
       <section>

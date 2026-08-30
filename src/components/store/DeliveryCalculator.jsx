@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Truck } from "lucide-react";
-import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +10,7 @@ import { useLang } from "@/lib/i18n";
 import { formatMoney } from "@/lib/format";
 import { calcDeliveryClient } from "@/lib/deliveryClient";
 import { pathFor } from "@/lib/routes";
+import { DELIVERY_ZONES } from "@/data/catalog";
 
 // items: optional [{size, quantity}] — when omitted, user picks a size
 export default function DeliveryCalculator({ items, compact }) {
@@ -21,11 +20,7 @@ export default function DeliveryCalculator({ items, compact }) {
   const [crane, setCrane] = useState(false);
   const [result, setResult] = useState(null);
 
-  const { data: zones } = useQuery({
-    queryKey: ["delivery-zones", market],
-    queryFn: () => base44.entities.DeliveryZone.filter({ country: market }),
-    staleTime: 5 * 60 * 1000,
-  });
+  const zones = DELIVERY_ZONES.filter((zone) => zone.country === market);
 
   const calculate = (e) => {
     e.preventDefault();
@@ -52,7 +47,7 @@ export default function DeliveryCalculator({ items, compact }) {
         <div className="flex flex-col sm:flex-row gap-3">
           {!items && (
             <div className="flex-1">
-              <Label className="text-xs font-mono text-[#6B7075]">{t("delivery.containerSize")}</Label>
+              <Label className="text-sm text-[#4B5157]">{t("delivery.containerSize")}</Label>
               <Select value={size} onValueChange={setSize}>
                 <SelectTrigger className="rounded-none mt-1"><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -64,7 +59,7 @@ export default function DeliveryCalculator({ items, compact }) {
             </div>
           )}
           <div className="flex-1">
-            <Label htmlFor="dc-postal" className="text-xs font-mono text-[#6B7075]">
+            <Label htmlFor="dc-postal" className="text-sm text-[#4B5157]">
               {t("product.postalCode")} ({market})
             </Label>
             <Input
@@ -94,7 +89,7 @@ export default function DeliveryCalculator({ items, compact }) {
             <div className="text-sm">
               <p className="font-semibold text-[#1A1C1E]">{t("product.deliveryQuoteRequired")}</p>
               <Button asChild variant="link" className="px-0 text-[#A9700A]">
-                <Link to={pathFor("quote", lang)}>{t("common.requestQuote")} →</Link>
+                <Link href={pathFor("quote", lang)}>{t("common.requestQuote")} →</Link>
               </Button>
             </div>
           ) : (

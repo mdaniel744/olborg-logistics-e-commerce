@@ -1,0 +1,177 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 210 6% 11%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 210 5% 38%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 38 91% 55%;
+    --radius: 0.125rem;
+    --font-heading: var(--font-poppins);
+    --font-body: var(--font-poppins);
+    --font-display: var(--font-poppins);
+    --font-mono: var(--font-poppins);
+  }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body;
+    font-size: 16px;
+    line-height: 1.72;
+    color: #25292d;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-heading tracking-tight;
+    color: #1a1c1e;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  h2 {
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  h3,
+  h4 {
+    font-weight: 600;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+
+  :where(a, button, input, textarea, select, [tabindex]):focus-visible {
+    outline: 3px solid rgba(169, 112, 10, 0.48);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: #f9d792;
+    color: #1a1c1e;
+  }
+}
+
+@layer utilities {
+  /* Keep the storefront intentionally boxy while preserving true circles. */
+  .rounded-none,
+  .rounded-sm,
+  .rounded-md,
+  .rounded-lg,
+  .rounded-xl,
+  .rounded-2xl,
+  .rounded-3xl {
+    border-radius: var(--radius);
+  }
+}
+
+@layer components {
+  /* Give bordered surfaces the same restrained industrial corner treatment. */
+  main :where([class~="border"]):not([class*="rounded-"]) {
+    border-radius: var(--radius);
+  }
+
+  .reading-page {
+    width: 100%;
+    max-width: 56rem;
+    margin-inline: auto;
+    padding: 2.75rem 1.25rem 4rem;
+  }
+
+  .long-form-content {
+    color: #343a40;
+    font-size: 1rem;
+    line-height: 1.78;
+  }
+
+  .long-form-content > :where(section, div) + :where(section, div) {
+    margin-top: 2.25rem;
+  }
+
+  .long-form-content h2 {
+    margin-bottom: 0.75rem;
+    font-size: 1.375rem;
+    line-height: 1.35;
+  }
+
+  .long-form-content h3 {
+    margin-bottom: 0.55rem;
+    font-size: 1.0625rem;
+    line-height: 1.45;
+  }
+
+  .long-form-content p + p {
+    margin-top: 1rem;
+  }
+
+  .long-form-content ul,
+  .long-form-content ol {
+    margin-top: 0.8rem;
+    padding-left: 1.4rem;
+  }
+
+  .long-form-content ul {
+    list-style: disc;
+  }
+
+  .long-form-content ol {
+    list-style: decimal;
+  }
+
+  .long-form-content li + li {
+    margin-top: 0.45rem;
+  }
+
+  .long-form-content a {
+    color: #795207;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  @media (min-width: 768px) {
+    .reading-page {
+      padding-top: 3.5rem;
+      padding-bottom: 5rem;
+    }
+
+    .long-form-content {
+      font-size: 1.0625rem;
+    }
+  }
+}

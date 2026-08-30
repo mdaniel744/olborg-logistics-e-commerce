@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { X, Minus, Plus, Trash2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ export default function CartDrawer() {
           <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8">
             <p className="text-[#6B7075]">{t("cart.empty")}</p>
             <Button asChild className="bg-[#1A1C1E] hover:bg-black text-white rounded-none" onClick={() => setDrawerOpen(false)}>
-              <Link to={pathFor("shop", lang)} onClick={() => setDrawerOpen(false)}>{t("cart.emptyCta")}</Link>
+              <Link href={pathFor("shop", lang)} onClick={() => setDrawerOpen(false)}>{t("cart.emptyCta")}</Link>
             </Button>
           </div>
         ) : (
@@ -87,10 +87,10 @@ export default function CartDrawer() {
               </div>
               <p className="text-xs text-[#6B7075]">{t("cart.deliveryCalculated")}</p>
               <Button asChild className="w-full bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-11">
-                <Link to={pathFor("checkout", lang)} onClick={() => setDrawerOpen(false)}>{t("common.goToCheckout")}</Link>
+                <Link href={pathFor("checkout", lang)} onClick={() => setDrawerOpen(false)}>{t("common.goToCheckout")}</Link>
               </Button>
               <Button asChild variant="outline" className="w-full rounded-none border-[#1A1C1E]">
-                <Link to={pathFor("cart", lang)} onClick={() => setDrawerOpen(false)}>{t("common.viewCart")}</Link>
+                <Link href={pathFor("cart", lang)} onClick={() => setDrawerOpen(false)}>{t("common.viewCart")}</Link>
               </Button>
             </div>
           </>

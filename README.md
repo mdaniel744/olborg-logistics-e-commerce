@@ -1,77 +1,40 @@
-# Base44 Project
+# Olborg Logistics storefront
 
-Use this repository to run and edit the app locally, then publish changes back through Base44.
+A full-stack, bilingual e-commerce storefront built with Next.js App Router.
 
-Any change pushed to the repo will also be reflected in the Base44 Builder.
+## Local development
 
-## Prerequisites
-
-1. Clone the repository using the project's Git URL.
-2. Navigate to the project directory.
-3. Install dependencies: `npm install`.
-4. Install the Base44 CLI: `npm install -g base44@latest`.
-
-See the [Base44 CLI docs](https://docs.base44.com/developers/references/cli/get-started/overview) if you want to run Base44 commands directly.
-
-## Run Locally
-
-Run the full local development environment from the project root:
+Requirements: Node.js 20.9 or newer and npm.
 
 ```bash
-base44 dev
-```
-
-`base44 dev` starts the local Base44 development backend and, when this app is configured for it, also starts the frontend dev server for you. Use the frontend URL printed by the command.
-
-For example, when the Base44 project config includes a `serveCommand`, `base44 dev` can launch the frontend too:
-
-```json5
-{
-  "site": {
-    "serveCommand": "npm run dev"
-  }
-}
-```
-
-In a Base44 project this lives in `base44/config.jsonc`.
-
-## Run Only The Frontend
-
-If you only want to work on the frontend against the hosted Base44 backend, run:
-
-```bash
+npm install
 npm run dev
 ```
 
-Open the local URL printed by Vite.
+Open [http://127.0.0.1:3000](http://127.0.0.1:3000).
 
-## Use The Hosted Backend
-
-For frontend-only development, create or update `.env.local` in the project root:
+## Quality checks
 
 ```bash
-VITE_BASE44_APP_ID=your_app_id
-VITE_BASE44_APP_BASE_URL=https://your-app.base44.app
+npm run lint
+npm run typecheck
+npm run build
 ```
 
-`VITE_BASE44_APP_ID` identifies the Base44 app.
+## Application structure
 
-`VITE_BASE44_APP_BASE_URL` tells the Base44 Vite plugin where to send local `/api` requests. Point it at your deployed Base44 app URL when you want the local frontend to use the hosted backend.
+- `src/app/` contains layouts, routes, metadata, and server endpoints.
+- `src/features/storefront/` contains reusable storefront page components.
+- `src/data/catalog.js` is the source of truth for products, settings, and delivery zones.
+- `src/server/` contains authoritative delivery, VAT, pricing, and persistence logic.
+- `public/images/` contains the brand and product assets served by the app.
 
-When you use `base44 dev`, the command injects the local Base44 values for you, so `.env.local` is mainly needed for frontend-only workflows.
+## Server endpoints
 
-## Publish Your Changes
+- `POST /api/orders` validates catalog items and recomputes delivery, VAT, and totals.
+- `POST /api/quotes` validates and records quote requests.
+- `POST /api/uploads` accepts up to six image files of at most 5 MB each.
+- `POST /api/vat` validates EU VAT IDs against VIES.
+- `GET /api/merchant-feed?market=pl|de` generates a Google Merchant XML feed.
 
-After pushing your changes to git, open the Base44 dashboard and publish the app:
-
-```bash
-base44 dashboard open
-```
-
-## Docs & Support
-
-Documentation: [https://docs.base44.com/Integrations/Using-GitHub](https://docs.base44.com/Integrations/Using-GitHub)
-
-Base44 CLI command reference: [https://docs.base44.com/developers/references/cli/commands/introduction](https://docs.base44.com/developers/references/cli/commands/introduction)
-
-Support: [https://app.base44.com/support](https://app.base44.com/support)
+During local development, orders and quotes are appended to `.data/*.ndjson`, and uploaded quote images are written to `public/uploads/`. Replace this storage adapter with a database and object storage before deploying to an ephemeral or serverless production environment.

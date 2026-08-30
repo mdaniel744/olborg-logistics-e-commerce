@@ -1,14 +1,16 @@
+"use client";
+
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { usePathname } from "next/navigation";
 import { translations } from "@/i18n/translations";
 import { getStaticAltPath } from "@/lib/routes";
 
 const LanguageContext = createContext(null);
 
 export function LanguageProvider({ children }) {
-  const location = useLocation();
+  const pathname = usePathname();
   const lang =
-    location.pathname === "/de" || location.pathname.startsWith("/de/") ? "de" : "pl";
+    pathname === "/de" || pathname.startsWith("/de/") ? "de" : "pl";
   const market = lang === "de" ? "DE" : "PL";
   const currency = lang === "de" ? "EUR" : "PLN";
   // Dynamic pages (product detail) register their alternate-language URL here
@@ -17,7 +19,7 @@ export function LanguageProvider({ children }) {
   useEffect(() => {
     setDynamicAlt(null);
     document.documentElement.lang = lang === "de" ? "de-DE" : "pl-PL";
-  }, [location.pathname, lang]);
+  }, [pathname, lang]);
 
   const t = (key, vars) => {
     const parts = key.split(".");
@@ -37,7 +39,7 @@ export function LanguageProvider({ children }) {
 
   const altPath = (targetLang) =>
     dynamicAlt?.[targetLang] ||
-    getStaticAltPath(location.pathname, targetLang) ||
+    getStaticAltPath(pathname, targetLang) ||
     (targetLang === "de" ? "/de" : "/");
 
   return (

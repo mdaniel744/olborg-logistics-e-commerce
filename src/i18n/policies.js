@@ -26,8 +26,8 @@ export const POLICIES = {
       {
         h_pl: "4. Dostawa",
         h_de: "4. Lieferung",
-        p_pl: "Dostawy realizowane są na terenie Polski i Niemiec. Koszt dostawy obliczany jest na podstawie kodu pocztowego lub ustalany indywidualnie. Szczegóły w polityce Dostawa i transport.",
-        p_de: "Lieferungen erfolgen innerhalb Polens und nach Deutschland. Die Lieferkosten werden anhand der Postleitzahl berechnet oder individuell vereinbart. Details in der Richtlinie Versand und Lieferung.",
+        p_pl: "Dostawy realizowane są na terenie Polski i Niemiec. Koszt dostawy obliczany jest na podstawie kodu pocztowego lub ustalany indywidualnie. Szczegóły znajdują się na stronie Dostawa.",
+        p_de: "Lieferungen erfolgen innerhalb Polens und nach Deutschland. Die Lieferkosten werden anhand der Postleitzahl berechnet oder individuell vereinbart. Details finden Sie auf der Seite Lieferung.",
       },
       {
         h_pl: "5. Reklamacje i odstąpienie",
@@ -212,8 +212,8 @@ export const POLICIES = {
       {
         h_pl: "Zarządzanie zgodą",
         h_de: "Verwaltung der Einwilligung",
-        p_pl: "Zgodę możesz w każdej chwili zmienić lub wycofać, korzystając z linku „Ustawienia cookies” w stopce strony lub zmieniając ustawienia przeglądarki.",
-        p_de: "Sie können Ihre Einwilligung jederzeit über den Link „Cookie-Einstellungen“ in der Fußzeile oder über die Einstellungen Ihres Browsers ändern oder widerrufen.",
+        p_pl: "Zgodę możesz w każdej chwili zmienić lub wycofać w sekcji ustawień poniżej albo w ustawieniach przeglądarki.",
+        p_de: "Sie können Ihre Einwilligung jederzeit im Einstellungsbereich unten oder über die Einstellungen Ihres Browsers ändern oder widerrufen.",
       },
     ],
   },

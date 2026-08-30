@@ -12,8 +12,9 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
-dist-ssr
+.next
+out
+*.tsbuildinfo
 *.local
 
 # Editor directories and files
@@ -28,5 +29,6 @@ dist-ssr
 *.sw?
 
 .env
-.vite
-base44/.app.jsonc
+.data
+public/uploads/*
+!public/uploads/.gitkeep

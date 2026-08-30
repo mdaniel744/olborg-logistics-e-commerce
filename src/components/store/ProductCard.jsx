@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import { useLang } from "@/lib/i18n";
@@ -7,7 +7,7 @@ import { useSettings } from "@/lib/useSettings";
 import { formatMoney } from "@/lib/format";
 import { variantGross, vatLabel } from "@/lib/vat";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, eager = false }) {
   const { lang, market, currency, t } = useLang();
   const { settings } = useSettings();
 
@@ -23,13 +23,14 @@ export default function ProductCard({ product }) {
 
   return (
     <Link
-      to={to}
-      className="group bg-white border border-[#E0E2E5] hover:border-[#1A1C1E] transition-colors flex flex-col"
+      href={to}
+      className="group rounded-xl overflow-hidden bg-white border border-[#D7DADF] hover:border-[#795207] transition-colors flex flex-col"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-[#E0E2E5]">
         <Image
           src={product.featured_image}
           alt={lang === "de" ? product.name_de : product.name_pl}
+          loading={eager ? "eager" : "lazy"}
           className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
         />
         {product.is_demo && (
@@ -37,7 +38,7 @@ export default function ProductCard({ product }) {
             {t("common.demoBadge")}
           </span>
         )}
-        <span className="absolute bottom-2 left-2 bg-white/95 font-mono text-[11px] font-semibold px-2 py-1 text-[#1A1C1E]">
+        <span className="absolute bottom-2 left-2 rounded-md bg-white/95 text-xs font-semibold px-2 py-1 text-[#1A1C1E]">
           {product.size} · {t(`common.${product.container_type}`)}
         </span>
       </div>
@@ -45,7 +46,7 @@ export default function ProductCard({ product }) {
         <h3 className="font-heading font-semibold text-[#1A1C1E] leading-snug">
           {lang === "de" ? product.name_de : product.name_pl}
         </h3>
-        <p className="font-mono text-xs text-[#6B7075] mt-1">
+        <p className="text-sm text-[#5F656B] mt-1">
           {conditions.map((c) => t(`common.${c}`)).join(" / ")}
         </p>
         <div className="mt-auto pt-4 flex items-end justify-between">
@@ -56,7 +57,7 @@ export default function ProductCard({ product }) {
                   {t("common.from")} {formatMoney(minPrice, currency)}
                 </p>
                 {sample && (
-                  <p className="font-mono text-[11px] text-[#6B7075]">
+                  <p className="text-xs leading-5 text-[#5F656B]">
                     {vatLabel(lang, sample.rate, "std", settings)}
                   </p>
                 )}

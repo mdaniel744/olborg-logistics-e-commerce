@@ -1,21 +1,27 @@
+"use client";
+
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "olborg_cart_v1";
 
 export function CartProvider({ children }) {
-  const [items, setItems] = useState(() => {
+  const [items, setItems] = useState([]);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
     try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+      setItems(JSON.parse(localStorage.getItem(STORAGE_KEY)) || []);
     } catch {
-      return [];
+      setItems([]);
     }
-  });
+    setHydrated(true);
+  }, []);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
+    if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  }, [items, hydrated]);
 
   const addItem = useCallback((item) => {
     setItems((prev) => {

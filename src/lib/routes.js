@@ -12,10 +12,10 @@ export const R = {
   confirmation: { pl: "/potwierdzenie", de: "/de/bestellbestaetigung" },
   quote: { pl: "/wycena", de: "/de/angebot" },
   terms: { pl: "/regulamin", de: "/de/agb" },
-  shippingPolicy: { pl: "/dostawa-i-transport", de: "/de/versand-und-lieferung" },
+  shippingPolicy: { pl: "/dostawa#versand-und-lieferung", de: "/de/lieferung#versand-und-lieferung" },
   returns: { pl: "/zwroty", de: "/de/rueckgabe" },
   withdrawal: { pl: "/odstapienie-od-umowy", de: "/de/widerruf" },
-  complaints: { pl: "/reklamacje", de: "/de/reklamationen" },
+  complaints: { pl: "/zwroty#reklamationen", de: "/de/rueckgabe#reklamationen" },
   privacy: { pl: "/polityka-prywatnosci", de: "/de/datenschutz" },
   cookies: { pl: "/polityka-cookies", de: "/de/cookie-richtlinie" },
 };

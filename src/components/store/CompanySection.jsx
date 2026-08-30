@@ -1,13 +1,13 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Building2, Globe2, ShieldCheck } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import { Button } from "@/components/ui/button";
 import { useLang } from "@/lib/i18n";
 import { pathFor } from "@/lib/routes";
 
-const IMG_DEPOT = "https://media.base44.com/images/public/6a901448048a3205edc04025/e9d78dafe_generated_image.png";
-const IMG_DELIVERY = "https://media.base44.com/images/public/6a901448048a3205edc04025/2f38d5788_generated_image.png";
+const IMG_DEPOT = "/images/depot.png";
+const IMG_DELIVERY = "/images/delivery.png";
 
 const COPY = {
   pl: {
@@ -66,7 +66,7 @@ export default function CompanySection() {
           </dl>
 
           <Button asChild className="mt-7 bg-[#1A1C1E] hover:bg-black text-white rounded-none font-semibold h-11 px-6">
-            <Link to={pathFor("about", lang)}>{c.cta}</Link>
+            <Link href={pathFor("about", lang)}>{c.cta}</Link>
           </Button>
         </div>
 

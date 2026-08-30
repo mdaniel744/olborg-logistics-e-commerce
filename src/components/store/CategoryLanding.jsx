@@ -1,6 +1,8 @@
+"use client";
+
 import React from "react";
 import { useLang } from "@/lib/i18n";
-import Shop from "@/pages/Shop";
+import Shop from "@/features/storefront/Shop";
 
 const META = {
   size10: {
