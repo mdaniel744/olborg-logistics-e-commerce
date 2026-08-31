@@ -109,7 +109,15 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    if (payload.ref && payload.ref !== "refs/heads/main") {
+    // Only an actual push to main deploys. GitHub's own event type (not payload shape)
+    // decides this — a ping event has no `ref` field and would otherwise fall through.
+    const eventType = req.headers["x-github-event"];
+    if (eventType !== "push") {
+      res.writeHead(200);
+      res.end(`ignored event ${eventType || "unknown"}`);
+      return;
+    }
+    if (payload.ref !== "refs/heads/main") {
       res.writeHead(200);
       res.end(`ignored ref ${payload.ref}`);
       return;
