@@ -46,7 +46,15 @@ function verifySignature(rawBody, signatureHeader) {
   return crypto.timingSafeEqual(expectedBuf, providedBuf);
 }
 
+let deployInProgress = false;
+
 function runDeploy() {
+  if (deployInProgress) {
+    console.log(`[${new Date().toISOString()}] Deploy already in progress, skipping`);
+    return;
+  }
+  deployInProgress = true;
+
   const steps = [
     ["git", ["pull", "origin", "main"]],
     ["npm", ["ci"]],
@@ -62,6 +70,7 @@ function runDeploy() {
   function next() {
     if (i >= steps.length) {
       console.log(`[${new Date().toISOString()}] Deploy finished`);
+      deployInProgress = false;
       return;
     }
     const [cmd, args] = steps[i++];
@@ -71,6 +80,7 @@ function runDeploy() {
       if (stderr) console.log(stderr);
       if (err) {
         console.error(`[${new Date().toISOString()}] Deploy step failed: ${cmd} ${args.join(" ")}`, err);
+        deployInProgress = false;
         return;
       }
       next();
