@@ -33,10 +33,11 @@ export default function Home() {
   );
 
   const featured = products.filter((p) => p.featured).slice(0, 8);
+  const categoryPath = (key) => CATEGORY_LANDINGS.find((entry) => entry.key === key)?.[lang] || pathFor("shop", lang);
   const typeCards = [
-    { key: "standard", img: "/images/filters/filter-container-20ft-branded.png", to: pathFor("shop", lang) + "?typ=standard", desc: t("home.standardD") },
-    { key: "high_cube", img: "/images/filters/filter-container-high-cube-branded-v2.png", to: CATEGORY_LANDINGS[3][lang], desc: t("home.highCubeD") },
-    { key: "open_side", img: "/images/filters/filter-container-open-side.png", to: CATEGORY_LANDINGS[4][lang], desc: t("home.openSideD") },
+    { key: "standard", img: "/images/filters/filter-container-20ft-branded.png", to: categoryPath("standard"), desc: t("home.standardD") },
+    { key: "high_cube", img: "/images/filters/filter-container-high-cube-branded-v2.png", to: categoryPath("highCube"), desc: t("home.highCubeD") },
+    { key: "open_side", img: "/images/filters/filter-container-open-side.png", to: categoryPath("openSide"), desc: t("home.openSideD") },
   ];
   const solutionItems = [
     { icon: Warehouse, title: t("home.solution1"), desc: t("home.solution1d") },
@@ -56,13 +57,13 @@ export default function Home() {
     <div>
       {/* Hero */}
       <section className="relative isolate min-h-[560px] overflow-hidden bg-[#1A1C1E] md:min-h-[620px] lg:min-h-[640px]">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[#101214]">
           <Image
             src={IMAGES.hero}
             alt={t("hero.h1")}
             loading="eager"
             sizes="100vw"
-            className="h-full w-full object-cover object-[68%_center]"
+            className="absolute inset-y-0 right-0 h-full w-full object-cover object-[48%_center] md:w-[84%] md:object-center lg:w-[74%]"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#101214]/95 via-[#101214]/70 to-[#101214]/10" />
@@ -123,9 +124,9 @@ export default function Home() {
       {/* Industrial applications */}
       <section className="bg-[#F8F9FA]">
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-stretch gap-8 px-4 py-16 sm:px-6 md:py-20 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
-          <div className="relative min-h-[340px] overflow-hidden rounded-2xl bg-[#D9DDE1] lg:min-h-[520px]">
+          <div className="relative aspect-[4/3] min-h-0 self-center overflow-hidden rounded-2xl bg-[#D9DDE1]">
             <Image
-              src={IMAGES.used}
+              src={IMAGES.industrialYard}
               alt={t("home.solutionsImageAlt")}
               className="h-full w-full object-cover"
               sizes="(min-width: 1024px) 50vw, 100vw"
@@ -187,12 +188,12 @@ export default function Home() {
       {/* Why us */}
       <section className="bg-[#1A1C1E] text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16 md:py-20">
-          <h2 className="font-heading text-2xl md:text-3xl font-bold tracking-tight mb-10">{t("home.whyTitle")}</h2>
+          <h2 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-white mb-10">{t("home.whyTitle")}</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
             {whyItems.map((item, i) => (
               <div key={i}>
                 <item.icon className="w-6 h-6 text-[#F5A623] mb-3" />
-                <h3 className="font-semibold text-sm">{item.title}</h3>
+                <h3 className="font-semibold text-sm text-white">{item.title}</h3>
                 <p className="text-sm text-white/60 mt-1.5 leading-relaxed">{item.desc}</p>
               </div>
             ))}

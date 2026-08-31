@@ -43,12 +43,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 lg:gap-16">
           <div>
             <div className="mb-4">
-              <div className="relative h-24 w-28">
+              <div className="relative h-16 w-56 max-w-full">
                 <Image
-                  src="/images/logo-olb-standard-white.png"
+                  src="/images/olborg-logo-footer.png"
                   alt="Olborg Logistics"
                   fill
-                  sizes="112px"
+                  sizes="224px"
                   className="object-contain object-left"
                 />
               </div>
