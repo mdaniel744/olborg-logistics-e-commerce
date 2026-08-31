@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { DELIVERY_ZONES, SITE_SETTINGS, getProductById } from "@/data/catalog";
+import { DELIVERY_ZONES, SITE_SETTINGS } from "@/data/catalog";
+import { getProducts } from "@/lib/supabaseCatalog";
 import { calculateDelivery } from "@/server/delivery";
 import { computeVatTreatment, round2 } from "@/server/pricing";
 import { saveSubmission } from "@/server/submission-store";
@@ -27,20 +28,17 @@ export async function POST(request) {
       return Response.json({ error: "empty_cart" }, { status: 400 });
     }
 
+    const products = await getProducts();
     const items = [];
     const deliveryItems = [];
     for (const raw of rawItems) {
-      const product = getProductById(text(raw.product_id, 80));
-      if (!product || product.status !== "active") {
+      const product = products.find(
+        (entry) => entry.id === text(raw.product_id, 80) && entry.sku === text(raw.sku, 80)
+      );
+      if (!product || product.status !== "active" || product.active === false) {
         return Response.json({ error: "product_unavailable", sku: raw.sku }, { status: 400 });
       }
-      const selected = (product.variants || []).find(
-        (entry) => entry.sku === text(raw.sku, 80) && entry.active !== false
-      );
-      if (!selected) {
-        return Response.json({ error: "variant_unavailable", sku: raw.sku }, { status: 400 });
-      }
-      const unitNet = market === "DE" ? selected.price_eur_net : selected.price_pln_net;
+      const unitNet = market === "DE" ? product.price_eur_net : product.price_pln_net;
       if (typeof unitNet !== "number") {
         return Response.json({ error: "price_unavailable", sku: raw.sku }, { status: 400 });
       }
@@ -48,11 +46,11 @@ export async function POST(request) {
       items.push({
         product_id: product.id,
         product_name: language === "de" ? product.name_de : product.name_pl,
-        sku: selected.sku,
+        sku: product.sku,
         variant_label: text(raw.variant_label, 200),
         quantity,
         unit_price_net: unitNet,
-        image: selected.image || product.featured_image || "",
+        image: product.featured_image || "",
       });
       deliveryItems.push({ size: product.size, quantity });
     }

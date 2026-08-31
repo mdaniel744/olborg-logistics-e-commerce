@@ -1,6 +1,7 @@
+import { cache } from "react";
 import { notFound, redirect } from "next/navigation";
 import CategoryLanding from "@/components/store/CategoryLanding";
-import { PRODUCTS } from "@/data/catalog";
+import { getProducts } from "@/lib/supabaseCatalog";
 import { CATEGORY_LANDINGS } from "@/lib/routes";
 import AboutPage from "@/features/storefront/AboutPage";
 import CartPage from "@/features/storefront/CartPage";
@@ -16,6 +17,9 @@ import PolicyPage from "@/features/storefront/PolicyPage";
 import ProductDetail from "@/features/storefront/ProductDetail";
 import QuotePage from "@/features/storefront/QuotePage";
 import Shop from "@/features/storefront/Shop";
+
+// Dedupe the fetch across generateMetadata + the page render within one request.
+const getCachedProducts = cache(getProducts);
 
 const staticRoutes = {
   de: { component: Home, title: "Seecontainer kaufen" },
@@ -61,7 +65,7 @@ const redirectRoutes = {
   "de/reklamationen": "/de/rueckgabe#reklamationen",
 };
 
-function resolveRoute(segments) {
+function resolveRoute(segments, products) {
   const path = segments.join("/");
   if (redirectRoutes[path]) return { type: "redirect", destination: redirectRoutes[path] };
   if (staticRoutes[path]) return { type: "static", ...staticRoutes[path] };
@@ -82,7 +86,7 @@ function resolveRoute(segments) {
   const language = segments[0] === "de" ? "de" : "pl";
   const slug = language === "de" ? segments[1] : segments[0];
   const slugKey = language === "de" ? "slug_de" : "slug_pl";
-  if (slug && PRODUCTS.some((product) => product[slugKey] === slug)) {
+  if (slug && products.some((product) => product[slugKey] === slug)) {
     return { type: "product", slug, language };
   }
 
@@ -91,10 +95,11 @@ function resolveRoute(segments) {
 
 export async function generateMetadata({ params }) {
   const { segments = [] } = await params;
-  const route = resolveRoute(segments);
+  const products = await getCachedProducts();
+  const route = resolveRoute(segments, products);
   if (!route) return {};
   if (route.type === "product") {
-    const product = PRODUCTS.find((entry) => entry[`slug_${route.language}`] === route.slug);
+    const product = products.find((entry) => entry[`slug_${route.language}`] === route.slug);
     return {
       title: route.language === "de" ? product.name_de : product.name_pl,
       description:
@@ -106,7 +111,8 @@ export async function generateMetadata({ params }) {
 
 export default async function StoreRoute({ params }) {
   const { segments = [] } = await params;
-  const route = resolveRoute(segments);
+  const products = await getCachedProducts();
+  const route = resolveRoute(segments, products);
   if (!route) notFound();
 
   if (route.type === "redirect") redirect(route.destination);

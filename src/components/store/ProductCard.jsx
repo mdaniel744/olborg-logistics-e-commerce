@@ -38,9 +38,13 @@ export default function ProductCard({ product, eager = false }) {
             {t("common.demoBadge")}
           </span>
         )}
-        <span className="absolute bottom-2 left-2 rounded-md bg-white/95 text-xs font-semibold px-2 py-1 text-[#1A1C1E]">
-          {product.size} · {t(`common.${product.container_type}`)}
-        </span>
+        {(product.size || product.container_type) && (
+          <span className="absolute bottom-2 left-2 rounded-md bg-white/95 text-xs font-semibold px-2 py-1 text-[#1A1C1E]">
+            {[product.size, product.container_type && t(`common.${product.container_type}`)]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        )}
       </div>
       <div className="p-4 flex flex-col flex-1">
         <h3 className="font-heading font-semibold text-[#1A1C1E] leading-snug">

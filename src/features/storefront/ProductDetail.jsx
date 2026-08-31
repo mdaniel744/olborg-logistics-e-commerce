@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Check, Truck } from "lucide-react";
 import { Image } from "@/components/ui/image";
 import { Button } from "@/components/ui/button";
 import { useLang, usePageMeta } from "@/lib/i18n";
-import { useProducts, useSettings } from "@/lib/useSettings";
+import { useProductRows, useSettings } from "@/lib/useSettings";
+import { groupFamilies } from "@/lib/supabaseCatalog";
 import { useCart } from "@/lib/CartContext";
 import { formatMoney } from "@/lib/format";
 import { variantGross, vatLabel } from "@/lib/vat";
@@ -17,41 +17,17 @@ import DeliveryCalculator from "@/components/store/DeliveryCalculator";
 import ProductInfoTabs from "@/components/store/ProductInfoTabs";
 import ProductCard from "@/components/store/ProductCard";
 
-const CONDITION_PARAM = { pl: "stan", de: "zustand" };
-const CONDITION_VALUES = {
-  pl: { new: "nowy", used: "uzywany" },
-  de: { new: "neu", used: "gebraucht" },
-};
-
 export default function ProductDetail({ slug }) {
   const { lang, market, currency, t, setDynamicAlt } = useLang();
-  const { products, isLoading } = useProducts();
+  const { products, isLoading } = useProductRows();
   const { settings } = useSettings();
   const { addItem } = useCart();
-  const searchParams = useSearchParams();
-  const pathname = usePathname();
-  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
 
+  // Each condition is its own real, independently-routable product row — no shared
+  // page / query-string toggle. Siblings sharing family_id populate the picker below.
   const product = products.find((p) => (lang === "de" ? p.slug_de : p.slug_pl) === slug);
-
-  const activeVariants = useMemo(
-    () => (product?.variants || []).filter((v) => v.active !== false),
-    [product]
-  );
-
-  // Restore variant from shareable URL (?stan=nowy / ?zustand=neu)
-  const paramKey = CONDITION_PARAM[lang];
-  const urlCondition = Object.entries(CONDITION_VALUES[lang]).find(
-    ([, v]) => v === searchParams.get(paramKey)
-  )?.[0];
-  const [condition, setCondition] = useState(null);
-  const effectiveCondition =
-    condition ||
-    (urlCondition && activeVariants.some((v) => v.condition === urlCondition) ? urlCondition : null) ||
-    activeVariants[0]?.condition;
-
-  const variant = activeVariants.find((v) => v.condition === effectiveCondition) || activeVariants[0];
+  const siblings = product ? products.filter((p) => p.family_id === product.family_id) : [];
 
   useEffect(() => {
     if (product) {
@@ -73,37 +49,31 @@ export default function ProductDetail({ slug }) {
   if (isLoading) return <div className="py-32 text-center text-[#6B7075]">{t("common.loading")}</div>;
   if (!product) return <PageNotFound />;
 
-  const selectCondition = (c) => {
-    setCondition(c);
-    const nextParams = new URLSearchParams(searchParams.toString());
-    nextParams.set(paramKey, CONDITION_VALUES[lang][c]);
-    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
-  };
-
-  const price = variant ? variantGross(variant, settings, market) : null;
-  const image = variant?.image || product.featured_image;
+  const price = product.active !== false ? variantGross(product, settings, market) : null;
+  const image = product.featured_image;
   const gallery = [image, ...(product.gallery || []).filter((g) => g !== image)].filter(Boolean);
   const availabilityKey =
-    variant?.availability === "in_stock" ? "inStock" : variant?.availability === "on_request" ? "onRequest" : "outOfStock";
+    product.availability === "in_stock" ? "inStock" : product.availability === "on_request" ? "onRequest" : "outOfStock";
 
   const handleAddToCart = () => {
-    if (!variant || !price) return;
+    if (!price) return;
     addItem({
       product_id: product.id,
-      sku: variant.sku,
+      sku: product.sku,
       name_pl: product.name_pl,
       name_de: product.name_de,
-      variant_label_pl: `${t("common.condition")}: ${variant.condition === "new" ? "Nowy" : "Używany"}`,
-      variant_label_de: `Zustand: ${variant.condition === "new" ? "Neu" : "Gebraucht"}`,
-      price_pln_net: variant.price_pln_net,
-      price_eur_net: variant.price_eur_net,
+      variant_label_pl: `${t("common.condition")}: ${product.condition === "new" ? "Nowy" : "Używany"}`,
+      variant_label_de: `Zustand: ${product.condition === "new" ? "Neu" : "Gebraucht"}`,
+      price_pln_net: product.price_pln_net,
+      price_eur_net: product.price_eur_net,
       size: product.size,
       image,
       quantity,
     });
   };
 
-  const related = products.filter((p) => p.id !== product.id && p.size === product.size).slice(0, 4);
+  // ProductCard expects family-grouped objects (with a variants[] array), not flat rows.
+  const related = groupFamilies(products.filter((p) => p.family_id !== product.family_id)).slice(0, 4);
 
   return (
     <div className="max-w-7xl mx-auto px-5 sm:px-6 py-10 md:py-14">
@@ -135,16 +105,13 @@ export default function ProductDetail({ slug }) {
 
         {/* Configuration */}
         <div>
-          {product.is_demo && (
-            <span className="inline-block bg-[#1A1C1E] text-white font-mono text-[10px] px-2 py-1 mb-3">
-              {t("common.demoBadge")}
-            </span>
-          )}
           <h1 className="font-heading text-2xl md:text-3xl font-bold tracking-tight text-[#1A1C1E]">
             {lang === "de" ? product.name_de : product.name_pl}
           </h1>
           <p className="text-sm text-[#5F656B] mt-2">
-            {t("common.sku")}: {variant?.sku || "—"} · {product.size} · {t(`common.${product.container_type}`)}
+            {t("common.sku")}: {product.sku || "—"}
+            {product.size && ` · ${product.size}`}
+            {product.container_type && ` · ${t(`common.${product.container_type}`)}`}
           </p>
           <p className="mt-4 text-base md:text-lg text-[#343A40] leading-[1.75]">
             {lang === "de" ? product.short_description_de : product.short_description_pl}
@@ -171,27 +138,35 @@ export default function ProductDetail({ slug }) {
             </p>
           </div>
 
-          {/* Variant selectors */}
-          <div className="mt-6">
-            <p className="text-sm font-semibold tracking-[0.12em] uppercase text-[#4B5157] mb-2">{t("common.condition")}</p>
-            <div className="flex gap-2" role="group" aria-label={t("common.condition")}>
-              {[...new Set(activeVariants.map((v) => v.condition))].map((c) => (
-                <button
-                  key={c}
-                  onClick={() => selectCondition(c)}
-                  className={`px-5 py-3 border font-semibold text-sm transition-colors inline-flex items-center gap-2 ${
-                    effectiveCondition === c
-                      ? "border-[#1A1C1E] bg-[#1A1C1E] text-white"
-                      : "border-[#E0E2E5] bg-white text-[#3A3E42] hover:border-[#1A1C1E]"
-                  }`}
-                  aria-pressed={effectiveCondition === c}
-                >
-                  {effectiveCondition === c && <Check className="w-4 h-4" />}
-                  {t(`common.${c}`)}
-                </button>
-              ))}
+          {/* Variant selectors — real links to each sibling's own product page */}
+          {siblings.length > 1 && (
+            <div className="mt-6">
+              <p className="text-sm font-semibold tracking-[0.12em] uppercase text-[#4B5157] mb-2">{t("common.condition")}</p>
+              <div className="flex gap-2" role="group" aria-label={t("common.condition")}>
+                {siblings
+                  .filter((s) => s.active !== false)
+                  .map((s) => {
+                    const isCurrent = s.id === product.id;
+                    const href = lang === "de" ? `/de/${s.slug_de}` : `/${s.slug_pl}`;
+                    return (
+                      <Link
+                        key={s.id}
+                        href={href}
+                        className={`px-5 py-3 border font-semibold text-sm transition-colors inline-flex items-center gap-2 ${
+                          isCurrent
+                            ? "border-[#1A1C1E] bg-[#1A1C1E] text-white"
+                            : "border-[#E0E2E5] bg-white text-[#3A3E42] hover:border-[#1A1C1E]"
+                        }`}
+                        aria-current={isCurrent ? "page" : undefined}
+                      >
+                        {isCurrent && <Check className="w-4 h-4" />}
+                        {t(`common.${s.condition}`)}
+                      </Link>
+                    );
+                  })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Quantity + CTA */}
           <div className="mt-6 flex gap-3 items-end flex-wrap">

@@ -1,12 +1,13 @@
 import React from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
+import DOMPurify from "isomorphic-dompurify";
 import { useLang } from "@/lib/i18n";
 import { pathFor } from "@/lib/routes";
 
 export default function ProductInfoTabs({ product }) {
   const { lang, t } = useLang();
   const description = lang === "de" ? product.description_de : product.description_pl;
+  const sanitizedDescription = DOMPurify.sanitize(description || "");
 
   return (
     <div className="mt-14 grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -14,9 +15,10 @@ export default function ProductInfoTabs({ product }) {
         <h2 className="font-heading text-xl font-bold text-[#1A1C1E] border-b border-[#E0E2E5] pb-3 mb-4">
           {t("product.description")}
         </h2>
-        <div className="prose max-w-none long-form-content [&_h2]:mt-8 [&_h3]:mt-6 [&_li]:my-1.5">
-          <ReactMarkdown>{description || ""}</ReactMarkdown>
-        </div>
+        <div
+          className="prose max-w-none long-form-content [&_h2]:mt-8 [&_h3]:mt-6 [&_li]:my-1.5"
+          dangerouslySetInnerHTML={{ __html: sanitizedDescription }}
+        />
         <div className="mt-7 flex flex-wrap gap-x-5 gap-y-3 text-sm font-semibold">
           <Link href={pathFor("shippingPolicy", lang)} className="text-[#795207] underline-offset-4 hover:underline">
             → {lang === "de" ? "Versand und Lieferung" : "Dostawa i transport"}
