@@ -53,6 +53,11 @@ function runDeploy() {
     ["npm", ["run", "build"]],
     ["pm2", ["restart", PM2_APP_NAME]],
   ];
+  // npm ci/build need devDependencies (autoprefixer, tailwindcss, ...) available, so this
+  // must NOT inherit NODE_ENV=production from this webhook process's own PM2 env, or npm
+  // silently skips devDependencies and the build fails on a missing postcss plugin.
+  const buildEnv = { ...process.env };
+  delete buildEnv.NODE_ENV;
   let i = 0;
   function next() {
     if (i >= steps.length) {
@@ -61,7 +66,7 @@ function runDeploy() {
     }
     const [cmd, args] = steps[i++];
     console.log(`[${new Date().toISOString()}] $ ${cmd} ${args.join(" ")}`);
-    execFile(cmd, args, { cwd: REPO_DIR, maxBuffer: 1024 * 1024 * 20 }, (err, stdout, stderr) => {
+    execFile(cmd, args, { cwd: REPO_DIR, env: buildEnv, maxBuffer: 1024 * 1024 * 20 }, (err, stdout, stderr) => {
       if (stdout) console.log(stdout);
       if (stderr) console.log(stderr);
       if (err) {

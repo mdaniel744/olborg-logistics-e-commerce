@@ -11,7 +11,6 @@ module.exports = {
       name: "olborg-webhook",
       script: "scripts/deploy-webhook.cjs",
       cwd: "/var/www/olborg",
-      env: { NODE_ENV: "production" },
     },
   ],
 };
