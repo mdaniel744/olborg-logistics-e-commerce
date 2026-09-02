@@ -38,10 +38,12 @@ export async function POST(request) {
       // (sku: null) replaced the old demo catalog's populated skus.
       const product = products.find((entry) => entry.id === text(raw.product_id, 80));
       if (!product || product.status !== "active" || product.active === false) {
+        console.error("Order rejected: product_unavailable", { market, product_id: raw.product_id, found: Boolean(product) });
         return Response.json({ error: "product_unavailable", sku: raw.sku }, { status: 400 });
       }
       const unitNet = market === "DE" ? product.price_eur_net : product.price_pln_net;
       if (typeof unitNet !== "number") {
+        console.error("Order rejected: price_unavailable", { market, product_id: product.id, price_pln_net: product.price_pln_net, price_eur_net: product.price_eur_net });
         return Response.json({ error: "price_unavailable", sku: raw.sku }, { status: 400 });
       }
       const quantity = Math.min(Math.max(1, Number(raw.quantity) || 1), 100);
