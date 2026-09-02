@@ -32,9 +32,14 @@ export default function Header() {
   const currentLanguage = languageOptions.find((option) => option.code === lang) || languageOptions[0];
 
   const switchLang = (target) => {
-    localStorage.setItem("olborg_lang", target);
     setLanguageOpen(false);
     setMobileOpen(false);
+    if (target === lang) return;
+    try {
+      localStorage.setItem("olborg_lang", target);
+    } catch {
+      // Language routing still works when browser storage is unavailable.
+    }
     router.push(altPath(target));
   };
 

@@ -1,5 +1,6 @@
 import { isSupabaseConfigured, supabase, STORE_ID } from "@/lib/supabaseClient";
 import { fetchMarketPrices } from "@/lib/marketPricing";
+import { PRODUCTS as DEMO_PRODUCTS } from "@/data/catalog";
 
 // Each products row is its own independently-crawlable page (Google Merchant requires a
 // unique landing page per listing) — siblings sharing family_id are condition variants,
@@ -112,6 +113,61 @@ function normalizeColor(attributes, translatedAttributes) {
   };
 }
 
+const DEMO_NEW_COLORS = {
+  "container-10-standard": "RAL 7016",
+  "container-20-standard": "RAL 5010",
+  "container-40-standard": "RAL 7035",
+  "container-40-high-cube": "RAL 6005",
+  "container-20-open-side": "RAL 5010",
+};
+
+function demoProductRows() {
+  return DEMO_PRODUCTS.flatMap((product) =>
+    (product.variants || [])
+      .filter((variant) => variant.active !== false)
+      .map((variant, index) => {
+        const isUsed = variant.condition === "used";
+        const conditionPl = isUsed ? "Używany" : "Nowy";
+        const conditionDe = isUsed ? "Gebraucht" : "Neu";
+        const color = normalizeColor(
+          { Kolor: isUsed ? "RAL 3009" : DEMO_NEW_COLORS[product.id] || "RAL 5010" },
+          null
+        );
+
+        return {
+          id: `demo-${variant.sku.toLowerCase()}`,
+          family_id: product.id,
+          sku: variant.sku,
+          condition: variant.condition,
+          slug_pl: isUsed ? `${product.slug_pl}-uzywany` : product.slug_pl,
+          slug_de: isUsed ? `${product.slug_de}-gebraucht` : product.slug_de,
+          name_pl: `${product.name_pl} – ${conditionPl}`,
+          name_de: `${product.name_de} – ${conditionDe}`,
+          short_description_pl: product.short_description_pl,
+          short_description_de: product.short_description_de,
+          description_pl: product.description_pl,
+          description_de: product.description_de,
+          price_pln_net: variant.price_pln_net,
+          price_eur_net: variant.price_eur_net,
+          availability: variant.availability,
+          active: true,
+          status: "active",
+          merchant_eligible: false,
+          featured: product.featured,
+          featured_image: variant.image || product.featured_image,
+          gallery: product.gallery || [],
+          specs: product.specs || [],
+          sort_order: (product.sort_order || 0) + index,
+          created_date: null,
+          size: product.size,
+          container_type: product.container_type,
+          is_demo: true,
+          ...color,
+        };
+      })
+  );
+}
+
 // Typ values are brand terminology used verbatim in PL/DE copy ("... High Cube", "... Open
 // Side"), so normalize generically (lowercase, spaces -> underscores) rather than mapping a
 // fixed list — matches the app's existing standard/high_cube/open_side enum without needing
@@ -178,7 +234,9 @@ function normalize(row, translationsByEntity) {
 
 // Flat list — one entry per real, independently-routable product row.
 export async function getProducts() {
-  if (!isSupabaseConfigured || !supabase) return [];
+  const demoEnabled =
+    process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_USE_DEMO_PRODUCTS === "true";
+  if (!isSupabaseConfigured || !supabase) return demoEnabled ? demoProductRows() : [];
 
   const { data: rows, error } = await supabase
     .from("products")
@@ -188,9 +246,9 @@ export async function getProducts() {
 
   if (error) {
     console.error("Failed to load products from Supabase", error);
-    return [];
+    return demoEnabled ? demoProductRows() : [];
   }
-  if (!rows || rows.length === 0) return [];
+  if (!rows || rows.length === 0) return demoEnabled ? demoProductRows() : [];
 
   const translations = await fetchTranslations(rows.map((r) => r.id));
   const translationsByEntity = new Map();
@@ -253,6 +311,7 @@ export function groupFamilies(products) {
       gallery: representative.gallery,
       sort_order: representative.sort_order,
       created_date: representative.created_date,
+      is_demo: representative.is_demo,
       variants,
     };
   });

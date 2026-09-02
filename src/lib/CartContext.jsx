@@ -54,7 +54,7 @@ export function CartProvider({ children }) {
 
   return (
     <CartContext.Provider
-      value={{ items, addItem, updateQuantity, removeItem, clearCart, count, drawerOpen, setDrawerOpen }}
+      value={{ items, hydrated, addItem, updateQuantity, removeItem, clearCart, count, drawerOpen, setDrawerOpen }}
     >
       {children}
     </CartContext.Provider>

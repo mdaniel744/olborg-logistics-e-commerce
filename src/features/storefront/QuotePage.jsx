@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Trash2, ImagePlus, CheckCircle2 } from "lucide-react";
+import { Check, Loader2, Plus, Trash2, ImagePlus, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Image } from "@/components/ui/image";
 import { Input } from "@/components/ui/input";
@@ -15,52 +15,155 @@ import { useProducts } from "@/lib/useSettings";
 import { useCart } from "@/lib/CartContext";
 import { pathFor } from "@/lib/routes";
 
+const QUOTE_DRAFT_KEY = "olborg_quote_draft_v3";
+const NO_COLOR = "__not_specified__";
+
+const blankForm = (country) => ({
+  freeText: "", country, postal: "", city: "", address: "",
+  unloading: "self", siteAccess: "", name: "", company: "", vatId: "",
+  email: "", phone: "", notes: "",
+});
+
+const emptyRow = (id = "quote-row-initial") => ({
+  id,
+  size: "",
+  containerType: "",
+  condition: "",
+  color: "",
+  quantity: 1,
+});
+
+const uniqueBy = (items, key) => {
+  const seen = new Set();
+  return items.filter((item) => {
+    const value = item[key];
+    if (!value || seen.has(value)) return false;
+    seen.add(value);
+    return true;
+  });
+};
+
 export default function QuotePage() {
   const { lang, market, t } = useLang();
-  const { products } = useProducts();
-  const { items: cartItems } = useCart();
+  const { products, isLoading: productsLoading } = useProducts();
+  const { items: cartItems, hydrated: cartHydrated } = useCart();
   usePageMeta(t("quote.title"), t("quote.subtitle"));
 
-  // Variant options across all products
-  const options = products.flatMap((p) =>
-    (p.variants || [])
-      .filter((v) => v.active !== false)
-      .map((v) => {
-        const color = [
-          lang === "de" ? v.color_label_de : v.color_label_pl,
-          v.color_ral,
-        ].filter(Boolean).join(" ");
-        const condition = t(`common.${v.condition}`);
-        return {
-          value: `${p.id}|${v.sku}`,
-          label: [lang === "de" ? p.name_de : p.name_pl, condition, color].filter(Boolean).join(" — "),
-          product_id: p.id,
-          product_name: lang === "de" ? p.name_de : p.name_pl,
-          sku: v.sku,
-          variant_label: [condition, color ? `${t("common.color")}: ${color}` : null].filter(Boolean).join(" · "),
-        };
-      })
+  const catalogVariants = useMemo(
+    () =>
+      products.flatMap((product) =>
+        (product.variants || [])
+          .filter((variant) => variant.active !== false)
+          .map((variant) => ({
+            ...variant,
+            product_id: variant.id || product.id,
+            product_name_pl: product.name_pl,
+            product_name_de: product.name_de,
+            size: variant.size || product.size || "",
+            containerType: variant.container_type || product.container_type || "",
+            colorKey: variant.color || NO_COLOR,
+          }))
+      ),
+    [products]
   );
 
-  const [rows, setRows] = useState(() =>
-    cartItems.length
-      ? cartItems.map((i) => ({ value: `${i.product_id}|${i.sku}`, quantity: i.quantity }))
-      : [{ value: "", quantity: 1 }]
+  const sizeOptions = useMemo(
+    () =>
+      uniqueBy(catalogVariants, "size")
+        .map((variant) => variant.size)
+        .sort((a, b) => Number.parseInt(a, 10) - Number.parseInt(b, 10)),
+    [catalogVariants]
   );
-  const [form, setForm] = useState({
-    freeText: "", country: market, postal: "", city: "", address: "",
-    unloading: "self", siteAccess: "", name: "", company: "", vatId: "",
-    email: "", phone: "", notes: "",
-  });
+
+  const [rows, setRows] = useState([emptyRow()]);
+  const [form, setForm] = useState(() => blankForm(market));
   const [customerType, setCustomerType] = useState("private");
   const [photos, setPhotos] = useState([]);
+  const [draftReady, setDraftReady] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [sentNumber, setSentNumber] = useState(null);
+  const initialized = useRef(false);
+  const rowCounter = useRef(1);
+
+  const resolveVariant = (row) =>
+    catalogVariants.find(
+      (variant) =>
+        variant.size === row.size &&
+        variant.containerType === row.containerType &&
+        variant.condition === row.condition &&
+        variant.colorKey === row.color
+    );
+
+  useEffect(() => {
+    if (initialized.current || productsLoading || !cartHydrated) return;
+    initialized.current = true;
+
+    let draft = null;
+    try {
+      draft = JSON.parse(sessionStorage.getItem(QUOTE_DRAFT_KEY));
+    } catch {
+      draft = null;
+    }
+
+    if (draft && Array.isArray(draft.rows)) {
+      const restoredRows = draft.rows.map((row, index) => ({
+        ...emptyRow(row.id || `quote-row-restored-${index}`),
+        size: String(row.size || ""),
+        containerType: String(row.containerType || ""),
+        condition: String(row.condition || ""),
+        color: String(row.color || ""),
+        quantity: Math.min(Math.max(1, Number(row.quantity) || 1), 500),
+      }));
+      setRows(restoredRows.length ? restoredRows : [emptyRow()]);
+      setForm({ ...blankForm(market), ...(draft.form || {}), country: draft.form?.country || market });
+      setCustomerType(draft.customerType === "business" ? "business" : "private");
+      setPhotos(Array.isArray(draft.photos) ? draft.photos.slice(0, 6) : []);
+    } else {
+      const cartRows = cartItems
+        .map((item, index) => {
+          const variant = catalogVariants.find(
+            (entry) => entry.product_id === item.product_id || entry.sku === item.sku
+          );
+          if (!variant) return null;
+          return {
+            id: `quote-row-cart-${index}`,
+            size: variant.size,
+            containerType: variant.containerType,
+            condition: variant.condition || "",
+            color: variant.colorKey,
+            quantity: Math.min(Math.max(1, Number(item.quantity) || 1), 500),
+          };
+        })
+        .filter(Boolean);
+      if (cartRows.length) setRows(cartRows);
+    }
+    setDraftReady(true);
+  }, [cartHydrated, cartItems, catalogVariants, market, productsLoading]);
+
+  useEffect(() => {
+    if (!draftReady) return;
+    try {
+      sessionStorage.setItem(
+        QUOTE_DRAFT_KEY,
+        JSON.stringify({ rows, form, customerType, photos })
+      );
+    } catch {
+      // The form still works when browser storage is blocked.
+    }
+  }, [customerType, draftReady, form, photos, rows]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
   const setRow = (i, patch) => setRows((r) => r.map((row, ri) => (ri === i ? { ...row, ...patch } : row)));
+  const setRowChoice = (index, key, value) => {
+    const patch = { [key]: value };
+    if (key === "size") Object.assign(patch, { containerType: "", condition: "", color: "" });
+    if (key === "containerType") Object.assign(patch, { condition: "", color: "" });
+    if (key === "condition") Object.assign(patch, { color: "" });
+    setRow(index, patch);
+    setError(null);
+  };
 
   const uploadPhotos = async (e) => {
     const files = Array.from(e.target.files || []).slice(0, 6 - photos.length);
@@ -87,16 +190,31 @@ export default function QuotePage() {
     setSubmitting(true);
     setError(null);
     try {
-      const items = rows
-        .filter((r) => r.value)
-        .map((r) => {
-          const opt = options.find((o) => o.value === r.value);
-          return opt && {
-            product_id: opt.product_id, product_name: opt.product_name,
-            sku: opt.sku, variant_label: opt.variant_label, quantity: r.quantity,
-          };
-        })
-        .filter(Boolean);
+      const startedRows = rows.filter((row) =>
+        row.size || row.containerType || row.condition || row.color
+      );
+      const configuredRows = startedRows.map((row) => ({ row, variant: resolveVariant(row) }));
+      if (configuredRows.some(({ variant }) => !variant)) {
+        setError(t("quote.incompleteConfiguration"));
+        return;
+      }
+      if (configuredRows.length === 0 && !form.freeText.trim()) {
+        setError(t("quote.chooseProductOrDescribe"));
+        return;
+      }
+      const items = configuredRows.map(({ row, variant }) => {
+        const color = [
+          lang === "de" ? variant.color_label_de : variant.color_label_pl,
+          variant.color_ral,
+        ].filter(Boolean).join(" ") || t("quote.colorUnspecified");
+        return {
+          product_id: variant.product_id,
+          product_name: lang === "de" ? variant.product_name_de : variant.product_name_pl,
+          sku: variant.sku,
+          variant_label: [t(`common.${variant.condition}`), `${t("common.color")}: ${color}`].join(" · "),
+          quantity: row.quantity,
+        };
+      });
       const response = await fetch("/api/quotes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -119,6 +237,11 @@ export default function QuotePage() {
       });
       if (!response.ok) throw new Error("Quote request failed");
       const data = await response.json();
+      try {
+        sessionStorage.removeItem(QUOTE_DRAFT_KEY);
+      } catch {
+        // Nothing to clear when browser storage is unavailable.
+      }
       setSentNumber(data.quote_number);
       window.scrollTo(0, 0);
     } catch {
@@ -152,36 +275,182 @@ export default function QuotePage() {
           <h2 className="font-heading font-bold text-[#1A1C1E] mb-4">
             <span className="text-[#795207] mr-2">01</span>{t("quote.stepProducts")}
           </h2>
-          <div className="space-y-3">
-            {rows.map((row, i) => (
-              <div key={i} className="flex gap-2">
-                <div className="flex-1">
-                  <Select value={row.value} onValueChange={(v) => setRow(i, { value: v })}>
-                    <SelectTrigger className="rounded-none"><SelectValue placeholder={t("quote.addProduct")} /></SelectTrigger>
-                    <SelectContent>
-                      {options.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Input
-                  type="number" min={1} max={500}
-                  value={row.quantity}
-                  onChange={(e) => setRow(i, { quantity: Math.max(1, Number(e.target.value) || 1) })}
-                  className="rounded-none w-20 font-mono"
-                  aria-label={t("common.quantity")}
-                />
-                {rows.length > 1 && (
-                  <button type="button" onClick={() => setRows((r) => r.filter((_, ri) => ri !== i))} className="text-[#6B7075] hover:text-red-600 px-1" aria-label={t("common.remove")}>
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+          <div className="space-y-4" translate="no">
+            {!draftReady || productsLoading ? (
+              <div className="flex min-h-28 items-center justify-center text-sm text-[#6B7075]">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t("common.loading")}
               </div>
-            ))}
+            ) : rows.map((row, i) => {
+              const typeOptions = uniqueBy(
+                catalogVariants.filter((variant) => variant.size === row.size),
+                "containerType"
+              );
+              const conditionOptions = uniqueBy(
+                catalogVariants.filter(
+                  (variant) =>
+                    variant.size === row.size && variant.containerType === row.containerType
+                ),
+                "condition"
+              ).sort((a, b) => (a.condition === "new" ? -1 : b.condition === "new" ? 1 : 0));
+              const colorOptions = uniqueBy(
+                catalogVariants.filter(
+                  (variant) =>
+                    variant.size === row.size &&
+                    variant.containerType === row.containerType &&
+                    variant.condition === row.condition
+                ),
+                "colorKey"
+              );
+              const selectedVariant = resolveVariant(row);
+
+              return (
+                <div key={row.id} className="border border-[#E0E2E5] bg-[#FAFAFA] p-4">
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold text-[#1A1C1E]">
+                      {t("quote.configuration")} {i + 1}
+                    </p>
+                    {rows.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setRows((current) => current.filter((_, rowIndex) => rowIndex !== i))}
+                        className="flex min-h-10 min-w-10 items-center justify-center text-[#6B7075] hover:text-red-600"
+                        aria-label={t("common.remove")}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <div>
+                      <Label htmlFor={`q-size-${row.id}`} className="text-sm text-[#4B5157]">{t("common.size")}</Label>
+                      <Select value={row.size} onValueChange={(value) => setRowChoice(i, "size", value)}>
+                        <SelectTrigger id={`q-size-${row.id}`} className="mt-1 rounded-none" aria-label={t("quote.selectSize")}>
+                          <SelectValue placeholder={t("quote.selectSize")} />
+                        </SelectTrigger>
+                        <SelectContent translate="no">
+                          {sizeOptions.map((value) => <SelectItem key={value} value={value}>{value}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor={`q-type-${row.id}`} className="text-sm text-[#4B5157]">{t("common.type")}</Label>
+                      <Select
+                        value={row.containerType}
+                        onValueChange={(value) => setRowChoice(i, "containerType", value)}
+                        disabled={!row.size}
+                      >
+                        <SelectTrigger id={`q-type-${row.id}`} className="mt-1 rounded-none" aria-label={t("quote.selectType")}>
+                          <SelectValue placeholder={t("quote.selectType")} />
+                        </SelectTrigger>
+                        <SelectContent translate="no">
+                          {typeOptions.map((variant) => (
+                            <SelectItem key={variant.containerType} value={variant.containerType}>
+                              {t(`common.${variant.containerType}`)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor={`q-condition-${row.id}`} className="text-sm text-[#4B5157]">{t("common.condition")}</Label>
+                      <Select
+                        value={row.condition}
+                        onValueChange={(value) => setRowChoice(i, "condition", value)}
+                        disabled={!row.containerType}
+                      >
+                        <SelectTrigger id={`q-condition-${row.id}`} className="mt-1 rounded-none" aria-label={t("quote.selectCondition")}>
+                          <SelectValue placeholder={t("quote.selectCondition")} />
+                        </SelectTrigger>
+                        <SelectContent translate="no">
+                          {conditionOptions.map((variant) => (
+                            <SelectItem key={variant.condition} value={variant.condition}>
+                              {t(`common.${variant.condition}`)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor={`q-quantity-${row.id}`} className="text-sm text-[#4B5157]">{t("common.quantity")}</Label>
+                      <Input
+                        id={`q-quantity-${row.id}`}
+                        type="number"
+                        min={1}
+                        max={500}
+                        value={row.quantity}
+                        onChange={(event) => setRow(i, { quantity: Math.min(500, Math.max(1, Number(event.target.value) || 1)) })}
+                        className="mt-1 rounded-none font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="text-sm text-[#4B5157]">{t("common.color")}</p>
+                    {!row.condition ? (
+                      <p className="mt-1 text-sm text-[#7A8086]">{t("quote.choosePrevious")}</p>
+                    ) : colorOptions.length === 0 ? (
+                      <p className="mt-1 text-sm text-[#7A8086]">{t("quote.unavailableConfiguration")}</p>
+                    ) : (
+                      <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label={t("quote.selectColor")}>
+                        {colorOptions.map((variant) => {
+                          const colorName = [
+                            lang === "de" ? variant.color_label_de : variant.color_label_pl,
+                            variant.color_ral,
+                          ].filter(Boolean).join(" · ") || t("quote.colorUnspecified");
+                          const selected = row.color === variant.colorKey;
+                          return (
+                            <button
+                              key={variant.colorKey}
+                              type="button"
+                              role="radio"
+                              aria-checked={selected}
+                              aria-label={`${t("common.color")}: ${colorName}`}
+                              onClick={() => setRowChoice(i, "color", variant.colorKey)}
+                              className={`inline-flex min-h-11 items-center gap-2 border bg-white px-3 py-2 text-sm font-medium transition-colors ${
+                                selected
+                                  ? "border-[#1A1C1E] shadow-[0_0_0_2px_#F5A623]"
+                                  : "border-[#D7DADF] hover:border-[#A9700A]"
+                              }`}
+                            >
+                              <span
+                                className="flex h-6 w-6 shrink-0 items-center justify-center border border-black/15"
+                                style={{ backgroundColor: variant.color_hex || "#E0E2E5", color: variant.color_text || "#1A1C1E" }}
+                                aria-hidden="true"
+                              >
+                                {selected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
+                              </span>
+                              {colorName}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedVariant && (
+                    <p className="mt-4 flex items-center gap-2 text-sm font-semibold text-[#2E7D32]">
+                      <CheckCircle2 className="h-4 w-4" /> {t("quote.configurationReady")}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
-          <Button type="button" variant="outline" onClick={() => setRows((r) => [...r, { value: "", quantity: 1 }])} className="mt-3 rounded-none border-[#E0E2E5] text-[#3A3E42]">
-            <Plus className="w-4 h-4" /> {t("quote.addProduct")}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => {
+              const id = `quote-row-${Date.now()}-${rowCounter.current++}`;
+              setRows((current) => [...current, emptyRow(id)]);
+            }}
+            disabled={!draftReady || productsLoading}
+            className="mt-3 rounded-none border-[#E0E2E5] text-[#3A3E42]"
+          >
+            <Plus className="w-4 h-4" /> {t("quote.addConfiguration")}
           </Button>
           <div className="mt-4">
             <Label htmlFor="q-free" className="text-sm text-[#4B5157]">{t("quote.freeText")} ({t("common.optional")})</Label>
@@ -196,10 +465,10 @@ export default function QuotePage() {
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <Label className="text-sm text-[#4B5157]">{t("checkout.country")} *</Label>
+              <Label htmlFor="q-country" className="text-sm text-[#4B5157]">{t("checkout.country")} *</Label>
               <Select value={form.country} onValueChange={(v) => setForm((f) => ({ ...f, country: v }))}>
-                <SelectTrigger className="rounded-none mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectTrigger id="q-country" className="rounded-none mt-1"><SelectValue /></SelectTrigger>
+                <SelectContent translate="no">
                   <SelectItem value="PL">Polska</SelectItem>
                   <SelectItem value="DE">Deutschland</SelectItem>
                 </SelectContent>
@@ -217,6 +486,7 @@ export default function QuotePage() {
               <Label htmlFor="q-addr" className="text-sm text-[#4B5157]">{t("checkout.street")} ({t("common.optional")})</Label>
               <Input id="q-addr" value={form.address} onChange={set("address")} className="rounded-none mt-1" />
             </div>
+            <p className="text-sm text-[#6B7075] sm:col-span-3">{t("quote.countryHint")}</p>
           </div>
           <div className="mt-4">
             <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#4B5157] mb-2">{t("checkout.unloading")}</p>

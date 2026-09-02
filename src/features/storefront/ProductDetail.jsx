@@ -34,11 +34,17 @@ export default function ProductDetail({ slug }) {
   const product = products.find((p) => (lang === "de" ? p.slug_de : p.slug_pl) === slug);
   const siblings = product ? products.filter((p) => p.family_id === product.family_id) : [];
   const activeSiblings = siblings.filter((entry) => entry.active !== false);
-  const colorOptions = Array.from(new Set(activeSiblings.map((entry) => entry.color).filter(Boolean))).map(
-    (color) =>
-      activeSiblings.find((entry) => entry.color === color && entry.condition === product?.condition) ||
-      activeSiblings.find((entry) => entry.color === color)
+  // Colour is the final level in the product hierarchy. Never leak a colour from
+  // another condition into the current selection (for example, New into Used).
+  const matchingConditionSiblings = activeSiblings.filter(
+    (entry) =>
+      entry.condition === product?.condition &&
+      entry.size === product?.size &&
+      entry.container_type === product?.container_type
   );
+  const colorOptions = Array.from(
+    new Set(matchingConditionSiblings.map((entry) => entry.color).filter(Boolean))
+  ).map((color) => matchingConditionSiblings.find((entry) => entry.color === color));
   const conditionOptions = Array.from(
     new Set(activeSiblings.map((entry) => entry.condition).filter(Boolean))
   ).map(
@@ -163,7 +169,34 @@ export default function ProductDetail({ slug }) {
             </p>
           </div>
 
-          {/* Colour selectors — each swatch links to the real matching product row. */}
+          {conditionOptions.length > 1 && (
+            <div className="mt-6">
+              <p className="text-sm font-semibold tracking-[0.12em] uppercase text-[#4B5157] mb-2">{t("common.condition")}</p>
+              <div className="flex flex-wrap gap-2" role="group" aria-label={t("common.condition")}>
+                {conditionOptions.map((conditionVariant) => {
+                  const isCurrent = conditionVariant.id === product.id;
+                  const href = lang === "de" ? `/de/${conditionVariant.slug_de}` : `/${conditionVariant.slug_pl}`;
+                  return (
+                    <Link
+                      key={conditionVariant.condition}
+                      href={href}
+                      className={`px-5 py-3 border font-semibold text-sm transition-colors inline-flex items-center gap-2 ${
+                        isCurrent
+                          ? "border-[#1A1C1E] bg-[#1A1C1E] text-white"
+                          : "border-[#E0E2E5] bg-white text-[#3A3E42] hover:border-[#1A1C1E]"
+                      }`}
+                      aria-current={isCurrent ? "page" : undefined}
+                    >
+                      {isCurrent && <Check className="w-4 h-4" />}
+                      {t(`common.${conditionVariant.condition}`)}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Colour selectors — scoped to the selected product criteria and condition. */}
           {colorOptions.length > 0 && (
             <div className="mt-6">
               <p className="text-sm font-semibold tracking-[0.12em] uppercase text-[#4B5157] mb-3">
@@ -199,33 +232,6 @@ export default function ProductDetail({ slug }) {
                       >
                         {selected && <Check className="h-4 w-4" strokeWidth={3} />}
                       </span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {conditionOptions.length > 1 && (
-            <div className="mt-6">
-              <p className="text-sm font-semibold tracking-[0.12em] uppercase text-[#4B5157] mb-2">{t("common.condition")}</p>
-              <div className="flex flex-wrap gap-2" role="group" aria-label={t("common.condition")}>
-                {conditionOptions.map((conditionVariant) => {
-                  const isCurrent = conditionVariant.id === product.id;
-                  const href = lang === "de" ? `/de/${conditionVariant.slug_de}` : `/${conditionVariant.slug_pl}`;
-                  return (
-                    <Link
-                      key={conditionVariant.condition}
-                      href={href}
-                      className={`px-5 py-3 border font-semibold text-sm transition-colors inline-flex items-center gap-2 ${
-                        isCurrent
-                          ? "border-[#1A1C1E] bg-[#1A1C1E] text-white"
-                          : "border-[#E0E2E5] bg-white text-[#3A3E42] hover:border-[#1A1C1E]"
-                      }`}
-                      aria-current={isCurrent ? "page" : undefined}
-                    >
-                      {isCurrent && <Check className="w-4 h-4" />}
-                      {t(`common.${conditionVariant.condition}`)}
                     </Link>
                   );
                 })}
