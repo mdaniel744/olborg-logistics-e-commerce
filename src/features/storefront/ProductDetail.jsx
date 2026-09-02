@@ -119,7 +119,7 @@ export default function ProductDetail({ slug }) {
           </div>
           {gallery.length > 1 && (
             <div className="grid grid-cols-4 gap-2 mt-2">
-              {gallery.slice(1, 5).map((g, i) => (
+              {gallery.slice(1).map((g, i) => (
                 <div key={i} className="aspect-[4/3] bg-[#E0E2E5] overflow-hidden border border-[#E0E2E5]">
                   <Image src={g} alt={`${lang === "de" ? product.name_de : product.name_pl} ${i + 2}`} className="w-full h-full object-cover" />
                 </div>
