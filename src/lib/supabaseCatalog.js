@@ -83,7 +83,7 @@ function colorKey(value) {
 }
 
 function normalizeColor(attributes, translatedAttributes) {
-  const keys = ["Kolor", "Farbe", "Color", "Colour"];
+  const keys = ["Kolor", "RAL Kolor", "Farbe", "RAL Farbe", "Color", "Colour"];
   const raw = attributeValue(attributes, keys);
   const translatedRaw = attributeValue(parseTranslatedAttributes(translatedAttributes), keys);
   const rawLabel = scalarColorValue(raw);
