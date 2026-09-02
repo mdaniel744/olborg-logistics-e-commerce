@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase, STORE_ID } from "@/lib/supabaseClient";
+import { fetchMarketPrices } from "@/lib/marketPricing";
 
 // Each products row is its own independently-crawlable page (Google Merchant requires a
 // unique landing page per listing) — siblings sharing family_id are condition variants,
@@ -198,7 +199,27 @@ export async function getProducts() {
     translationsByEntity.get(t.entity_id)[t.field_name] = t.value;
   }
 
-  return rows.map((row) => normalize(row, translationsByEntity));
+  const products = rows.map((row) => normalize(row, translationsByEntity));
+
+  // Overlay live per-market net prices (VAT-aware, ECB-converted) so a row priced in only
+  // one currency still gets a real price in the other market, instead of permanently
+  // falling back to "on request". Fetched for both markets unconditionally since this list
+  // feeds server routes (order validation, merchant feed) that don't have a single "current
+  // locale" to key off. Failure here degrades to the static per-row price — never breaks
+  // the page or blocks an order.
+  const productIds = products.map((p) => p.id);
+  const [plPrices, dePrices] = await Promise.all([
+    fetchMarketPrices(STORE_ID, "pl", productIds),
+    fetchMarketPrices(STORE_ID, "de", productIds),
+  ]);
+  for (const product of products) {
+    const pl = plPrices.get(product.id);
+    const de = dePrices.get(product.id);
+    if (pl && pl.currency === "PLN") product.price_pln_net = pl.net;
+    if (de && de.currency === "EUR") product.price_eur_net = de.net;
+  }
+
+  return products;
 }
 
 // Family-level cards for listing/grid pages (Shop, Home, ProductCard) — one card per

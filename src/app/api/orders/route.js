@@ -32,9 +32,10 @@ export async function POST(request) {
     const items = [];
     const deliveryItems = [];
     for (const raw of rawItems) {
-      const product = products.find(
-        (entry) => entry.id === text(raw.product_id, 80) && entry.sku === text(raw.sku, 80)
-      );
+      // product_id (the row's own id) already uniquely identifies the exact variant — sku
+      // is display-only. Matching on it too broke every order once real dashboard products
+      // (sku: null) replaced the old demo catalog's populated skus.
+      const product = products.find((entry) => entry.id === text(raw.product_id, 80));
       if (!product || product.status !== "active" || product.active === false) {
         return Response.json({ error: "product_unavailable", sku: raw.sku }, { status: 400 });
       }
