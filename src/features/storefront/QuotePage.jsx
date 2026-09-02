@@ -25,14 +25,21 @@ export default function QuotePage() {
   const options = products.flatMap((p) =>
     (p.variants || [])
       .filter((v) => v.active !== false)
-      .map((v) => ({
-        value: `${p.id}|${v.sku}`,
-        label: `${lang === "de" ? p.name_de : p.name_pl} — ${t(`common.${v.condition}`)}`,
-        product_id: p.id,
-        product_name: lang === "de" ? p.name_de : p.name_pl,
-        sku: v.sku,
-        variant_label: t(`common.${v.condition}`),
-      }))
+      .map((v) => {
+        const color = [
+          lang === "de" ? v.color_label_de : v.color_label_pl,
+          v.color_ral,
+        ].filter(Boolean).join(" ");
+        const condition = t(`common.${v.condition}`);
+        return {
+          value: `${p.id}|${v.sku}`,
+          label: [lang === "de" ? p.name_de : p.name_pl, condition, color].filter(Boolean).join(" — "),
+          product_id: p.id,
+          product_name: lang === "de" ? p.name_de : p.name_pl,
+          sku: v.sku,
+          variant_label: [condition, color ? `${t("common.color")}: ${color}` : null].filter(Boolean).join(" · "),
+        };
+      })
   );
 
   const [rows, setRows] = useState(() =>

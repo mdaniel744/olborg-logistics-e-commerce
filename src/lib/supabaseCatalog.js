@@ -1,4 +1,4 @@
-import { supabase, STORE_ID } from "@/lib/supabaseClient";
+import { isSupabaseConfigured, supabase, STORE_ID } from "@/lib/supabaseClient";
 
 // Each products row is its own independently-crawlable page (Google Merchant requires a
 // unique landing page per listing) — siblings sharing family_id are condition variants,
@@ -6,6 +6,110 @@ import { supabase, STORE_ID } from "@/lib/supabaseClient";
 // of truth; the `condition` column stays English for Merchant/schema.org output only.
 const STAN_TO_CONDITION = { Nowy: "new", Używany: "used" };
 const CONDITION_SUFFIX = /\s*[–-]\s*(Nowy|Używany|Neu|Gebraucht)\s*$/i;
+
+const COLOR_REFERENCES = [
+  { key: "ral_1007", ral: "RAL 1007", hex: "#E18A00", label_pl: "Żółty narcyzowy", label_de: "Narzissengelb" },
+  { key: "ral_2004", ral: "RAL 2004", hex: "#E25303", label_pl: "Pomarańczowy czysty", label_de: "Reinorange" },
+  { key: "ral_3009", ral: "RAL 3009", hex: "#6F352B", label_pl: "Czerwony tlenkowy", label_de: "Oxidrot" },
+  { key: "ral_5010", ral: "RAL 5010", hex: "#0E4C86", label_pl: "Niebieski gencjanowy", label_de: "Enzianblau" },
+  { key: "ral_5013", ral: "RAL 5013", hex: "#1E2D44", label_pl: "Niebieski kobaltowy", label_de: "Kobaltblau" },
+  { key: "ral_6005", ral: "RAL 6005", hex: "#47744C", label_pl: "Zielony mchowy", label_de: "Moosgrün" },
+  { key: "ral_7016", ral: "RAL 7016", hex: "#383E42", label_pl: "Szary antracytowy", label_de: "Anthrazitgrau" },
+  { key: "ral_7035", ral: "RAL 7035", hex: "#CBD0D2", label_pl: "Jasnoszary", label_de: "Lichtgrau" },
+  { key: "ral_8004", ral: "RAL 8004", hex: "#8D4931", label_pl: "Brąz miedziany", label_de: "Kupferbraun" },
+  { key: "ral_9002", ral: "RAL 9002", hex: "#D7D5CB", label_pl: "Białoszary", label_de: "Grauweiß" },
+  { key: "ral_9005", ral: "RAL 9005", hex: "#0A0A0D", label_pl: "Czarny głęboki", label_de: "Tiefschwarz" },
+  { key: "ral_9010", ral: "RAL 9010", hex: "#F1ECE1", label_pl: "Biały czysty", label_de: "Reinweiß" },
+];
+
+const COLOR_KEYWORDS = [
+  { pattern: /blue|blau|niebiesk/i, hex: "#0E4C86" },
+  { pattern: /red|rot|czerwon/i, hex: "#8B3A32" },
+  { pattern: /green|grün|zielon/i, hex: "#47744C" },
+  { pattern: /grey|gray|grau|szar/i, hex: "#6B7075" },
+  { pattern: /white|weiß|weiss|biał/i, hex: "#F1ECE1" },
+  { pattern: /black|schwarz|czarn/i, hex: "#0A0A0D" },
+  { pattern: /orange|pomarańcz/i, hex: "#E25303" },
+  { pattern: /yellow|gelb|żół/i, hex: "#E1A100" },
+  { pattern: /brown|braun|brąz/i, hex: "#8D4931" },
+];
+
+function attributeValue(attributes, keys) {
+  if (!attributes || typeof attributes !== "object" || Array.isArray(attributes)) return null;
+  const wanted = new Set(keys.map((key) => key.toLowerCase()));
+  const match = Object.entries(attributes).find(([key]) => wanted.has(key.toLowerCase()));
+  return match?.[1] ?? null;
+}
+
+function parseTranslatedAttributes(value) {
+  if (!value) return null;
+  if (typeof value === "object") return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+}
+
+function scalarColorValue(value) {
+  if (value == null) return "";
+  if (typeof value === "string" || typeof value === "number") return String(value).trim();
+  if (typeof value === "object") {
+    return String(value.value || value.name || value.label || value.ral || "").trim();
+  }
+  return "";
+}
+
+function normalizeHex(value) {
+  const match = String(value || "").match(/#([0-9a-f]{6}|[0-9a-f]{3})\b/i);
+  if (!match) return null;
+  const raw = match[1];
+  return `#${raw.length === 3 ? raw.split("").map((part) => part + part).join("") : raw}`.toUpperCase();
+}
+
+function textColor(hex) {
+  const value = hex.replace("#", "");
+  const [r, g, b] = [0, 2, 4].map((index) => Number.parseInt(value.slice(index, index + 2), 16));
+  return r * 0.299 + g * 0.587 + b * 0.114 > 170 ? "#1A1C1E" : "#FFFFFF";
+}
+
+function colorKey(value) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+}
+
+function normalizeColor(attributes, translatedAttributes) {
+  const keys = ["Kolor", "Farbe", "Color", "Colour"];
+  const raw = attributeValue(attributes, keys);
+  const translatedRaw = attributeValue(parseTranslatedAttributes(translatedAttributes), keys);
+  const rawLabel = scalarColorValue(raw);
+  if (!rawLabel) return {};
+
+  const translatedLabel = scalarColorValue(translatedRaw);
+  const ralMatch = rawLabel.match(/RAL\s*([0-9]{4})/i);
+  const reference = ralMatch
+    ? COLOR_REFERENCES.find((entry) => entry.ral.endsWith(ralMatch[1]))
+    : null;
+  const explicitHex = normalizeHex(
+    typeof raw === "object" ? raw.hex || raw.color || raw.swatch : rawLabel
+  );
+  const keywordHex = COLOR_KEYWORDS.find((entry) => entry.pattern.test(rawLabel))?.hex;
+  const hex = explicitHex || reference?.hex || keywordHex || "#6B7075";
+  const ral = reference?.ral || (ralMatch ? `RAL ${ralMatch[1]}` : "");
+
+  return {
+    color: reference?.key || colorKey(rawLabel),
+    color_hex: hex,
+    color_text: textColor(hex),
+    color_ral: ral,
+    color_label_pl: reference?.label_pl || rawLabel,
+    color_label_de: reference?.label_de || translatedLabel || rawLabel,
+  };
+}
 
 // Typ values are brand terminology used verbatim in PL/DE copy ("... High Cube", "... Open
 // Side"), so normalize generically (lowercase, spaces -> underscores) rather than mapping a
@@ -17,7 +121,7 @@ function normalizeTyp(value) {
 }
 
 async function fetchTranslations(productIds) {
-  if (productIds.length === 0) return [];
+  if (!isSupabaseConfigured || !supabase || productIds.length === 0) return [];
   const { data, error } = await supabase
     .from("translations")
     .select("entity_id,field_name,value")
@@ -35,6 +139,7 @@ async function fetchTranslations(productIds) {
 function normalize(row, translationsByEntity) {
   const de = translationsByEntity.get(row.id) || {};
   const condition = row.condition || STAN_TO_CONDITION[row.attributes?.Stan] || null;
+  const color = normalizeColor(row.attributes, de.attributes);
   const availability =
     row.stock_quantity > 0 ? "in_stock" : row.status === "active" ? "on_request" : "out_of_stock";
   return {
@@ -66,11 +171,14 @@ function normalize(row, translationsByEntity) {
     created_date: row.created_at,
     size: row.attributes?.Rozmiar || undefined,
     container_type: normalizeTyp(row.attributes?.Typ),
+    ...color,
   };
 }
 
 // Flat list — one entry per real, independently-routable product row.
 export async function getProducts() {
+  if (!isSupabaseConfigured || !supabase) return [];
+
   const { data: rows, error } = await supabase
     .from("products")
     .select("*")

@@ -29,6 +29,8 @@ export async function GET(request) {
     const condition = product.condition === "new" ? "new" : "used";
     const localizedCondition =
       product.condition === "new" ? (isGerman ? "Neu" : "Nowy") : isGerman ? "Gebraucht" : "Używany";
+    const localizedColor = isGerman ? product.color_label_de : product.color_label_pl;
+    const colorWithRal = [localizedColor, product.color_ral].filter(Boolean).join(" ");
     const slug = isGerman ? product.slug_de : product.slug_pl;
     const link = `${url.origin}${isGerman ? "/de" : ""}/${slug}`;
     const description = isGerman ? product.short_description_de : product.short_description_pl;
@@ -45,13 +47,14 @@ export async function GET(request) {
       `<item>` +
         `<g:id>${escapeXml(product.sku)}</g:id>` +
         `<g:item_group_id>${escapeXml(product.family_id)}</g:item_group_id>` +
-        `<g:title>${escapeXml(`${name} — ${localizedCondition}`)}</g:title>` +
+        `<g:title>${escapeXml([name, localizedCondition, colorWithRal].filter(Boolean).join(" — "))}</g:title>` +
         `<g:description>${escapeXml(description)}</g:description>` +
         `<g:link>${escapeXml(link)}</g:link>` +
         `<g:image_link>${escapeXml(absoluteImage)}</g:image_link>` +
         `<g:price>${grossFromNet(net, treatment.rate).toFixed(2)} ${isGerman ? "EUR" : "PLN"}</g:price>` +
         `<g:availability>${availability}</g:availability>` +
         `<g:condition>${condition}</g:condition>` +
+        (colorWithRal ? `<g:color>${escapeXml(colorWithRal)}</g:color>` : "") +
         `<g:brand>Olborg Logistics</g:brand>` +
         `<g:identifier_exists>no</g:identifier_exists>` +
         `<g:size>${escapeXml(product.size)}</g:size>` +

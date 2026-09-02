@@ -17,6 +17,11 @@ import DeliveryCalculator from "@/components/store/DeliveryCalculator";
 import ProductInfoTabs from "@/components/store/ProductInfoTabs";
 import ProductCard from "@/components/store/ProductCard";
 
+const colorLabel = (variant, lang) => {
+  if (!variant?.color) return "";
+  const label = lang === "de" ? variant.color_label_de : variant.color_label_pl;
+  return [label, variant.color_ral].filter(Boolean).join(" · ");
+};
 export default function ProductDetail({ slug }) {
   const { lang, market, currency, t, setDynamicAlt } = useLang();
   const { products, isLoading } = useProductRows();
@@ -28,6 +33,19 @@ export default function ProductDetail({ slug }) {
   // page / query-string toggle. Siblings sharing family_id populate the picker below.
   const product = products.find((p) => (lang === "de" ? p.slug_de : p.slug_pl) === slug);
   const siblings = product ? products.filter((p) => p.family_id === product.family_id) : [];
+  const activeSiblings = siblings.filter((entry) => entry.active !== false);
+  const colorOptions = Array.from(new Set(activeSiblings.map((entry) => entry.color).filter(Boolean))).map(
+    (color) =>
+      activeSiblings.find((entry) => entry.color === color && entry.condition === product?.condition) ||
+      activeSiblings.find((entry) => entry.color === color)
+  );
+  const conditionOptions = Array.from(
+    new Set(activeSiblings.map((entry) => entry.condition).filter(Boolean))
+  ).map(
+    (condition) =>
+      activeSiblings.find((entry) => entry.condition === condition && entry.color === product?.color) ||
+      activeSiblings.find((entry) => entry.condition === condition)
+  );
 
   useEffect(() => {
     if (product) {
@@ -57,13 +75,15 @@ export default function ProductDetail({ slug }) {
 
   const handleAddToCart = () => {
     if (!price) return;
+    const colorPl = [product.color_label_pl, product.color_ral].filter(Boolean).join(" ");
+    const colorDe = [product.color_label_de, product.color_ral].filter(Boolean).join(" ");
     addItem({
       product_id: product.id,
       sku: product.sku,
       name_pl: product.name_pl,
       name_de: product.name_de,
-      variant_label_pl: `${t("common.condition")}: ${product.condition === "new" ? "Nowy" : "Używany"}`,
-      variant_label_de: `Zustand: ${product.condition === "new" ? "Neu" : "Gebraucht"}`,
+      variant_label_pl: `Stan: ${product.condition === "new" ? "Nowy" : "Używany"}${colorPl ? ` · Kolor: ${colorPl}` : ""}`,
+      variant_label_de: `Zustand: ${product.condition === "new" ? "Neu" : "Gebraucht"}${colorDe ? ` · Farbe: ${colorDe}` : ""}`,
       price_pln_net: product.price_pln_net,
       price_eur_net: product.price_eur_net,
       size: product.size,
@@ -90,7 +110,12 @@ export default function ProductDetail({ slug }) {
         {/* Gallery */}
         <div className="lg:sticky lg:top-24 self-start">
           <div className="aspect-[4/3] bg-[#E0E2E5] border border-[#E0E2E5] overflow-hidden">
-            <Image src={gallery[0]} alt={lang === "de" ? product.name_de : product.name_pl} loading="eager" className="w-full h-full object-cover" />
+            <Image
+              src={gallery[0]}
+              alt={`${lang === "de" ? product.name_de : product.name_pl}${product.color ? ` — ${colorLabel(product, lang)}` : ""}`}
+              loading="eager"
+              className="w-full h-full object-cover"
+            />
           </div>
           {gallery.length > 1 && (
             <div className="grid grid-cols-4 gap-2 mt-2">
@@ -138,32 +163,72 @@ export default function ProductDetail({ slug }) {
             </p>
           </div>
 
-          {/* Variant selectors — real links to each sibling's own product page */}
-          {siblings.length > 1 && (
+          {/* Colour selectors — each swatch links to the real matching product row. */}
+          {colorOptions.length > 0 && (
+            <div className="mt-6">
+              <p className="text-sm font-semibold tracking-[0.12em] uppercase text-[#4B5157] mb-3">
+                {t("common.color")}
+                <span className="ml-2 normal-case tracking-normal font-medium text-[#1A1C1E]">
+                  {colorLabel(product, lang)}
+                </span>
+              </p>
+              <div className="flex flex-wrap gap-3" role="radiogroup" aria-label={t("common.color")}>
+                {colorOptions.map((colorVariant) => {
+                  const selected = product.color === colorVariant.color;
+                  const label = colorLabel(colorVariant, lang);
+                  const href = lang === "de" ? `/de/${colorVariant.slug_de}` : `/${colorVariant.slug_pl}`;
+                  return (
+                    <Link
+                      key={colorVariant.color}
+                      href={href}
+                      className={`relative h-12 w-12 border bg-white p-1.5 transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5A623] focus-visible:ring-offset-2 ${
+                        selected
+                          ? "border-[#1A1C1E] shadow-[0_0_0_2px_#F5A623]"
+                          : "border-[#C7CBCF] hover:border-[#1A1C1E]"
+                      }`}
+                      role="radio"
+                      aria-checked={selected}
+                      aria-current={selected ? "page" : undefined}
+                      aria-label={`${t("common.color")}: ${label}`}
+                      title={label}
+                    >
+                      <span
+                        className="flex h-full w-full items-center justify-center border border-black/10"
+                        style={{ backgroundColor: colorVariant.color_hex, color: colorVariant.color_text }}
+                        aria-hidden="true"
+                      >
+                        {selected && <Check className="h-4 w-4" strokeWidth={3} />}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {conditionOptions.length > 1 && (
             <div className="mt-6">
               <p className="text-sm font-semibold tracking-[0.12em] uppercase text-[#4B5157] mb-2">{t("common.condition")}</p>
-              <div className="flex gap-2" role="group" aria-label={t("common.condition")}>
-                {siblings
-                  .filter((s) => s.active !== false)
-                  .map((s) => {
-                    const isCurrent = s.id === product.id;
-                    const href = lang === "de" ? `/de/${s.slug_de}` : `/${s.slug_pl}`;
-                    return (
-                      <Link
-                        key={s.id}
-                        href={href}
-                        className={`px-5 py-3 border font-semibold text-sm transition-colors inline-flex items-center gap-2 ${
-                          isCurrent
-                            ? "border-[#1A1C1E] bg-[#1A1C1E] text-white"
-                            : "border-[#E0E2E5] bg-white text-[#3A3E42] hover:border-[#1A1C1E]"
-                        }`}
-                        aria-current={isCurrent ? "page" : undefined}
-                      >
-                        {isCurrent && <Check className="w-4 h-4" />}
-                        {t(`common.${s.condition}`)}
-                      </Link>
-                    );
-                  })}
+              <div className="flex flex-wrap gap-2" role="group" aria-label={t("common.condition")}>
+                {conditionOptions.map((conditionVariant) => {
+                  const isCurrent = conditionVariant.id === product.id;
+                  const href = lang === "de" ? `/de/${conditionVariant.slug_de}` : `/${conditionVariant.slug_pl}`;
+                  return (
+                    <Link
+                      key={conditionVariant.condition}
+                      href={href}
+                      className={`px-5 py-3 border font-semibold text-sm transition-colors inline-flex items-center gap-2 ${
+                        isCurrent
+                          ? "border-[#1A1C1E] bg-[#1A1C1E] text-white"
+                          : "border-[#E0E2E5] bg-white text-[#3A3E42] hover:border-[#1A1C1E]"
+                      }`}
+                      aria-current={isCurrent ? "page" : undefined}
+                    >
+                      {isCurrent && <Check className="w-4 h-4" />}
+                      {t(`common.${conditionVariant.condition}`)}
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
