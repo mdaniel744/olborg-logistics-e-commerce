@@ -53,6 +53,90 @@ function parseTranslatedAttributes(value) {
   }
 }
 
+const NON_TECHNICAL_ATTRIBUTES = new Set([
+  "stan",
+  "condition",
+  "zustand",
+  "kolor",
+  "ral kolor",
+  "farbe",
+  "ral farbe",
+  "color",
+  "colour",
+]);
+
+const TECHNICAL_ATTRIBUTE_LABELS = {
+  rozmiar: { pl: "Rozmiar", de: "Größe" },
+  size: { pl: "Rozmiar", de: "Größe" },
+  typ: { pl: "Typ", de: "Typ" },
+  type: { pl: "Typ", de: "Typ" },
+  "dlugosc zewnetrzna": { pl: "Długość zewnętrzna", de: "Außenlänge" },
+  "szerokosc zewnetrzna": { pl: "Szerokość zewnętrzna", de: "Außenbreite" },
+  "wysokosc zewnetrzna": { pl: "Wysokość zewnętrzna", de: "Außenhöhe" },
+  "wymiary zewnetrzne": { pl: "Wymiary zewnętrzne", de: "Außenmaße" },
+  "wymiary wewnetrzne": { pl: "Wymiary wewnętrzne", de: "Innenmaße" },
+  "szerokosc otworu drzwiowego": { pl: "Szerokość otworu drzwiowego", de: "Türöffnungsbreite" },
+  "wysokosc otworu drzwiowego": { pl: "Wysokość otworu drzwiowego", de: "Türöffnungshöhe" },
+  pojemnosc: { pl: "Pojemność", de: "Volumen" },
+  objetosc: { pl: "Objętość", de: "Volumen" },
+  "masa wlasna": { pl: "Masa własna", de: "Leergewicht" },
+  ladownosc: { pl: "Ładowność", de: "Nutzlast" },
+  "maksymalna masa calkowita": { pl: "Maksymalna masa całkowita", de: "Zulässiges Gesamtgewicht" },
+  podloga: { pl: "Podłoga", de: "Boden" },
+  material: { pl: "Materiał", de: "Material" },
+};
+
+function normalizedAttributeKey(value) {
+  return String(value || "")
+    .toLocaleLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/ł/g, "l")
+    .replace(/ß/g, "ss")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function displayAttributeValue(value) {
+  if (value == null) return "";
+  if (Array.isArray(value)) return value.map(displayAttributeValue).filter(Boolean).join(", ");
+  if (["string", "number", "boolean"].includes(typeof value)) return String(value).trim();
+  if (typeof value === "object") {
+    const primary = value.value ?? value.name ?? value.label ?? value.text;
+    if (primary == null) return "";
+    return [displayAttributeValue(primary), displayAttributeValue(value.unit)].filter(Boolean).join(" ");
+  }
+  return "";
+}
+
+function technicalSpecifications(attributes, translatedAttributes) {
+  if (!attributes || typeof attributes !== "object" || Array.isArray(attributes)) return [];
+  const translated = parseTranslatedAttributes(translatedAttributes);
+  const translatedEntries = translated && typeof translated === "object" && !Array.isArray(translated)
+    ? Object.entries(translated)
+    : [];
+
+  return Object.entries(attributes).flatMap(([sourceLabel, sourceValue]) => {
+    const normalizedLabel = normalizedAttributeKey(sourceLabel);
+    const value = displayAttributeValue(sourceValue);
+    if (!value || NON_TECHNICAL_ATTRIBUTES.has(normalizedLabel)) return [];
+
+    const knownLabel = TECHNICAL_ATTRIBUTE_LABELS[normalizedLabel];
+    const translatedEntry = translatedEntries.find(([label]) => {
+      const translatedKey = normalizedAttributeKey(label);
+      return translatedKey === normalizedLabel || translatedKey === normalizedAttributeKey(knownLabel?.de);
+    });
+    const translatedValue = displayAttributeValue(translatedEntry?.[1]);
+
+    return [{
+      label_pl: knownLabel?.pl || sourceLabel,
+      label_de: knownLabel?.de || (translatedEntry?.[0] !== sourceLabel ? translatedEntry?.[0] : sourceLabel),
+      value,
+      value_de: translatedValue || value,
+    }];
+  });
+}
+
 function scalarColorValue(value) {
   if (value == null) return "";
   if (typeof value === "string" || typeof value === "number") return String(value).trim();
@@ -157,6 +241,8 @@ function demoProductRows() {
           featured_image: variant.image || product.featured_image,
           gallery: product.gallery || [],
           specs: product.specs || [],
+          attributes: {},
+          attributes_de: {},
           sort_order: (product.sort_order || 0) + index,
           created_date: null,
           size: product.size,
@@ -195,6 +281,7 @@ async function fetchTranslations(productIds) {
 
 function normalize(row, translationsByEntity) {
   const de = translationsByEntity.get(row.id) || {};
+  const translatedAttributes = parseTranslatedAttributes(de.attributes) || {};
   const condition = row.condition || STAN_TO_CONDITION[row.attributes?.Stan] || null;
   const color = normalizeColor(row.attributes, de.attributes);
   const availability =
@@ -224,6 +311,9 @@ function normalize(row, translationsByEntity) {
     featured: Boolean(row.is_featured),
     featured_image: row.images?.[0] || null,
     gallery: (row.images || []).slice(1),
+    specs: technicalSpecifications(row.attributes, translatedAttributes),
+    attributes: row.attributes || {},
+    attributes_de: translatedAttributes,
     sort_order: row.display_order ?? 0,
     created_date: row.created_at,
     size: row.attributes?.Rozmiar || undefined,

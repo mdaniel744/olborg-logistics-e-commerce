@@ -164,6 +164,130 @@
     text-underline-offset: 0.2em;
   }
 
+  .product-rich-text > :first-child {
+    margin-top: 0;
+  }
+
+  .product-rich-text > :last-child {
+    margin-bottom: 0;
+  }
+
+  .product-rich-text h1,
+  .product-rich-text h2,
+  .product-rich-text h3,
+  .product-rich-text h4,
+  .product-rich-text h5,
+  .product-rich-text h6 {
+    margin-top: 2rem;
+    color: #1a1c1e;
+    font-family: var(--font-heading);
+    font-weight: 700;
+  }
+
+  .product-rich-text h1 {
+    font-size: 1.65rem;
+    line-height: 1.25;
+  }
+
+  .product-rich-text h4,
+  .product-rich-text h5,
+  .product-rich-text h6 {
+    margin-bottom: 0.45rem;
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .product-rich-text p {
+    margin-top: 0.9rem;
+    white-space: pre-line;
+  }
+
+  .product-rich-text strong,
+  .product-rich-text b {
+    color: #1a1c1e;
+    font-weight: 700;
+  }
+
+  .product-rich-text blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.25rem;
+    border-left: 4px solid #f5a623;
+    background: #fff6e5;
+    color: #343a40;
+  }
+
+  .product-rich-text hr {
+    margin: 2rem 0;
+    border: 0;
+    height: 1px;
+    background: #d7dadf;
+  }
+
+  .product-rich-text table {
+    display: block;
+    width: 100%;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+    white-space: nowrap;
+  }
+
+  .product-rich-text thead {
+    background: #1a1c1e;
+    color: #ffffff;
+  }
+
+  .product-rich-text th,
+  .product-rich-text td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #dfe1e3;
+    text-align: left;
+  }
+
+  .product-rich-text tbody tr:nth-child(even) {
+    background: #f1f2f3;
+  }
+
+  .product-rich-text code {
+    padding: 0.12em 0.35em;
+    background: #eceeef;
+    color: #1a1c1e;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.9em;
+  }
+
+  .product-rich-text pre {
+    margin: 1.5rem 0;
+    padding: 1rem;
+    overflow-x: auto;
+    background: #1a1c1e;
+    color: #ffffff;
+  }
+
+  .product-rich-text pre code {
+    padding: 0;
+    background: transparent;
+    color: inherit;
+  }
+
+  .product-rich-text img,
+  .product-rich-text video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem 0;
+  }
+
+  .product-rich-text figure {
+    margin: 1.5rem 0;
+  }
+
+  .product-rich-text figcaption {
+    margin-top: 0.5rem;
+    color: #6b7075;
+    font-size: 0.875rem;
+  }
+
   @media (min-width: 768px) {
     .reading-page {
       padding-top: 3.5rem;

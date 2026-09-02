@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { getImageProps } from "next/image";
 import { Check, Truck } from "lucide-react";
-import { Image } from "@/components/ui/image";
 import { Button } from "@/components/ui/button";
 import { useLang, usePageMeta } from "@/lib/i18n";
 import { useProductRows, useSettings } from "@/lib/useSettings";
@@ -14,6 +14,7 @@ import { variantGross, vatLabel } from "@/lib/vat";
 import { pathFor } from "@/lib/routes";
 import PageNotFound from "@/lib/PageNotFound";
 import DeliveryCalculator from "@/components/store/DeliveryCalculator";
+import ProductGallery from "@/components/store/ProductGallery";
 import ProductInfoTabs from "@/components/store/ProductInfoTabs";
 import ProductCard from "@/components/store/ProductCard";
 
@@ -22,16 +23,52 @@ const colorLabel = (variant, lang) => {
   const label = lang === "de" ? variant.color_label_de : variant.color_label_pl;
   return [label, variant.color_ral].filter(Boolean).join(" · ");
 };
-export default function ProductDetail({ slug }) {
+
+const warmedVariantImages = new Set();
+const warmingVariantImages = new Map();
+
+function warmVariantImage(src) {
+  if (!src || warmedVariantImages.has(src) || warmingVariantImages.has(src)) return;
+  try {
+    const { props } = getImageProps({
+      src,
+      alt: "",
+      width: 1200,
+      height: 900,
+      sizes: "(max-width: 1023px) 100vw, 50vw",
+    });
+    const image = new window.Image();
+    image.decoding = "async";
+    image.fetchPriority = "low";
+    image.onload = () => {
+      warmingVariantImages.delete(src);
+      warmedVariantImages.add(src);
+    };
+    image.onerror = () => warmingVariantImages.delete(src);
+    warmingVariantImages.set(src, image);
+    image.sizes = props.sizes;
+    image.srcset = props.srcSet;
+    image.src = props.src;
+  } catch {
+    // A future external image host may not yet be in the Next.js image allow-list.
+  }
+}
+
+export default function ProductDetail({ slug, initialProducts }) {
   const { lang, market, currency, t, setDynamicAlt } = useLang();
-  const { products, isLoading } = useProductRows();
+  const { products, isLoading } = useProductRows(initialProducts);
   const { settings } = useSettings();
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
+  const [localSelection, setLocalSelection] = useState(null);
 
-  // Each condition is its own real, independently-routable product row — no shared
-  // page / query-string toggle. Siblings sharing family_id populate the picker below.
-  const product = products.find((p) => (lang === "de" ? p.slug_de : p.slug_pl) === slug);
+  // Every variant keeps its own crawlable URL, while regular swatch clicks select from
+  // the catalogue already in memory instead of waiting for another server round trip.
+  const routedProduct = products.find((p) => (lang === "de" ? p.slug_de : p.slug_pl) === slug);
+  const locallySelectedProduct = localSelection?.routeSlug === slug
+    ? products.find((entry) => entry.id === localSelection.productId)
+    : null;
+  const product = locallySelectedProduct || routedProduct;
   const siblings = product ? products.filter((p) => p.family_id === product.family_id) : [];
   const activeSiblings = siblings.filter((entry) => entry.active !== false);
   // Colour is the final level in the product hierarchy. Never leak a colour from
@@ -58,6 +95,44 @@ export default function ProductDetail({ slug }) {
       setDynamicAlt({ pl: `/${product.slug_pl}`, de: `/de/${product.slug_de}` });
     }
   }, [product, setDynamicAlt]);
+
+  useEffect(() => {
+    setLocalSelection((current) => current?.routeSlug === slug ? current : null);
+  }, [slug]);
+
+  useEffect(() => {
+    const handleHistoryNavigation = () => {
+      const parts = window.location.pathname.split("/").filter(Boolean);
+      const historySlug = lang === "de" ? parts[1] : parts[0];
+      const historyProduct = products.find(
+        (entry) => (lang === "de" ? entry.slug_de : entry.slug_pl) === historySlug
+      );
+      setLocalSelection(
+        historyProduct ? { productId: historyProduct.id, routeSlug: slug } : null
+      );
+    };
+
+    window.addEventListener("popstate", handleHistoryNavigation);
+    return () => window.removeEventListener("popstate", handleHistoryNavigation);
+  }, [lang, products, slug]);
+
+  useEffect(() => {
+    if (!product) return undefined;
+
+    const siblingImages = products
+      .filter((entry) => entry.family_id === product.family_id && entry.id !== product.id)
+      .map((entry) => entry.featured_image)
+      .filter(Boolean);
+    const warmImages = () => siblingImages.forEach(warmVariantImage);
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(warmImages, { timeout: 1500 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timerId = window.setTimeout(warmImages, 250);
+    return () => window.clearTimeout(timerId);
+  }, [product, products]);
 
   usePageMeta(
     product
@@ -98,6 +173,24 @@ export default function ProductDetail({ slug }) {
     });
   };
 
+  const handleVariantNavigation = (event, variant, href) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    event.preventDefault();
+    if (variant.id === product.id) return;
+    setLocalSelection({ productId: variant.id, routeSlug: slug });
+    window.history.pushState(null, "", href);
+  };
+
   // ProductCard expects family-grouped objects (with a variants[] array), not flat rows.
   const related = groupFamilies(products.filter((p) => p.family_id !== product.family_id)).slice(0, 4);
 
@@ -115,23 +208,10 @@ export default function ProductDetail({ slug }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Gallery */}
         <div className="lg:sticky lg:top-24 self-start">
-          <div className="aspect-[4/3] bg-[#E0E2E5] border border-[#E0E2E5] overflow-hidden">
-            <Image
-              src={gallery[0]}
-              alt={`${lang === "de" ? product.name_de : product.name_pl}${product.color ? ` — ${colorLabel(product, lang)}` : ""}`}
-              loading="eager"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          {gallery.length > 1 && (
-            <div className="grid grid-cols-4 gap-2 mt-2">
-              {gallery.slice(1).map((g, i) => (
-                <div key={i} className="aspect-[4/3] bg-[#E0E2E5] overflow-hidden border border-[#E0E2E5]">
-                  <Image src={g} alt={`${lang === "de" ? product.name_de : product.name_pl} ${i + 2}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
+          <ProductGallery
+            images={gallery}
+            productName={`${lang === "de" ? product.name_de : product.name_pl}${product.color ? ` — ${colorLabel(product, lang)}` : ""}`}
+          />
         </div>
 
         {/* Configuration */}
@@ -144,10 +224,6 @@ export default function ProductDetail({ slug }) {
             {product.size && ` · ${product.size}`}
             {product.container_type && ` · ${t(`common.${product.container_type}`)}`}
           </p>
-          <p className="mt-4 text-base md:text-lg text-[#343A40] leading-[1.75]">
-            {lang === "de" ? product.short_description_de : product.short_description_pl}
-          </p>
-
           {/* Price */}
           <div className="mt-6 border-y border-[#E0E2E5] py-5">
             {price ? (
@@ -180,6 +256,8 @@ export default function ProductDetail({ slug }) {
                     <Link
                       key={conditionVariant.condition}
                       href={href}
+                      prefetch={false}
+                      onClick={(event) => handleVariantNavigation(event, conditionVariant, href)}
                       className={`px-5 py-3 border font-semibold text-sm transition-colors inline-flex items-center gap-2 ${
                         isCurrent
                           ? "border-[#1A1C1E] bg-[#1A1C1E] text-white"
@@ -214,6 +292,8 @@ export default function ProductDetail({ slug }) {
                     <Link
                       key={colorVariant.color}
                       href={href}
+                      prefetch={false}
+                      onClick={(event) => handleVariantNavigation(event, colorVariant, href)}
                       className={`relative h-12 w-12 border bg-white p-1.5 transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5A623] focus-visible:ring-offset-2 ${
                         selected
                           ? "border-[#1A1C1E] shadow-[0_0_0_2px_#F5A623]"

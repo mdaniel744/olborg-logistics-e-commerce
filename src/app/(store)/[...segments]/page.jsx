@@ -19,7 +19,7 @@ import ProductDetail from "@/features/storefront/ProductDetail";
 import QuotePage from "@/features/storefront/QuotePage";
 import Shop from "@/features/storefront/Shop";
 
-// Dedupe the fetch across generateMetadata + the page render within one request.
+// Dedupe the catalogue across metadata and rendering during the same server request.
 const getCachedProducts = cache(getProducts);
 
 const staticRoutes = {
@@ -137,6 +137,6 @@ export default async function StoreRoute({ params }) {
   if (route.type === "policy") return <PolicyPage policyKey={route.policyKey} />;
   if (route.type === "landing") return <CategoryLanding landing={route.landing} />;
   if (route.type === "guide") return <GuideDetail slug={route.slug} />;
-  if (route.type === "product") return <ProductDetail slug={route.slug} />;
+  if (route.type === "product") return <ProductDetail slug={route.slug} initialProducts={products} />;
   notFound();
 }
