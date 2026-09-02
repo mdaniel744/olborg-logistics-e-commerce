@@ -1,6 +1,7 @@
-import { randomUUID } from "node:crypto";
 import { DELIVERY_ZONES, SITE_SETTINGS } from "@/data/catalog";
 import { getProducts } from "@/lib/supabaseCatalog";
+import { STORE_ID } from "@/lib/supabaseClient";
+import { submitDashboardOrder } from "@/lib/dashboardCheckout";
 import { calculateDelivery } from "@/server/delivery";
 import { computeVatTreatment, round2 } from "@/server/pricing";
 import { saveSubmission } from "@/server/submission-store";
@@ -94,10 +95,6 @@ export async function POST(request) {
     const netSubtotal = round2(itemsNet + deliveryNet);
     const vatAmount = round2(netSubtotal * (treatment.rate / 100));
     const grossTotal = round2(netSubtotal + vatAmount);
-    const orderNumber = `OL-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Math.random()
-      .toString(36)
-      .slice(2, 7)
-      .toUpperCase()}`;
 
     const labels = {
       pl_domestic: `w tym ${treatment.rate}% VAT`,
@@ -107,9 +104,38 @@ export async function POST(request) {
           ? SITE_SETTINGS.vat.intra_eu_label_de
           : SITE_SETTINGS.vat.intra_eu_label_pl,
     };
+
+    // The dashboard endpoint has no fields for company/VAT-ID/NIP or a PO reference, so
+    // fold them into the note rather than silently drop them.
+    const businessLines = [
+      customerType === "business" ? text(customer.company, 200) && `Firma: ${text(customer.company, 200)}` : null,
+      text(customer.vat_id, 20) && `VAT ID: ${text(customer.vat_id, 20)}`,
+      text(customer.nip, 20) && `NIP: ${text(customer.nip, 20)}`,
+      text(customer.po_reference, 100) && `PO: ${text(customer.po_reference, 100)}`,
+      text(customer.notes, 2000),
+    ].filter(Boolean);
+
+    let dashboardOrder;
+    try {
+      dashboardOrder = await submitDashboardOrder(STORE_ID, {
+        locale: language,
+        customerName: text(customer.name, 150),
+        customerEmail: text(customer.email, 150),
+        customerPhone: text(customer.phone, 40) || undefined,
+        billingAddress: body.billing_address || undefined,
+        deliveryAddress: body.delivery_address || undefined,
+        customerNote: businessLines.join(" | ") || undefined,
+        lineItems: items.map((item) => ({ productId: item.product_id, quantity: item.quantity })),
+      });
+    } catch (dashboardError) {
+      console.error("Dashboard order submission failed", dashboardError);
+      return Response.json({ error: "dashboard_submission_failed" }, { status: 502 });
+    }
+
     const record = {
-      id: randomUUID(),
-      order_number: orderNumber,
+      id: dashboardOrder.id,
+      order_number: dashboardOrder.orderNumber,
+      dashboard_order: dashboardOrder,
       created_at: new Date().toISOString(),
       market,
       language,
@@ -148,7 +174,12 @@ export async function POST(request) {
       status: "new",
     };
 
-    await saveSubmission("orders", record);
+    // Best-effort local backup only — the real order already exists in the dashboard by
+    // this point, so a failure here must not fail the customer's request.
+    await saveSubmission("orders", record).catch((error) => {
+      console.error("Local order backup failed (dashboard submission already succeeded)", error);
+    });
+
     return Response.json({
       order_number: record.order_number,
       id: record.id,
