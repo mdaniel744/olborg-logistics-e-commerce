@@ -9,8 +9,15 @@ const escapeXml = (value) =>
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
+// Building links from the request's own URL is unreliable behind this app's reverse proxy
+// setup — it resolves to the internal bind address (http://localhost:3010) rather than the
+// public domain, even though nginx forwards the real Host header. Use the configured site
+// URL explicitly instead; a merchant feed's links must always be the real public domain.
+const SITE_ORIGIN = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+
 export async function GET(request) {
-  const url = new URL(request.url);
+  const requestUrl = new URL(request.url);
+  const url = { origin: SITE_ORIGIN, searchParams: requestUrl.searchParams };
   const isGerman = (url.searchParams.get("market") || "pl").toLowerCase() === "de";
   const market = isGerman ? "DE" : "PL";
   const treatment = computeVatTreatment(SITE_SETTINGS, {
