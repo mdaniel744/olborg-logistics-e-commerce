@@ -101,10 +101,20 @@ export async function generateMetadata({ params }) {
   if (!route) return {};
   if (route.type === "product") {
     const product = products.find((entry) => entry[`slug_${route.language}`] === route.slug);
+    // Without this, nothing crawlable connects a product's PL and DE pages at all — the
+    // language switcher is client-side only, invisible to Google/Merchant. PL and DE use
+    // different slugs per product (not the same slug under a /de/ prefix), so these must
+    // be built from each product's own slug_pl/slug_de, not from the current path.
+    const plPath = `/${product.slug_pl}`;
+    const dePath = `/de/${product.slug_de}`;
     return {
       title: route.language === "de" ? product.name_de : product.name_pl,
       description:
         route.language === "de" ? product.short_description_de : product.short_description_pl,
+      alternates: {
+        canonical: route.language === "de" ? dePath : plPath,
+        languages: { pl: plPath, de: dePath },
+      },
     };
   }
   if (route.type === "landing") {
