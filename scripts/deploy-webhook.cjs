@@ -15,7 +15,13 @@ const REPO_DIR = process.env.WEBHOOK_REPO_DIR || "/var/www/olborg";
 const PORT = process.env.WEBHOOK_PORT || 9010;
 const PM2_APP_NAME = process.env.WEBHOOK_PM2_APP || "olborg";
 
-function loadEnvLocal() {
+// Reads only WEBHOOK_SECRET out of .env.local — deliberately not a blanket import. This
+// process stays alive for days between deploys, so pulling every key into its own
+// process.env would permanently cache whatever .env.local said at startup; that stale
+// snapshot then leaks into every future build via buildEnv below, silently ignoring any
+// later .env.local edit (this is exactly what broke NEXT_PUBLIC_SITE_URL after the
+// domain/SSL migration — the webhook had been running since before that change).
+function loadWebhookSecret() {
   const envPath = path.join(REPO_DIR, ".env.local");
   if (!fs.existsSync(envPath)) return;
   for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
@@ -24,11 +30,11 @@ function loadEnvLocal() {
     const idx = trimmed.indexOf("=");
     if (idx === -1) continue;
     const key = trimmed.slice(0, idx).trim();
-    const value = trimmed.slice(idx + 1).trim();
-    if (!(key in process.env)) process.env[key] = value;
+    if (key !== "WEBHOOK_SECRET") continue;
+    if (!("WEBHOOK_SECRET" in process.env)) process.env.WEBHOOK_SECRET = trimmed.slice(idx + 1).trim();
   }
 }
-loadEnvLocal();
+loadWebhookSecret();
 
 const SECRET = process.env.WEBHOOK_SECRET;
 if (!SECRET) {
