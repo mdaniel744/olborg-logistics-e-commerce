@@ -17,7 +17,6 @@ export function LanguageProvider({ children }) {
   const [dynamicAlt, setDynamicAlt] = useState(null);
 
   useEffect(() => {
-    setDynamicAlt(null);
     document.documentElement.lang = lang === "de" ? "de-DE" : "pl-PL";
   }, [pathname, lang]);
 
@@ -37,8 +36,10 @@ export function LanguageProvider({ children }) {
     return node;
   };
 
+  const dynamicAltMatchesPath =
+    dynamicAlt && Object.values(dynamicAlt).some((path) => path === pathname);
   const altPath = (targetLang) =>
-    dynamicAlt?.[targetLang] ||
+    (dynamicAltMatchesPath ? dynamicAlt[targetLang] : null) ||
     getStaticAltPath(pathname, targetLang) ||
     (targetLang === "de" ? "/de" : "/");
 

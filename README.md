@@ -19,13 +19,16 @@ Open [http://127.0.0.1:3000](http://127.0.0.1:3000).
 npm run lint
 npm run typecheck
 npm run build
+node --test tests/*.test.mjs
 ```
+
+With the local server running on port 3001, `node tests/storefront-smoke.mjs` checks both language versions without submitting an order or quote. Use `SMOKE_ORIGIN` for another localhost port.
 
 ## Application structure
 
 - `src/app/` contains layouts, routes, metadata, and server endpoints.
 - `src/features/storefront/` contains reusable storefront page components.
-- `src/data/catalog.js` is the source of truth for products, settings, and delivery zones.
+- `src/lib/supabaseCatalog.js` loads active catalogue rows, translations and market prices. `src/data/catalog.js` contains local demo products, public settings and delivery zones.
 - `src/server/` contains authoritative delivery, VAT, pricing, and persistence logic.
 - `public/images/` contains the brand and product assets served by the app.
 
@@ -37,4 +40,14 @@ npm run build
 - `POST /api/vat` validates EU VAT IDs against VIES.
 - `GET /api/merchant-feed?market=pl|de` generates a Google Merchant XML feed.
 
-During local development, orders and quotes are appended to `.data/*.ndjson`, and uploaded quote images are written to `public/uploads/`. Replace this storage adapter with a database and object storage before deploying to an ephemeral or serverless production environment.
+Orders and quotes are submitted to the configured external dashboard/inquiry service, with a best-effort local backup under `.data/`. Development is not a mock order environment: do not submit real-looking test orders without a designated test backend. Quote images currently use `public/uploads/`; private storage, retention and authorized retrieval remain required follow-up work.
+
+## Merchant Center / SEO release checks
+
+Read [the dated audit and unresolved business facts](docs/merchant-seo-audit.md) before publishing or requesting a Google review.
+
+- Set `NEXT_PUBLIC_SITE_URL` to the verified public HTTPS origin. Without it the site is non-indexable, the sitemap is empty and the feed returns HTTP 503. The request host is not used as a production canonical domain.
+- Confirm return-transport amounts or defensible maximum estimates before populating `SITE_SETTINGS.returns.transport_estimates.PL` and `.DE`. Each takes approved `{ pl: "…", de: "…" } customer-facing text, with VAT-inclusive amounts in the delivery country's currency. No invented rates are supplied. Private checkout and the market feed remain unavailable until the required estimate is configured; the quote form remains accessible.
+- Demo products cannot be ordered or advertised. Keep `NEXT_PUBLIC_USE_DEMO_PRODUCTS` off in production. A deployment explicitly enabling demo products is non-indexable.
+- Verify actual delivery rates/times, registered address, return depot, invoices, stock, manufacturer identifiers, translated descriptions and Merchant Center shipping/returns settings. Configuring the two fields above alone does not establish readiness or legal compliance.
+- Public pages have localized metadata, canonical links and hreflang; `/sitemap.xml` excludes demo products, incomplete product translations and transactional pages. Old direct product URLs use permanent redirects to `/produkt/…` and `/de/produkt/…`.

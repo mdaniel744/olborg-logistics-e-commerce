@@ -19,6 +19,8 @@ import { calcDeliveryClient } from "@/lib/deliveryClient";
 import { pathFor } from "@/lib/routes";
 import VatIdField from "@/components/store/VatIdField";
 import { DELIVERY_ZONES } from "@/data/catalog";
+import SellerIdentity from "@/components/store/SellerIdentity";
+import { checkoutReadiness } from "@/lib/checkoutReadiness";
 
 function Field({ id, label, required, ...props }) {
   return (
@@ -82,10 +84,11 @@ export default function Checkout() {
   });
   const vatAmount = round2(netSubtotal * (rate / 100));
   const grossTotal = round2(netSubtotal + vatAmount);
+  const readiness = checkoutReadiness({ delivery, customerType, settings, market, lang });
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!termsOk || submitting) return;
+    if (!termsOk || submitting || !readiness.ready) return;
     setSubmitting(true);
     setError(null);
     try {
@@ -257,7 +260,7 @@ export default function Checkout() {
               <dd className="font-mono">{delivery && !delivery.quoteRequired ? formatMoney(deliveryNet, currency) : "—"}</dd>
             </div>
             <div className="flex justify-between"><dt className="text-[#6B7075]">{t("common.vat")} ({rate}%)</dt><dd className="font-mono">{formatMoney(vatAmount, currency)}</dd></div>
-            <div className="flex justify-between border-t border-[#E0E2E5] pt-2 text-base font-bold"><dt>{t("checkout.grossTotal")}</dt><dd className="font-mono">{formatMoney(grossTotal, currency)}</dd></div>
+            <div className="flex justify-between border-t border-[#E0E2E5] pt-2 text-base font-bold"><dt>{t("checkout.grossTotal")}</dt><dd className="font-mono">{readiness.deliveryKnown ? formatMoney(grossTotal, currency) : "—"}</dd></div>
           </dl>
           <p className="font-mono text-[11px] text-[#6B7075] mt-2">{vatLabel(lang, rate, treatment, settings)}</p>
           {treatment === "intra_eu_b2b_0" && (
@@ -271,13 +274,32 @@ export default function Checkout() {
             </span>
           </label>
           {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
+          {!readiness.deliveryKnown && (
+            <p className="mt-4 text-sm leading-6 text-[#795207]">
+              {lang === "de" ? "Geben Sie eine gültige Lieferpostleitzahl ein. Wenn eine individuelle Transportkalkulation nötig ist, fragen Sie vor der Bestellung ein Angebot an." : "Podaj poprawny kod pocztowy dostawy. Jeśli transport wymaga indywidualnej kalkulacji, poproś o ofertę przed złożeniem zamówienia."}
+            </p>
+          )}
+          {customerType === "private" && (
+            <div className="mt-4 text-sm leading-6 text-[#4B5157]">
+              {readiness.returnEstimate ? (
+                <p>{lang === "de" ? "Direkte Rücktransportkosten bei Widerruf" : "Bezpośredni koszt transportu zwrotnego przy odstąpieniu"}: {readiness.returnEstimate}</p>
+              ) : (
+                <p>{lang === "de"
+                  ? "Vor einer Verbraucherbestellung benötigen Sie eine Kostenschätzung für den Spezialtransport bei einem Widerruf. Bitte fragen Sie diese zusammen mit dem Angebot an. Die Onlinebestellung ist bis zur Bereitstellung dieser Information nicht verfügbar."
+                  : "Przed zamówieniem konsumenckim potrzebujesz oszacowania kosztu specjalistycznego transportu zwrotnego przy odstąpieniu od umowy. Poproś o nie wraz z ofertą. Zamówienie online nie jest dostępne do czasu udostępnienia tej informacji."}</p>
+              )}
+              <Link href={pathFor("returns", lang)} className="underline">{lang === "de" ? "Rückgabe und Erstattung" : "Zwroty i zwrot płatności"}</Link>
+            </div>
+          )}
+          {!readiness.ready && <Button asChild variant="outline" className="mt-4 w-full"><Link href={pathFor("quote", lang)}>{t("common.requestQuote")}</Link></Button>}
           <Button
             type="submit"
-            disabled={!termsOk || submitting}
+            disabled={!termsOk || submitting || !readiness.ready}
             className="w-full mt-4 bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-12 text-base"
           >
             {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : t("checkout.placeOrder")}
           </Button>
+          <SellerIdentity lang={lang} className="mt-6 text-[#5F656B]" />
         </aside>
       </form>
     </div>

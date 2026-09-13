@@ -23,9 +23,9 @@ export default function CategoryLanding({ landing }) {
         uses: "Typische Einsatzbereiche",
         planning: "Lieferung und Aufstellung planen",
         planningLead: "Diese Angaben helfen uns, Transport, Fahrzeug und Entladung passend vorzubereiten.",
-        productsEyebrow: "Aktueller Bestand",
-        productsTitle: `${content.title}: verfügbare Angebote`,
-        productsLead: "Vergleichen Sie verfügbare Varianten und Preise. Die Filter für diese Kategorie sind bereits vorausgewählt.",
+        productsEyebrow: "Angebote im Katalog",
+        productsTitle: `${content.title}: Angebote vergleichen`,
+        productsLead: "Vergleichen Sie Varianten, Preise und den angegebenen Verfügbarkeitsstatus. Die Filter dieser Kategorie sind vorausgewählt; Details und Lieferbedingungen finden Sie am jeweiligen Produkt.",
         faq: "Häufige Fragen",
         related: "Weitere Container-Themen",
         delivery: "Mehr zur Containerlieferung",
@@ -38,8 +38,8 @@ export default function CategoryLanding({ landing }) {
         planning: "Zaplanuj dostawę i ustawienie",
         planningLead: "Te informacje pomagają nam dobrać transport, pojazd i sposób rozładunku.",
         productsEyebrow: "Aktualna oferta",
-        productsTitle: `${content.title}: dostępne oferty`,
-        productsLead: "Porównaj dostępne warianty i ceny. Filtry tej kategorii są już ustawione.",
+        productsTitle: `${content.title}: porównaj oferty`,
+        productsLead: "Porównaj warianty, ceny i podany status dostępności. Filtry tej kategorii są już ustawione; szczegóły oraz warunki dostawy sprawdź przy produkcie.",
         faq: "Najczęstsze pytania",
         related: "Więcej tematów o kontenerach",
         delivery: "Więcej o dostawie kontenerów",
@@ -60,7 +60,7 @@ export default function CategoryLanding({ landing }) {
     <article className="bg-white">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema).replace(/</g, "\\u003c") }}
       />
 
       <section className="bg-[#F3F4F5]">
@@ -87,18 +87,22 @@ export default function CategoryLanding({ landing }) {
                 </div>
               ))}
             </dl>
+            <p className="mt-4 text-sm leading-6 text-[#666C72]">{content.specificationNote}</p>
           </div>
-          <figure className={`relative overflow-hidden bg-white ${content.imageMode === "photo" ? "aspect-[4/3]" : "min-h-[300px] sm:min-h-[420px]"}`}>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ffffff_0%,#ffffff_56%,#eceef0_100%)]" aria-hidden="true" />
-            <Image
-              src={content.image}
-              alt={content.imageAlt}
-              width={1200}
-              height={820}
-              sizes="(min-width: 1024px) 54vw, 100vw"
-              priority
-              className={`relative z-10 h-full w-full ${content.imageMode === "photo" ? "object-cover" : "min-h-[300px] object-contain p-5 drop-shadow-[0_18px_18px_rgba(26,28,30,0.16)] sm:min-h-[420px] sm:p-9"}`}
-            />
+          <figure className="overflow-hidden bg-white">
+            <div className={`relative ${content.imageMode === "photo" ? "aspect-[4/3]" : "min-h-[300px] sm:min-h-[420px]"}`}>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,#ffffff_0%,#ffffff_56%,#eceef0_100%)]" aria-hidden="true" />
+              <Image
+                src={content.image}
+                alt={content.imageAlt}
+                width={1200}
+                height={820}
+                sizes="(min-width: 1024px) 54vw, 100vw"
+                priority
+                className={`relative z-10 h-full w-full ${content.imageMode === "photo" ? "object-cover" : "min-h-[300px] object-contain p-5 drop-shadow-[0_18px_18px_rgba(26,28,30,0.16)] sm:min-h-[420px] sm:p-9"}`}
+              />
+            </div>
+            <figcaption className="px-5 py-3 text-sm leading-6 text-[#666C72]">{content.imageCaption}</figcaption>
           </figure>
         </div>
       </section>

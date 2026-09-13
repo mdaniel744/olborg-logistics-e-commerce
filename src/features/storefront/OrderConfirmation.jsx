@@ -9,6 +9,7 @@ import { useLang, usePageMeta } from "@/lib/i18n";
 import { useSettings } from "@/lib/useSettings";
 import { formatMoney } from "@/lib/format";
 import { pathFor } from "@/lib/routes";
+import SellerIdentity from "@/components/store/SellerIdentity";
 
 function CopyRow({ label, value, copyLabel, copiedLabel }) {
   const [copied, setCopied] = useState(false);
@@ -77,6 +78,7 @@ export default function OrderConfirmation() {
         </span>
       </div>
 
+      <SellerIdentity lang={lang} className="mb-6 text-[#3A3E42]" />
       <section className="bg-white border border-[#E0E2E5]">
         <h2 className="font-heading font-bold text-[#1A1C1E] px-4 py-3 border-b border-[#E0E2E5]">
           {t("confirmation.payInstructions")}

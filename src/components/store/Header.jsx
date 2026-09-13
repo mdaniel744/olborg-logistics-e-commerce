@@ -8,6 +8,17 @@ import { useCart } from "@/lib/CartContext";
 import { pathFor, CATEGORY_LANDINGS } from "@/lib/routes";
 import { Button } from "@/components/ui/button";
 
+const CATEGORY_LABELS = {
+  size10: { pl: "Kontenery 10-stopowe", de: "10-Fuß-Container" },
+  size20: { pl: "Kontenery 20-stopowe", de: "20-Fuß-Container" },
+  size40: { pl: "Kontenery 40-stopowe", de: "40-Fuß-Container" },
+  standard: { pl: "Kontenery Standard", de: "Standardcontainer" },
+  highCube: { pl: "Kontenery High Cube", de: "High-Cube-Container" },
+  openSide: { pl: "Kontenery Open Side", de: "Open-Side-Container" },
+  used: { pl: "Kontenery używane", de: "Gebrauchte Container" },
+  new: { pl: "Nowe kontenery", de: "Neue Container" },
+};
+
 export default function Header() {
   const { lang, t, altPath } = useLang();
   const { count, setDrawerOpen } = useCart();
@@ -250,7 +261,7 @@ export default function Header() {
             <div className="grid grid-cols-2 gap-2 pt-2 pb-1">
               {CATEGORY_LANDINGS.slice(0, 4).map((c) => (
                 <Link key={c.key} href={c[lang]} onClick={() => setMobileOpen(false)} className="flex min-h-10 items-center text-sm text-[#5F656B] py-1">
-                  → {c[lang].replace("/de/", "").replace("/", "").replace(/-/g, " ")}
+                  → {CATEGORY_LABELS[c.key]?.[lang] || t("nav.shop")}
                 </Link>
               ))}
             </div>

@@ -12,38 +12,39 @@ const ABOUT_IMAGE = "/images/about-olborg-container-truck.webp";
 const CONTENT = {
   pl: {
     eyebrow: "OLBORG LOGISTICS",
-    heroTitle: "Logistyka i kontenery oparte na doświadczeniu",
+    heroTitle: "Kontenery i organizacja dostawy z Polski",
     heroText:
-      "Od 2017 roku rozwijamy nasze doświadczenie w transporcie i logistyce, zapewniając dziś klientom w Polsce i Niemczech dostęp do najpopularniejszych typów kontenerów morskich.",
-    storyTitle: "Nasza historia",
+      "Olborg Logistics łączy sprzedaż kontenerów z organizacją ich transportu. Pomagamy klientom w Polsce i Niemczech porównać warianty oraz ustalić warunki dostawy do miejsca, w którym kontener ma być używany.",
+    storyTitle: "Kim jesteśmy i w czym pomagamy",
     story: [
-      "Olborg Logistics to polska firma logistyczna z siedzibą w Poddębicach, działająca od 2017 roku. Nasza działalność rozpoczęła się od transportu drogowego i obsługi logistycznej.",
-      "Wieloletnie doświadczenie w branży transportowej pozwoliło nam obserwować rozwój rynku kontenerowego oraz rosnące zapotrzebowanie na kontenery w logistyce, magazynowaniu, budownictwie i handlu internetowym.",
-      "Coraz częstsze adaptacje kontenerów na magazyny, biura, obiekty usługowe i inne przestrzenie użytkowe sprawiły, że sprzedaż kontenerów stała się naturalnym kierunkiem rozwoju Olborg Logistics.",
+      "Olborg Logistics to marka, pod którą działa polska spółka OLBORG LOGISTIC SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ. Zajmujemy się sprzedażą kontenerów i organizacją dostaw dla klientów prywatnych oraz firm.",
+      "Rozmowę o wyborze zaczynamy od zastosowania: co trafi do środka, jak będzie załadowane i jak często potrzebny jest dostęp. Te informacje pozwalają porównać rozmiar, układ drzwi i stan kontenera.",
+      "Równie ważne jest miejsce ustawienia. Kod pocztowy, dojazd, podłoże i sposób rozładunku pomagają ustalić warunki transportu. Przy nietypowych wymaganiach możesz przesłać opis i zdjęcia miejsca w zapytaniu o wycenę.",
     ],
-    imageAlt: "Kontenery morskie i zaplecze logistyczne Olborg Logistics",
-    logisticsTitle: "Własna logistyka i dostawa",
+    imageAlt: "Wizualizacja samochodu ciężarowego przewożącego kontener",
+    imageCaption: "Wizualizacja transportu kontenera; pojazd dostawy jest ustalany dla zamówienia.",
+    logisticsTitle: "Organizacja transportu i rozładunku",
     logisticsText:
-      "Transport pozostaje jednym z najważniejszych elementów naszej działalności. Organizujemy dostawy za pośrednictwem naszej sieci logistycznej, a przy nietypowych warunkach przygotowujemy indywidualną wycenę.",
+      "Zakup kontenera i jego ustawienie trzeba zaplanować razem. Sposób przewozu oraz rozładunku dobieramy do konkretnego zamówienia, masy kontenera i warunków dojazdu.",
     logisticsPoints: [
-      "samochody ciężarowe i zestawy transportowe",
-      "pojazdy z HDS, gdy potrzebny jest rozładunek dźwigiem",
+      "dobór transportu do rozmiaru i liczby kontenerów",
+      "ustalenie możliwości rozładunku HDS lub odpowiednim sprzętem klienta",
       "szacunkowy koszt transportu według kodu pocztowego dla obsługiwanych lokalizacji",
       "indywidualne wyceny dla trudnego dojazdu i bardziej złożonych dostaw",
     ],
     marketsTitle: "Polska i Niemcy",
     markets: [
-      ["Polska — główny rynek", "W Poddębicach znajduje się siedziba firmy i baza naszej działalności logistycznej."],
-      ["Niemcy — rozwijany rynek dostaw", "Doświadczenie w transporcie międzynarodowym pomaga nam regularnie obsługiwać sprzedaż i dostawy do Niemiec."],
+      ["Firma z Polski", "Sprzedawcą jest polska spółka. Jej dane identyfikacyjne oraz sposoby kontaktu są dostępne na stronie Kontakt."],
+      ["Obsługa klientów w Niemczech", "Niemiecka wersja sklepu pozwala porównać kontenery i złożyć zapytanie. Dostawę sprawdzamy według wskazanego adresu, niezależnie od języka strony."],
     ],
     goalTitle: "Prosty i uczciwy proces zakupu",
     goalText:
-      "Chcemy zapewniać prosty dostęp do sprawdzonych kontenerów bez niepotrzebnego komplikowania zakupu.",
+      "Przed decyzją potrzebujesz informacji o wybranym kontenerze, cenie i transporcie. Jeżeli brakuje danych istotnych dla Twojego zastosowania, zapytaj nas przed zakupem.",
     goals: [
-      "regularna dostępność popularnych modeli",
-      "przejrzyste informacje o produktach",
-      "sprawna organizacja transportu",
-      "obsługa klientów prywatnych i biznesowych",
+      "wybór rozmiaru, typu, stanu i koloru",
+      "porównanie danych wybranego wariantu",
+      "uzgodnienie dojazdu i rozładunku",
+      "zamówienie lub niewiążące zapytanie",
     ],
     ctaTitle: "Znajdź odpowiedni kontener",
     ctaText:
@@ -53,38 +54,39 @@ const CONTENT = {
   },
   de: {
     eyebrow: "OLBORG LOGISTICS",
-    heroTitle: "Logistik und Container auf der Grundlage von Erfahrung",
+    heroTitle: "Container und Lieferorganisation aus Polen",
     heroText:
-      "Seit 2017 bauen wir unsere Erfahrung in Transport und Logistik aus und bieten Kunden in Polen und Deutschland heute Zugang zu den gefragtesten Seecontainertypen.",
-    storyTitle: "Unsere Geschichte",
+      "Olborg Logistics verbindet den Containerverkauf mit der Organisation des Transports. Wir unterstützen Kunden in Polen und Deutschland beim Variantenvergleich und bei der Abstimmung der Lieferung an den geplanten Einsatzort.",
+    storyTitle: "Wer wir sind und wobei wir helfen",
     story: [
-      "Olborg Logistics ist ein polnisches Logistikunternehmen mit Sitz in Poddębice und seit 2017 tätig. Unser Weg begann mit Straßentransport und logistischer Betreuung.",
-      "Die langjährige Erfahrung im Transportwesen ließ uns die dynamische Entwicklung des Containermarktes und die wachsende Nachfrage in Logistik, Lagerung, Bauwesen und Onlinehandel aus nächster Nähe verfolgen.",
-      "Die zunehmende Umnutzung von Containern zu Lagern, Büros, Gewerbe- und Nutzflächen machte den Containerverkauf zu einem natürlichen nächsten Schritt für Olborg Logistics.",
+      "Olborg Logistics ist die Marke der polnischen Gesellschaft OLBORG LOGISTIC SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ. Wir verkaufen Container und organisieren Lieferungen für Privatpersonen und Unternehmen.",
+      "Bei der Auswahl beginnen wir mit dem Einsatz: Was soll hinein, wie wird beladen und wie häufig brauchen Sie Zugang? Damit lassen sich Größe, Türanordnung und Zustand sinnvoll vergleichen.",
+      "Ebenso wichtig ist der Stellplatz. Postleitzahl, Zufahrt, Untergrund und Entlademethode helfen, den Transport abzustimmen. Bei besonderen Anforderungen können Sie Ihrer Angebotsanfrage eine Beschreibung und Standortbilder beifügen.",
     ],
-    imageAlt: "Seecontainer und Logistik von Olborg Logistics",
-    logisticsTitle: "Eigene Logistik und Lieferung",
+    imageAlt: "Visualisierung eines LKW mit Container",
+    imageCaption: "Visualisierung eines Containertransports; das Lieferfahrzeug wird je Bestellung abgestimmt.",
+    logisticsTitle: "Transport und Entladung organisieren",
     logisticsText:
-      "Der Transport bleibt ein zentraler Teil unserer Arbeit. Wir organisieren Lieferungen über unser Logistiknetzwerk und erstellen bei besonderen Bedingungen ein individuelles Angebot.",
+      "Containerkauf und Aufstellung sollten gemeinsam geplant werden. Transport und Entladung richten sich nach der konkreten Bestellung, dem Containergewicht und den Zufahrtsbedingungen.",
     logisticsPoints: [
-      "Lkw und komplette Transportzüge",
-      "Fahrzeuge mit Ladekran (HDS), wenn eine Kranentladung erforderlich ist",
+      "Transportwahl nach Containergröße und Anzahl",
+      "Prüfung der Entladung per LKW-Kran oder geeignetem Gerät des Kunden",
       "voraussichtliche Transportkosten nach Postleitzahl für bediente Regionen",
       "individuelle Kalkulation bei schwieriger Zufahrt und komplexeren Lieferungen",
     ],
     marketsTitle: "Polen und Deutschland",
     markets: [
-      ["Polen — unser Hauptmarkt", "In Poddębice befinden sich der Firmensitz und die Basis unserer logistischen Tätigkeit."],
-      ["Deutschland — wachsender Liefermarkt", "Unsere Erfahrung im internationalen Transport unterstützt den regelmäßigen Verkauf und die Lieferung nach Deutschland."],
+      ["Ein Unternehmen aus Polen", "Verkäufer ist eine polnische Gesellschaft. Die Unternehmensangaben und Kontaktmöglichkeiten finden Sie auf der Kontaktseite."],
+      ["Kunden in Deutschland", "Im deutschsprachigen Shop können Sie Container vergleichen und eine Anfrage stellen. Die Lieferung prüfen wir anhand der angegebenen Adresse, unabhängig von der Seitensprache."],
     ],
     goalTitle: "Ein einfacher und fairer Kaufprozess",
     goalText:
-      "Wir möchten den Zugang zu bewährten Containern ermöglichen, ohne den Kauf unnötig kompliziert zu machen.",
+      "Für Ihre Entscheidung brauchen Sie Angaben zum gewählten Container, zum Preis und zum Transport. Fehlen Daten, die für Ihren Einsatzzweck wichtig sind, fragen Sie uns vor dem Kauf.",
     goals: [
-      "regelmäßige Verfügbarkeit gefragter Modelle",
-      "transparente Produktinformationen",
-      "zuverlässige Organisation des Transports",
-      "Betreuung von Privat- und Geschäftskunden",
+      "Größe, Typ, Zustand und Farbe wählen",
+      "Daten der gewählten Variante vergleichen",
+      "Zufahrt und Entladung abstimmen",
+      "Bestellen oder unverbindlich anfragen",
     ],
     ctaTitle: "Den passenden Container finden",
     ctaText:
@@ -118,9 +120,12 @@ export default function AboutPage() {
             <p key={paragraph}>{paragraph}</p>
           ))}
         </div>
-        <div className="aspect-[4/3] overflow-hidden rounded-xl border border-[#D7DADF] bg-white">
-          <Image src={ABOUT_IMAGE} alt={c.imageAlt} loading="eager" className="h-full w-full object-cover object-center" />
-        </div>
+        <figure>
+          <div className="aspect-[4/3] overflow-hidden rounded-xl border border-[#D7DADF] bg-white">
+            <Image src={ABOUT_IMAGE} alt={c.imageAlt} loading="eager" className="h-full w-full object-cover object-center" />
+          </div>
+          <figcaption className="mt-2 text-xs leading-5 text-[#5F656B]">{c.imageCaption}</figcaption>
+        </figure>
       </section>
 
       <section className="mt-16 md:mt-20 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-14">

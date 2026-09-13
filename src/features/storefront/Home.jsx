@@ -60,7 +60,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[#101214]">
           <Image
             src={IMAGES.hero}
-            alt={t("hero.h1")}
+            alt={t("hero.imageAlt")}
             loading="eager"
             sizes="100vw"
             className="absolute inset-y-0 right-0 h-full w-full object-cover object-[48%_center] md:w-[84%] md:object-center lg:w-[74%]"
@@ -68,6 +68,7 @@ export default function Home() {
         </div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#101214]/95 via-[#101214]/70 to-[#101214]/10" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#101214]/35 via-transparent to-transparent" />
+        <p className="absolute right-4 top-3 z-10 text-xs text-white/80 sm:right-6">{t("hero.imageCaption")}</p>
         <div className="relative mx-auto flex min-h-[560px] max-w-7xl items-center px-4 py-20 sm:px-6 md:min-h-[620px] md:py-24 lg:min-h-[640px] lg:items-start lg:py-24 lg:pb-40">
           <div className="max-w-2xl lg:pt-8">
             <h1 className="font-heading text-3xl font-bold leading-[1.08] tracking-tight text-white sm:text-4xl md:text-5xl lg:text-[3.35rem]">

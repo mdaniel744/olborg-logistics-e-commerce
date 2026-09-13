@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Poppins } from "next/font/google";
 import Providers from "./providers";
+import { siteOrigin } from "@/lib/siteUrl";
 
 const poppins = Poppins({
   subsets: ["latin", "latin-ext"],
@@ -10,7 +11,9 @@ const poppins = Poppins({
 });
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(siteOrigin || "http://localhost:3001"),
+  robots: !siteOrigin || process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_USE_DEMO_PRODUCTS === "true"
+    ? { index: false, follow: false } : { index: true, follow: true },
   title: {
     default: "Olborg Logistics — kontenery morskie",
     template: "%s | Olborg Logistics",

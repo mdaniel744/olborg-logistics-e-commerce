@@ -6,6 +6,7 @@ import { useLang } from "@/lib/i18n";
 import { useSettings } from "@/lib/useSettings";
 import { formatMoney } from "@/lib/format";
 import { variantGross, vatLabel } from "@/lib/vat";
+import { productPath } from "@/lib/routes";
 
 export default function ProductCard({ product, eager = false }) {
   const { lang, market, currency, t } = useLang();
@@ -18,7 +19,7 @@ export default function ProductCard({ product, eager = false }) {
     .map((p) => p.gross);
   const minPrice = prices.length ? Math.min(...prices) : null;
   const sample = activeVariants.length ? variantGross(activeVariants[0], settings, market) : null;
-  const to = lang === "de" ? `/de/${product.slug_de}` : `/${product.slug_pl}`;
+  const to = productPath(product, lang);
   const conditions = [...new Set(activeVariants.map((v) => v.condition))];
 
   return (

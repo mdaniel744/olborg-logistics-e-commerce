@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useLang, usePageMeta } from "@/lib/i18n";
 import { useSettings } from "@/lib/useSettings";
 import { pathFor } from "@/lib/routes";
+import SellerIdentity from "@/components/store/SellerIdentity";
 
 export default function ContactPage() {
   const { lang, t } = useLang();
@@ -35,15 +36,21 @@ export default function ContactPage() {
         </a>
         <div className="bg-white border border-[#E0E2E5] p-5">
           <MapPin className="w-5 h-5 text-[#F5A623]" />
-          <p className="font-mono text-xs uppercase tracking-widest text-[#6B7075] mt-3">{t("contact.address")}</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-[#6B7075] mt-3">{lang === "de" ? "Kontaktadresse" : "Adres kontaktowy"}</p>
           <p className="font-semibold text-[#1A1C1E] mt-1 text-sm">
-            {company.name || "Olborg Logistics Sp. z o.o."}<br />
+            {company.brand}<br />
             {company.address_line1 || "Jana III Sobieskiego 9/23"}<br />
             {company.address_line2 || "99-200 Poddębice"}, {lang === "de" ? "Polen" : "Polska"}
           </p>
         </div>
       </div>
       <p className="mt-4 text-sm text-[#6B7075]">{t("contact.hoursNote")}</p>
+      <SellerIdentity lang={lang} className="mt-6 text-[#3A3E42]" />
+      <p className="mt-3 text-sm leading-6 text-[#5F656B]">
+        {lang === "de"
+          ? "Die Kontaktadresse ist keine bestätigte Rückgabe- oder Abholstelle für Container. Bitte stimmen Sie den Standort und den Transport vor einer Anlieferung mit uns ab."
+          : "Adres kontaktowy nie jest potwierdzonym miejscem zwrotu ani odbioru kontenerów. Przed dostarczeniem kontenera uzgodnij z nami lokalizację i transport."}
+      </p>
 
       <div className="mt-10 bg-[#1A1C1E] text-white p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="font-heading font-bold text-lg">{t("product.quoteHint")}</p>

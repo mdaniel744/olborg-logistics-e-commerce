@@ -90,8 +90,8 @@ export default function ProductInfoTabs({ product }) {
       </div>
 
       <div className="mt-6 bg-[#F7F7F6] p-5 sm:p-7 lg:p-9">
-        {activeTab === "specifications" && (
           <div
+            hidden={activeTab !== "specifications"}
             id="product-panel-specifications"
             role="tabpanel"
             aria-labelledby="product-tab-specifications"
@@ -124,10 +124,8 @@ export default function ProductInfoTabs({ product }) {
               <p className="bg-white p-5 text-[#5F656B]">{t("product.noSpecifications")}</p>
             )}
           </div>
-        )}
-
-        {activeTab === "description" && (
           <div
+            hidden={activeTab !== "description"}
             id="product-panel-description"
             role="tabpanel"
             aria-labelledby="product-tab-description"
@@ -137,10 +135,8 @@ export default function ProductInfoTabs({ product }) {
             </h2>
             <RichTextContent content={description} className="max-w-4xl" />
           </div>
-        )}
-
-        {activeTab === "shipping" && (
           <div
+            hidden={activeTab !== "shipping"}
             id="product-panel-shipping"
             role="tabpanel"
             aria-labelledby="product-tab-shipping"
@@ -179,7 +175,6 @@ export default function ProductInfoTabs({ product }) {
               </Link>
             </div>
           </div>
-        )}
       </div>
     </section>
   );

@@ -37,10 +37,27 @@ export default function PolicyPage({ policyKey }) {
   const isCookies = policyKey === "cookies";
   const isTerms = policyKey === "terms";
   const complaints = POLICIES.complaints;
+  const relatedLinks = [
+    { key: "delivery", pl: "Dostawa i rozładunek", de: "Lieferung und Entladung" },
+    { key: "returns", pl: "Zwroty i reklamacje", de: "Rückgabe und Reklamationen" },
+    { key: "withdrawal", pl: "Prawo odstąpienia i formularz", de: "Widerrufsrecht und Formular" },
+    { key: "contact", pl: "Kontakt ze sprzedawcą", de: "Kontakt zum Verkäufer" },
+    ...(policyKey === "privacy" ? [{ key: "cookies", pl: "Pamięć przeglądarki i ustawienia", de: "Browserspeicher und Einstellungen" }] : []),
+  ].filter((link) => link.key !== policyKey);
 
   return (
     <article className="reading-page">
       <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-[#1A1C1E]">{title}</h1>
+      <nav
+        aria-label={lang === "de" ? "Weitere Kundeninformationen" : "Powiązane informacje dla klientów"}
+        className="mt-6 flex flex-wrap gap-x-5 gap-y-3 text-sm leading-6"
+      >
+        {relatedLinks.map((link) => (
+          <Link key={link.key} href={pathFor(link.key, lang)} className="font-semibold text-[#795207] underline underline-offset-4 hover:text-[#1A1C1E]">
+            {lang === "de" ? link.de : link.pl}
+          </Link>
+        ))}
+      </nav>
       <div className="long-form-content mt-10">
         {policy.sections.map((s) => (
           <section key={s.h_de} className="border-t border-[#D7DADF] pt-7">
@@ -111,8 +128,8 @@ export default function PolicyPage({ policyKey }) {
                 </h2>
                 <p>
                   {lang === "de"
-                    ? "Passen Sie hier Ihre Einwilligung für Analyse- und Marketing-Cookies an."
-                    : "W tym miejscu możesz zmienić zgodę na cookies analityczne i marketingowe."}
+                    ? "Öffnen Sie Ihre gespeicherten Datenschutzeinstellungen. Derzeit sind im Shop keine Analyse- oder Werbepixel aktiv."
+                    : "Otwórz zapisane ustawienia prywatności. Obecnie sklep nie uruchamia narzędzi analitycznych ani pikseli reklamowych."}
                 </p>
                 <Button
                   type="button"

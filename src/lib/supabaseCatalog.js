@@ -308,6 +308,16 @@ function normalize(row, translationsByEntity) {
     active: row.status === "active",
     status: row.status,
     merchant_eligible: Boolean(row.google_product_category),
+    google_product_category: row.google_product_category,
+    // Seller identity is not the container manufacturer. Preserve only supplied identifiers.
+    brand: displayAttributeValue(row.brand || attributeValue(row.attributes, ["brand", "Marka", "Marke"])),
+    gtin: displayAttributeValue(row.gtin || attributeValue(row.attributes, ["GTIN", "EAN"])),
+    mpn: displayAttributeValue(row.mpn || attributeValue(row.attributes, ["MPN"])),
+    identifier_exists: row.identifier_exists,
+    merchant_languages: {
+      pl: Boolean(row.name && (row.short_description || row.description)),
+      de: Boolean(de.name && de.description && de.slug && (!row.short_description || de.short_description)),
+    },
     featured: Boolean(row.is_featured),
     featured_image: row.images?.[0] || null,
     gallery: (row.images || []).slice(1),

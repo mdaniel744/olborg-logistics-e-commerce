@@ -11,12 +11,16 @@ import { groupFamilies } from "@/lib/supabaseCatalog";
 import { useCart } from "@/lib/CartContext";
 import { formatMoney } from "@/lib/format";
 import { variantGross, vatLabel } from "@/lib/vat";
-import { pathFor } from "@/lib/routes";
+import { pathFor, productPath, productSlugFromPathname, productLanguagePaths } from "@/lib/routes";
 import PageNotFound from "@/lib/PageNotFound";
 import DeliveryCalculator from "@/components/store/DeliveryCalculator";
 import ProductGallery from "@/components/store/ProductGallery";
 import ProductInfoTabs from "@/components/store/ProductInfoTabs";
 import ProductCard from "@/components/store/ProductCard";
+import { siteOrigin } from "@/lib/siteUrl";
+import { productStructuredData } from "@/lib/productStructuredData";
+import { returnTransportEstimate } from "@/lib/checkoutReadiness";
+import { plainText } from "@/lib/merchantFeed";
 
 const colorLabel = (variant, lang) => {
   if (!variant?.color) return "";
@@ -92,9 +96,9 @@ export default function ProductDetail({ slug, initialProducts }) {
 
   useEffect(() => {
     if (product) {
-      setDynamicAlt({ pl: `/${product.slug_pl}`, de: `/de/${product.slug_de}` });
+      setDynamicAlt({ pl: productPath(product, "pl"), de: productPath(product, "de") });
     }
-  }, [product, setDynamicAlt]);
+  }, [product, lang, setDynamicAlt]);
 
   useEffect(() => {
     setLocalSelection((current) => current?.routeSlug === slug ? current : null);
@@ -102,8 +106,7 @@ export default function ProductDetail({ slug, initialProducts }) {
 
   useEffect(() => {
     const handleHistoryNavigation = () => {
-      const parts = window.location.pathname.split("/").filter(Boolean);
-      const historySlug = lang === "de" ? parts[1] : parts[0];
+      const historySlug = productSlugFromPathname(window.location.pathname, lang);
       const historyProduct = products.find(
         (entry) => (lang === "de" ? entry.slug_de : entry.slug_pl) === historySlug
       );
@@ -140,8 +143,7 @@ export default function ProductDetail({ slug, initialProducts }) {
           (lang === "de" ? product.name_de : product.name_pl)
       : null,
     product
-      ? (lang === "de" ? product.seo_description_de : product.seo_description_pl) ||
-          (lang === "de" ? product.short_description_de : product.short_description_pl)
+      ? plainText(product[`seo_description_${lang}`] || product[`short_description_${lang}`] || product[`description_${lang}`]).slice(0, 170)
       : null
   );
 
@@ -149,13 +151,17 @@ export default function ProductDetail({ slug, initialProducts }) {
   if (!product) return <PageNotFound />;
 
   const price = product.active !== false ? variantGross(product, settings, market) : null;
+  const structuredData = productStructuredData(product, {
+    lang, origin: siteOrigin, grossPrice: price?.gross,
+    purchasable: Boolean(returnTransportEstimate(settings, market, lang)),
+  });
   const image = product.featured_image;
   const gallery = [image, ...(product.gallery || []).filter((g) => g !== image)].filter(Boolean);
   const availabilityKey =
     product.availability === "in_stock" ? "inStock" : product.availability === "on_request" ? "onRequest" : "outOfStock";
 
   const handleAddToCart = () => {
-    if (!price) return;
+    if (!price || product.is_demo) return;
     const colorPl = [product.color_label_pl, product.color_ral].filter(Boolean).join(" ");
     const colorDe = [product.color_label_de, product.color_ral].filter(Boolean).join(" ");
     addItem({
@@ -196,6 +202,19 @@ export default function ProductDetail({ slug, initialProducts }) {
 
   return (
     <div className="max-w-7xl mx-auto px-5 sm:px-6 py-10 md:py-14">
+      {/* React hoists these links to head and owns their lifecycle across swatch changes. */}
+      <link rel="canonical" href={new URL(productPath(product, lang), siteOrigin || "http://localhost:3001").href} />
+      {Object.entries(productLanguagePaths(product)).map(([locale, path]) => (
+        <link key={locale} rel="alternate" hrefLang={locale} href={new URL(path, siteOrigin || "http://localhost:3001").href} />
+      ))}
+      {structuredData && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }} />}
+      {product.is_demo && (
+        <p className="mb-6 bg-[#FFF1D5] p-4 text-sm leading-6 text-[#573D12]" role="note">
+          {lang === "de"
+            ? "Demoprodukt: Preis, Farbe, Bilder und Verfügbarkeit sind Beispieldaten, kein Verkaufsangebot. Fragen Sie nach einem aktuellen Containerangebot."
+            : "Produkt demonstracyjny: cena, kolor, zdjęcia i dostępność są przykładowe, nie stanowią oferty sprzedaży. Zapytaj o aktualną ofertę kontenera."}
+        </p>
+      )}
       {/* Breadcrumb */}
       <nav className="text-sm text-[#5F656B] mb-6" aria-label="Breadcrumb">
         <Link href={pathFor("home", lang)} className="font-medium hover:text-[#795207]">{t("nav.home")}</Link>
@@ -251,7 +270,7 @@ export default function ProductDetail({ slug, initialProducts }) {
               <div className="flex flex-wrap gap-2" role="group" aria-label={t("common.condition")}>
                 {conditionOptions.map((conditionVariant) => {
                   const isCurrent = conditionVariant.id === product.id;
-                  const href = lang === "de" ? `/de/${conditionVariant.slug_de}` : `/${conditionVariant.slug_pl}`;
+                  const href = productPath(conditionVariant, lang);
                   return (
                     <Link
                       key={conditionVariant.condition}
@@ -287,7 +306,7 @@ export default function ProductDetail({ slug, initialProducts }) {
                 {colorOptions.map((colorVariant) => {
                   const selected = product.color === colorVariant.color;
                   const label = colorLabel(colorVariant, lang);
-                  const href = lang === "de" ? `/de/${colorVariant.slug_de}` : `/${colorVariant.slug_pl}`;
+                  const href = productPath(colorVariant, lang);
                   return (
                     <Link
                       key={colorVariant.color}
@@ -319,6 +338,12 @@ export default function ProductDetail({ slug, initialProducts }) {
             </div>
           )}
 
+          {colorOptions.length > 0 && <p className="mt-3 text-xs leading-5 text-[#5F656B]">
+            {lang === "de"
+              ? "Bildschirmfarben dienen der Orientierung. Maßgeblich ist die vereinbarte RAL-Farbe; bei gebrauchten Containern können Ausbleichungen und Ausbesserungen auftreten."
+              : "Kolory na ekranie są orientacyjne. Wiążący jest uzgodniony kolor RAL; kontenery używane mogą mieć wyblaknięcia i ślady napraw powłoki."}
+          </p>}
+
           {/* Quantity + CTA */}
           <div className="mt-6 flex gap-3 items-end flex-wrap">
             <div>
@@ -331,7 +356,7 @@ export default function ProductDetail({ slug, initialProducts }) {
             </div>
             <Button
               onClick={handleAddToCart}
-              disabled={!price || availabilityKey === "outOfStock"}
+              disabled={!price || product.is_demo || availabilityKey !== "inStock"}
               className="bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-12 px-8 text-base flex-1 sm:flex-none"
             >
               {t("common.addToCart")}

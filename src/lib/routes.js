@@ -20,6 +20,34 @@ export const R = {
   cookies: { pl: "/polityka-cookies", de: "/de/cookie-richtlinie" },
 };
 
+// Keep products in a translated URL namespace so catalogue slugs can never
+// collide with content pages and future languages can define their own label.
+export const PRODUCT_ROUTE_SEGMENTS = { pl: "produkt", de: "produkt" };
+
+export function productRouteSegment(lang) {
+  return PRODUCT_ROUTE_SEGMENTS[lang] || PRODUCT_ROUTE_SEGMENTS.pl;
+}
+
+export function productPath(product, lang) {
+  const slug = lang === "de" ? product?.slug_de : product?.slug_pl;
+  if (!slug) return pathFor("shop", lang);
+  return `${lang === "de" ? "/de" : ""}/${productRouteSegment(lang)}/${slug}`;
+}
+
+export function productLanguagePaths(product) {
+  return Object.fromEntries(["pl", "de"]
+    .filter((lang) => product[`slug_${lang}`] && product.merchant_languages?.[lang] !== false)
+    .map((lang) => [lang, productPath(product, lang)]));
+}
+
+export function productSlugFromPathname(pathname, lang) {
+  const segments = pathname.split("/").filter(Boolean);
+  const productSegmentIndex = lang === "de" ? 1 : 0;
+  return segments[productSegmentIndex] === productRouteSegment(lang)
+    ? segments[productSegmentIndex + 1] || null
+    : null;
+}
+
 // SEO category landing pages → shop filters
 export const CATEGORY_LANDINGS = [
   { key: "size10", pl: "/kontenery-10-stop", de: "/de/10-fuss-container", filter: { size: "10ft" } },

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { pathFor, CATEGORY_LANDINGS } from "@/lib/routes";
+import SellerIdentity from "@/components/store/SellerIdentity";
 
 export default function Footer() {
   const { lang, t } = useLang();
@@ -30,6 +31,7 @@ export default function Footer() {
       size20: lang === "de" ? "20 Fuß Container" : "Kontenery 20 stóp",
       size40: lang === "de" ? "40 Fuß Container" : "Kontenery 40 stóp",
       highCube: lang === "de" ? "High Cube Container" : "Kontenery High Cube",
+      standard: lang === "de" ? "Standard-Container" : "Kontenery Standard",
       openSide: lang === "de" ? "Open Side Container" : "Kontenery Open Side",
       used: lang === "de" ? "Gebrauchte Container" : "Kontenery używane",
     };
@@ -54,12 +56,13 @@ export default function Footer() {
               </div>
             </div>
             <address className="not-italic text-sm text-white/70 space-y-2.5">
-              <p className="font-semibold text-white">Olborg Logistics Sp. z o.o.</p>
+              <SellerIdentity lang={lang} className="text-white/80" />
               <p className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#F5A623]" />
-                Jana III Sobieskiego 9/23
-                <br />
-                99-200 Poddębice, {lang === "de" ? "Polen" : "Polska"}
+                <span>{lang === "de" ? "Kontaktadresse" : "Adres kontaktowy"}:<br />
+                  Jana III Sobieskiego 9/23<br />
+                  99-200 Poddębice, {lang === "de" ? "Polen" : "Polska"}
+                </span>
               </p>
               <p className="flex items-center gap-2">
                 <Phone className="w-4 h-4 shrink-0 text-[#F5A623]" />
@@ -101,7 +104,7 @@ export default function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-white/50">
-          <span>© {new Date().getFullYear()} Olborg Logistics Sp. z o.o. {t("footer.rights")}</span>
+          <span>© {new Date().getFullYear()} Olborg Logistics. {t("footer.rights")}</span>
           <nav className="flex flex-wrap gap-x-4 gap-y-2" aria-label={lang === "de" ? "Rechtliche Hinweise" : "Informacje prawne"}>
             {copyrightLinks.map((link) => (
               <Link key={link.key} href={pathFor(link.key, lang)} className="hover:text-[#F5A623] transition-colors">

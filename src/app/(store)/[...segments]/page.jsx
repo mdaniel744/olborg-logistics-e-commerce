@@ -1,9 +1,12 @@
 import { cache } from "react";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect, redirect } from "next/navigation";
 import CategoryLanding from "@/components/store/CategoryLanding";
 import { getProducts } from "@/lib/supabaseCatalog";
-import { CATEGORY_LANDINGS } from "@/lib/routes";
+import { CATEGORY_LANDINGS, productPath, productRouteSegment } from "@/lib/routes";
 import { getCategoryContent } from "@/data/categoryContent";
+import { GUIDES } from "@/i18n/guides";
+import { publicPageMetadata } from "@/lib/pageMetadata";
+import { plainText } from "@/lib/merchantFeed";
 import AboutPage from "@/features/storefront/AboutPage";
 import CartPage from "@/features/storefront/CartPage";
 import Checkout from "@/features/storefront/Checkout";
@@ -77,18 +80,45 @@ function resolveRoute(segments, products) {
   );
   if (landing) return { type: "landing", landing };
 
-  if (segments.length === 2 && ["poradnik", "ratgeber"].includes(segments[0])) {
+  if (segments.length === 2 && segments[0] === "poradnik" && GUIDES.some((g) => g.slug === segments[1])) {
     return { type: "guide", slug: segments[1] };
   }
-  if (segments.length === 3 && segments[0] === "de" && segments[1] === "ratgeber") {
+  if (segments.length === 3 && segments[0] === "de" && segments[1] === "ratgeber" && GUIDES.some((g) => g.slug_de === segments[2])) {
     return { type: "guide", slug: segments[2] };
   }
 
   const language = segments[0] === "de" ? "de" : "pl";
-  const slug = language === "de" ? segments[1] : segments[0];
+  const localizedProductSegment = productRouteSegment(language);
+  const hasProductPrefix =
+    language === "de"
+      ? segments.length === 3 && segments[1] === localizedProductSegment
+      : segments.length === 2 && segments[0] === localizedProductSegment;
+  const slug = hasProductPrefix
+    ? segments[language === "de" ? 2 : 1]
+    : null;
   const slugKey = language === "de" ? "slug_de" : "slug_pl";
   if (slug && products.some((product) => product[slugKey] === slug)) {
     return { type: "product", slug, language };
+  }
+
+  // Preserve links already indexed or shared before the product namespace was
+  // introduced. These routes are upgraded with an SEO-safe permanent redirect.
+  const legacySlug =
+    language === "de" && segments.length === 2
+      ? segments[1]
+      : language === "pl" && segments.length === 1
+        ? segments[0]
+        : null;
+  const legacyProduct = legacySlug
+    ? products.find((product) => product[slugKey] === legacySlug)
+    : null;
+  if (legacyProduct) {
+    return {
+      type: "legacyProduct",
+      destination: productPath(legacyProduct, language),
+      product: legacyProduct,
+      language,
+    };
   }
 
   return null;
@@ -96,25 +126,21 @@ function resolveRoute(segments, products) {
 
 export async function generateMetadata({ params }) {
   const { segments = [] } = await params;
-  const products = await getCachedProducts();
-  const route = resolveRoute(segments, products);
+  const contentRoute = resolveRoute(segments, []);
+  const products = contentRoute ? [] : await getCachedProducts();
+  const route = contentRoute || resolveRoute(segments, products);
   if (!route) return {};
-  if (route.type === "product") {
-    const product = products.find((entry) => entry[`slug_${route.language}`] === route.slug);
-    // Without this, nothing crawlable connects a product's PL and DE pages at all — the
-    // language switcher is client-side only, invisible to Google/Merchant. PL and DE use
-    // different slugs per product (not the same slug under a /de/ prefix), so these must
-    // be built from each product's own slug_pl/slug_de, not from the current path.
-    const plPath = `/${product.slug_pl}`;
-    const dePath = `/de/${product.slug_de}`;
+  if (route.type === "product" || route.type === "legacyProduct") {
+    const product = route.product || products.find(
+      (entry) => entry[`slug_${route.language}`] === route.slug
+    );
     return {
       title: route.language === "de" ? product.name_de : product.name_pl,
-      description:
-        route.language === "de" ? product.short_description_de : product.short_description_pl,
-      alternates: {
-        canonical: route.language === "de" ? dePath : plPath,
-        languages: { pl: plPath, de: dePath },
-      },
+      description: plainText(product[`short_description_${route.language}`] || product[`description_${route.language}`]).slice(0, 170),
+      ...(product.is_demo || product.merchant_languages?.[route.language] === false
+        ? { robots: { index: false, follow: true } } : {}),
+      // ProductDetail renders canonical/hreflang in the initial HTML and keeps them
+      // attached to local swatch state. Do not duplicate those links in metadata.
     };
   }
   if (route.type === "landing") {
@@ -129,16 +155,30 @@ export async function generateMetadata({ params }) {
       },
     };
   }
-  return { title: route.title || "Olborg Logistics", description: route.description };
+  const language = segments[0] === "de" ? "de" : "pl";
+  if (route.type === "guide") {
+    const guide = GUIDES.find((g) => (language === "de" ? g.slug_de : g.slug) === route.slug);
+    const languages = { pl: `/poradnik/${guide.slug}`, de: `/de/ratgeber/${guide.slug_de}` };
+    return {
+      title: guide[`title_${language}`],
+      description: plainText(guide[`body_${language}`]).replace(/[#*]/g, "").slice(0, 160),
+      alternates: { canonical: languages[language], languages },
+    };
+  }
+  return publicPageMetadata(`/${segments.join("/")}`, language) || {
+    title: route.title || "Olborg Logistics", robots: { index: false, follow: true },
+  };
 }
 
 export default async function StoreRoute({ params }) {
   const { segments = [] } = await params;
-  const products = await getCachedProducts();
-  const route = resolveRoute(segments, products);
+  const contentRoute = resolveRoute(segments, []);
+  const products = contentRoute ? [] : await getCachedProducts();
+  const route = contentRoute || resolveRoute(segments, products);
   if (!route) notFound();
 
   if (route.type === "redirect") redirect(route.destination);
+  if (route.type === "legacyProduct") permanentRedirect(route.destination);
 
   if (route.type === "static") {
     const Component = route.component;

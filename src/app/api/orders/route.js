@@ -6,6 +6,7 @@ import { calculateDelivery } from "@/server/delivery";
 import { computeVatTreatment, round2 } from "@/server/pricing";
 import { saveSubmission } from "@/server/submission-store";
 import { checkVat, parseVatId } from "@/server/vies";
+import { checkoutReadiness } from "@/lib/checkoutReadiness";
 
 export const runtime = "nodejs";
 
@@ -37,12 +38,12 @@ export async function POST(request) {
       // is display-only. Matching on it too broke every order once real dashboard products
       // (sku: null) replaced the old demo catalog's populated skus.
       const product = products.find((entry) => entry.id === text(raw.product_id, 80));
-      if (!product || product.status !== "active" || product.active === false) {
+      if (!product || product.is_demo || product.status !== "active" || product.active === false || product.availability !== "in_stock") {
         console.error("Order rejected: product_unavailable", { market, product_id: raw.product_id, found: Boolean(product) });
         return Response.json({ error: "product_unavailable", sku: raw.sku }, { status: 400 });
       }
       const unitNet = market === "DE" ? product.price_eur_net : product.price_pln_net;
-      if (typeof unitNet !== "number") {
+      if (!Number.isFinite(unitNet) || unitNet <= 0) {
         console.error("Order rejected: price_unavailable", { market, product_id: product.id, price_pln_net: product.price_pln_net, price_eur_net: product.price_eur_net });
         return Response.json({ error: "price_unavailable", sku: raw.sku }, { status: 400 });
       }
@@ -66,6 +67,14 @@ export async function POST(request) {
       items: deliveryItems,
       craneUnloading: crane,
     });
+
+    const readiness = checkoutReadiness({ delivery, customerType, settings: SITE_SETTINGS, market, lang: language });
+    if (!readiness.ready) {
+      return Response.json({ error: readiness.deliveryKnown ? "return_transport_estimate_required" : "delivery_quote_required" }, { status: 400 });
+    }
+    if (body.delivery_address?.country && body.delivery_address.country !== market) {
+      return Response.json({ error: "delivery_market_mismatch" }, { status: 400 });
+    }
 
     let vatValidation = { validated: false, valid: false };
     if (market === "DE" && customerType === "business" && text(customer.vat_id, 20)) {
@@ -163,6 +172,8 @@ export async function POST(request) {
       unloading_method: text(body.unloading_method, 60),
       delivery_cost_net: deliveryNet,
       delivery_quote_required: delivery.quoteRequired,
+      return_transport_estimate: readiness.returnEstimate || null,
+      seller: SITE_SETTINGS.company,
       totals: {
         vat_rate: treatment.rate,
         vat_amount: vatAmount,

@@ -22,16 +22,16 @@ export default function DeliveryPage() {
   const shipping = POLICIES.shipping;
   const internationalCustomers = {
     pl: {
-      title: "Klienci spoza Polski — głównie Niemcy",
+      title: "Polska firma, dostawa do Niemiec",
       customerText:
-        "Obsługujemy klientów prywatnych i firmy spoza Polski, przede wszystkim w Niemczech. Kontenery są wykorzystywane między innymi jako magazyny, zaplecze budowlane, przestrzeń dla firm, przechowalnie, rozwiązania logistyczne oraz baza do dalszej adaptacji.",
+        "Przy dostawie do Niemiec podaj pełny adres i niemiecki kod pocztowy, nawet jeśli dane do faktury dotyczą firmy w Polsce. Ustalmy też sposób rozładunku i osobę, która odbierze kontener. Te informacje pozwalają sprawdzić trasę, pojazd oraz koszt do wskazanego miejsca. Zapytanie ofertowe nie zobowiązuje do zakupu.",
       vatText:
         "Dla kwalifikujących się transakcji wewnątrzwspólnotowych B2B możliwe jest zastosowanie stawki 0% VAT po spełnieniu wymogów prawnych i weryfikacji aktywnego numeru VAT UE w systemie VIES. Samo posiadanie numeru VAT UE nie gwarantuje automatycznie zastosowania stawki 0%.",
     },
     de: {
-      title: "Kunden außerhalb Polens — vor allem in Deutschland",
+      title: "Polnisches Unternehmen, Lieferung nach Deutschland",
       customerText:
-        "Wir betreuen Privatkunden und Unternehmen außerhalb Polens, insbesondere in Deutschland. Container werden unter anderem als Lager, Baustelleneinrichtung, Gewerberaum, Aufbewahrungslösung, Logistikfläche oder Basis für weitere Umbauten eingesetzt.",
+        "Geben Sie für eine Lieferung nach Deutschland die vollständige Lieferadresse und deutsche Postleitzahl an, auch wenn die Rechnungsanschrift in Polen liegt. Klären Sie außerdem die Entladung und wer den Container vor Ort annimmt. Mit diesen Angaben lassen sich Route, Fahrzeug und Transportpreis für den Standort prüfen. Eine Angebotsanfrage verpflichtet nicht zum Kauf.",
       vatText:
         "Bei qualifizierten innergemeinschaftlichen B2B-Lieferungen kann nach Erfüllung der gesetzlichen Voraussetzungen und Prüfung einer aktiven USt-IdNr. im VIES-System der Steuersatz von 0% angewendet werden. Der Besitz einer USt-IdNr. allein ist keine automatische Garantie für 0% USt.",
     },
@@ -85,6 +85,17 @@ export default function DeliveryPage() {
           ))}
         </div>
       </section>
+
+      <p className="mt-6 text-base leading-7 text-[#343A40]">
+        {lang === "de" ? "Fragen zur Rückgabe oder zu einem Transportschaden? " : "Pytania o zwrot lub szkodę transportową? "}
+        <Link href={pathFor("returns", lang)} className="font-semibold text-[#795207] underline underline-offset-4">
+          {lang === "de" ? "Rückgabe und Reklamationen" : "Zwroty i reklamacje"}
+        </Link>
+        {" · "}
+        <Link href={pathFor("contact", lang)} className="font-semibold text-[#795207] underline underline-offset-4">
+          {lang === "de" ? "Kontakt zum Verkäufer" : "Kontakt ze sprzedawcą"}
+        </Link>
+      </p>
 
       <div className="mt-10 bg-[#1A1C1E] text-white p-6 sm:p-8 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
