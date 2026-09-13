@@ -20,21 +20,17 @@ export const metadata = {
   },
   description:
     "Nowe i używane kontenery morskie z dostawą w Polsce i Niemczech.",
-  other: {
-    google: "notranslate",
-  },
 };
 
 export default function RootLayout({ children }) {
   return (
     <html
       lang="pl-PL"
-      className={`${poppins.variable} notranslate`}
-      translate="no"
+      className={poppins.variable}
       suppressHydrationWarning
       data-scroll-behavior="smooth"
     >
-      <body className="notranslate" translate="no">
+      <body>
         <Providers>{children}</Providers>
       </body>
     </html>

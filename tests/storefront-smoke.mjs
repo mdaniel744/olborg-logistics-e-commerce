@@ -26,6 +26,13 @@ for (let i = 0; i < paths.length; i += 4) {
     assert.match(html, /name="description" content="[^"]+"/, `${path}: description`);
     assert.match(html, /rel="canonical"/, `${path}: canonical`);
     assert.match(html, /8281415227/, `${path}: seller identity`);
+    assert.doesNotMatch(html, /name="google" content="notranslate"/, `${path}: browser translation metadata`);
+    assert.doesNotMatch(html, /<(?:html|body)[^>]*translate="no"/, `${path}: global browser translation attribute`);
+    assert.match(
+      html,
+      new RegExp(`<div lang="${path === "/de" || path.startsWith("/de/") ? "de-DE" : "pl-PL"}"`),
+      `${path}: localized content language`
+    );
     checked++;
   }));
 }

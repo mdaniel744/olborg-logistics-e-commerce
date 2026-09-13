@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ChevronDown, Menu, X, ShoppingCart } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { useCart } from "@/lib/CartContext";
@@ -25,7 +24,6 @@ export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
-  const router = useRouter();
 
   const primaryNavItems = [
     { label: t("nav.home"), to: pathFor("home", lang) },
@@ -51,7 +49,9 @@ export default function Header() {
     } catch {
       // Language routing still works when browser storage is unavailable.
     }
-    router.push(altPath(target));
+    // Browser translators rewrite text nodes outside React. A full document navigation
+    // avoids reconciling that rewritten DOM when switching the site's own language.
+    window.location.assign(altPath(target));
   };
 
   return (
