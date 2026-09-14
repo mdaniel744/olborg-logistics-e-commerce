@@ -7,6 +7,8 @@ import { computeVatTreatment, round2 } from "@/server/pricing";
 import { saveSubmission } from "@/server/submission-store";
 import { checkVat, parseVatId } from "@/server/vies";
 import { checkoutReadiness } from "@/lib/checkoutReadiness";
+import { calculateOrderTotals } from "@/lib/orderTotals";
+import { reviewedTotalsMatch, sanitizeAddress, sanitizeCustomerForType, validateOrderDetails, validateOrderPayloadShape } from "@/server/orderValidation";
 
 export const runtime = "nodejs";
 
@@ -15,20 +17,35 @@ const text = (value, max = 300) => String(value || "").slice(0, max);
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const market = body.market === "DE" ? "DE" : "PL";
-    const language = body.language === "de" ? "de" : "pl";
+    const idempotencyKey = text(request.headers.get("idempotency-key"), 80);
+    if (!/^[A-Za-z0-9_-]{16,80}$/.test(idempotencyKey)) {
+      return Response.json({ error: "invalid_submission_key" }, { status: 400 });
+    }
+    const payloadError = validateOrderPayloadShape(body);
+    if (payloadError) return Response.json({ error: payloadError }, { status: 400 });
+
+    const market = body.market;
+    const language = body.language;
     const currency = market === "DE" ? "EUR" : "PLN";
-    const customerType = body.customer_type === "business" ? "business" : "private";
-    const customer = body.customer || {};
+    const customerType = body.customer_type;
+    // Enforce the customer-type boundary on the server. A stale form or crafted request
+    // must never attach company, tax or purchase-order data to a private order.
+    const customer = sanitizeCustomerForType(customerType, body.customer);
 
-    if (!text(customer.email) || !text(customer.name)) {
-      return Response.json({ error: "missing_customer" }, { status: 400 });
-    }
+    const submittedBillingAddress = body.billing_address || {};
+    const submittedDeliveryAddress = body.delivery_address || {};
+    const detailsError = validateOrderDetails({
+      market,
+      customerType,
+      customer,
+      billingAddress: submittedBillingAddress,
+      deliveryAddress: submittedDeliveryAddress,
+    });
+    if (detailsError) return Response.json({ error: detailsError }, { status: 400 });
+    const billingAddress = sanitizeAddress(submittedBillingAddress, market);
+    const deliveryAddress = sanitizeAddress(submittedDeliveryAddress, market);
 
-    const rawItems = (Array.isArray(body.items) ? body.items : []).slice(0, 20);
-    if (rawItems.length === 0) {
-      return Response.json({ error: "empty_cart" }, { status: 400 });
-    }
+    const rawItems = body.items;
 
     const products = await getProducts();
     const items = [];
@@ -47,7 +64,7 @@ export async function POST(request) {
         console.error("Order rejected: price_unavailable", { market, product_id: product.id, price_pln_net: product.price_pln_net, price_eur_net: product.price_eur_net });
         return Response.json({ error: "price_unavailable", sku: raw.sku }, { status: 400 });
       }
-      const quantity = Math.min(Math.max(1, Number(raw.quantity) || 1), 100);
+      const quantity = raw.quantity;
       items.push({
         product_id: product.id,
         product_name: language === "de" ? product.name_de : product.name_pl,
@@ -60,22 +77,16 @@ export async function POST(request) {
       deliveryItems.push({ size: product.size, quantity });
     }
 
-    const crane = /crane|hds/i.test(text(body.unloading_method, 60));
     const delivery = calculateDelivery(DELIVERY_ZONES, {
       country: market,
-      postalCode: text(body.delivery_postal_code, 12),
+      postalCode: text(deliveryAddress.postal_code, 12),
       items: deliveryItems,
-      craneUnloading: crane,
     });
 
-    const readiness = checkoutReadiness({ delivery, customerType, settings: SITE_SETTINGS, market, lang: language });
+    const readiness = checkoutReadiness({ delivery, settings: SITE_SETTINGS, market, lang: language });
     if (!readiness.ready) {
-      return Response.json({ error: readiness.deliveryKnown ? "return_transport_estimate_required" : "delivery_quote_required" }, { status: 400 });
+      return Response.json({ error: "delivery_quote_required" }, { status: 400 });
     }
-    if (body.delivery_address?.country && body.delivery_address.country !== market) {
-      return Response.json({ error: "delivery_market_mismatch" }, { status: 400 });
-    }
-
     let vatValidation = { validated: false, valid: false };
     if (market === "DE" && customerType === "business" && text(customer.vat_id, 20)) {
       const parsed = parseVatId(customer.vat_id);
@@ -102,10 +113,36 @@ export async function POST(request) {
       deliveryCountry: market,
     });
     const itemsNet = round2(items.reduce((sum, item) => sum + item.unit_price_net * item.quantity, 0));
-    const deliveryNet = delivery.quoteRequired ? 0 : delivery.cost;
-    const netSubtotal = round2(itemsNet + deliveryNet);
-    const vatAmount = round2(netSubtotal * (treatment.rate / 100));
-    const grossTotal = round2(netSubtotal + vatAmount);
+    const deliveryCharge = delivery.quoteRequired ? 0 : delivery.customerCharge;
+    const totals = calculateOrderTotals({ itemsNet, deliveryCharge, vatRate: treatment.rate });
+    if (!totals) return Response.json({ error: "order_submission_failed" }, { status: 500 });
+    const {
+      items_gross: itemsGross,
+      delivery_net: deliveryNet,
+      net_subtotal: netSubtotal,
+      vat_amount: vatAmount,
+      gross_total: grossTotal,
+    } = totals;
+    const calculatedTotals = {
+      currency,
+      items_net: itemsNet,
+      items_gross: itemsGross,
+      delivery_net: deliveryNet,
+      delivery_charge: deliveryCharge,
+      vat_rate: treatment.rate,
+      vat_amount: vatAmount,
+      gross_total: grossTotal,
+    };
+    if (!reviewedTotalsMatch(body.reviewed_totals, calculatedTotals)) {
+      return Response.json({
+        error: "checkout_changed",
+        totals: calculatedTotals,
+        cart_updates: items.map((item) => ({
+          product_id: item.product_id,
+          unit_price_net: item.unit_price_net,
+        })),
+      }, { status: 409 });
+    }
 
     const labels = {
       pl_domestic: `w tym ${treatment.rate}% VAT`,
@@ -117,27 +154,53 @@ export async function POST(request) {
     };
 
     // The dashboard endpoint has no fields for company/VAT-ID/NIP or a PO reference, so
-    // fold them into the note rather than silently drop them.
+    // fold those identity details into the note rather than silently drop them. Shipping
+    // is also sent through its supported structured field below; the note remains a human-
+    // readable audit trail of the exact tax-inclusive amount accepted by the customer.
     const businessLines = [
+      customerType === "business" ? `Contact: ${text(customer.name, 150)}` : null,
       customerType === "business" ? text(customer.company, 200) && `Firma: ${text(customer.company, 200)}` : null,
-      text(customer.vat_id, 20) && `VAT ID: ${text(customer.vat_id, 20)}`,
-      text(customer.nip, 20) && `NIP: ${text(customer.nip, 20)}`,
-      text(customer.po_reference, 100) && `PO: ${text(customer.po_reference, 100)}`,
+      customerType === "business" ? text(customer.vat_id, 20) && `VAT ID: ${text(customer.vat_id, 20)}` : null,
+      customerType === "business" ? text(customer.nip, 20) && `NIP: ${text(customer.nip, 20)}` : null,
+      customerType === "business" ? text(customer.po_reference, 100) && `PO: ${text(customer.po_reference, 100)}` : null,
+      `Flat shipping (${delivery.method}): ${deliveryCharge.toFixed(2)} ${currency} customer charge / ${deliveryNet.toFixed(2)} net`,
+      `VAT: ${treatment.rate}% / ${vatAmount.toFixed(2)} ${currency}`,
+      `Checkout total: ${grossTotal.toFixed(2)} ${currency} gross`,
+      `Storefront submission: ${idempotencyKey}`,
       text(customer.notes, 2000),
     ].filter(Boolean);
+
+    // The dashboard uses customerName as the invoice buyer name. A business invoice must
+    // therefore use the legal company name, while the human contact remains in the note.
+    // Its address schema also accepts these structured identity fields for downstream
+    // invoice templates without exposing them on private-customer orders.
+    const dashboardBillingAddress = customerType === "business"
+      ? {
+          ...billingAddress,
+          company: text(customer.company, 200),
+          ...(market === "PL"
+            ? { nip: text(customer.nip, 20).replace(/[\s-]/g, "") }
+            : text(customer.vat_id, 20) ? { vat_id: text(customer.vat_id, 20) } : {}),
+        }
+      : billingAddress;
 
     let dashboardOrder;
     try {
       dashboardOrder = await submitDashboardOrder(STORE_ID, {
         locale: language,
-        customerName: text(customer.name, 150),
+        customerName: customerType === "business"
+          ? text(customer.company, 200)
+          : text(customer.name, 150),
         customerEmail: text(customer.email, 150),
         customerPhone: text(customer.phone, 40) || undefined,
-        billingAddress: body.billing_address || undefined,
-        deliveryAddress: body.delivery_address || undefined,
+        billingAddress: dashboardBillingAddress,
+        deliveryAddress,
         customerNote: businessLines.join(" | ") || undefined,
+        // Dashboard checkout expects the final customer-facing shipping charge. For a
+        // Polish order this is 1,380 PLN including 23% VAT (1,121.95 net + 258.05 VAT).
+        shippingAmount: deliveryCharge,
         lineItems: items.map((item) => ({ productId: item.product_id, quantity: item.quantity })),
-      });
+      }, idempotencyKey);
     } catch (dashboardError) {
       console.error("Dashboard order submission failed", dashboardError);
       return Response.json({ error: "dashboard_submission_failed" }, { status: 502 });
@@ -155,26 +218,33 @@ export async function POST(request) {
       customer_type: customerType,
       customer: {
         name: text(customer.name, 150),
-        company: text(customer.company, 200),
-        vat_id: text(customer.vat_id, 20),
-        nip: text(customer.nip, 20),
         email: text(customer.email, 150),
         phone: text(customer.phone, 40),
-        po_reference: text(customer.po_reference, 100),
         notes: text(customer.notes, 2000),
+        ...(customerType === "business" ? {
+          company: text(customer.company, 200),
+          vat_id: text(customer.vat_id, 20),
+          nip: text(customer.nip, 20),
+          po_reference: text(customer.po_reference, 100),
+        } : {}),
       },
       vat_validation: vatValidation,
-      billing_address: body.billing_address || {},
-      delivery_address: body.delivery_address || {},
+      billing_address: billingAddress,
+      delivery_address: deliveryAddress,
       delivery_country: market,
-      delivery_postal_code: text(body.delivery_postal_code, 12),
+      delivery_postal_code: text(deliveryAddress.postal_code, 12),
       delivery_instructions: text(body.delivery_instructions, 2000),
-      unloading_method: text(body.unloading_method, 60),
       delivery_cost_net: deliveryNet,
+      delivery_customer_charge: deliveryCharge,
+      delivery_pricing_method: delivery.method,
       delivery_quote_required: delivery.quoteRequired,
-      return_transport_estimate: readiness.returnEstimate || null,
+      return_transport_charge: readiness.returnCharge || null,
       seller: SITE_SETTINGS.company,
       totals: {
+        items_net: itemsNet,
+        items_gross: itemsGross,
+        delivery_net: deliveryNet,
+        delivery_charge: deliveryCharge,
         vat_rate: treatment.rate,
         vat_amount: vatAmount,
         net_subtotal: netSubtotal,
@@ -185,6 +255,14 @@ export async function POST(request) {
       payment_method: "bank_transfer",
       payment_status: "awaiting_payment",
       status: "new",
+      checkout_acceptance: {
+        submission_key: idempotencyKey,
+        terms_accepted: true,
+        accepted_at: new Date().toISOString(),
+        button_label: customerType === "private"
+          ? (language === "de" ? "Zahlungspflichtig bestellen" : "Zamawiam i płacę")
+          : (language === "de" ? "Bestellung aufgeben" : "Złóż zamówienie"),
+      },
     };
 
     // Best-effort local backup only — the real order already exists in the dashboard by
@@ -198,6 +276,7 @@ export async function POST(request) {
       id: record.id,
       currency,
       totals: record.totals,
+      return_transport_charge: record.return_transport_charge,
       delivery_quote_required: record.delivery_quote_required,
     });
   } catch (error) {

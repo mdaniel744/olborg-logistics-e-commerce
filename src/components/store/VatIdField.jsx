@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -6,9 +6,13 @@ import { Label } from "@/components/ui/label";
 import { useLang } from "@/lib/i18n";
 
 // Inline VIES validation. onResult({ validated, valid, vat_id, company_name, checked_at, reference })
-export default function VatIdField({ value, onChange, onResult }) {
+export default function VatIdField({ value, onChange, onResult, expectedCountry }) {
   const { t } = useLang();
   const [state, setState] = useState("idle"); // idle | loading | valid | invalid
+
+  useEffect(() => {
+    if (!value) setState("idle");
+  }, [value]);
 
   const validate = async () => {
     if (!value) return;
@@ -17,7 +21,7 @@ export default function VatIdField({ value, onChange, onResult }) {
       const response = await fetch("/api/vat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ vat_id: value }),
+        body: JSON.stringify({ vat_id: value, expected_country: expectedCountry }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "VAT validation failed");
@@ -36,13 +40,15 @@ export default function VatIdField({ value, onChange, onResult }) {
 
   return (
     <div>
-      <Label htmlFor="vat-id" className="text-sm text-[#4B5157]">{t("checkout.vatId")} *</Label>
+      <Label htmlFor="vat-id" className="text-sm text-[#4B5157]">{t("checkout.vatId")} ({t("common.optional")})</Label>
       <div className="flex gap-2 mt-1">
         <Input
           id="vat-id"
+          name="vat-id"
           value={value}
           onChange={(e) => { onChange(e.target.value); setState("idle"); onResult(null); }}
           placeholder="DE123456789"
+          autoComplete="off"
           className="rounded-none font-mono"
         />
         <Button type="button" onClick={validate} disabled={state === "loading" || !value} className="bg-[#1A1C1E] hover:bg-black rounded-none shrink-0">

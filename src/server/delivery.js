@@ -26,43 +26,33 @@ export function findZone(zones, country, postalCode) {
   return best;
 }
 
-export function calculateDelivery(zones, { country, postalCode, items, craneUnloading }) {
+export function calculateDelivery(zones, { country, postalCode, items }) {
   if (!normalizePostalCode(country, postalCode)) {
-    return { quoteRequired: true, zone: null, cost: 0, reason: "invalid_postal_code" };
+    return { quoteRequired: true, zone: null, customerCharge: 0, method: null, reason: "invalid_postal_code" };
   }
   const zone = findZone(zones, country, postalCode);
   if (!zone || zone.manual_quote_only) {
-    return { quoteRequired: true, zone: zone?.name || null, cost: 0 };
+    return { quoteRequired: true, zone: zone?.name || null, customerCharge: 0, method: null };
   }
 
   if (!Array.isArray(items) || items.length === 0) {
-    return { quoteRequired: true, zone: zone.name, cost: 0 };
+    return { quoteRequired: true, zone: zone.name, customerCharge: 0, method: null };
   }
 
-  let total = 0;
   for (const item of items) {
-    const rate = (zone.rates || []).find((entry) => entry.size === item.size);
     const quantity = Number(item.quantity);
-    if (!rate || !Number.isFinite(rate.rate_net) || rate.rate_net < 0 || !Number.isInteger(quantity) || quantity < 1) {
-      return { quoteRequired: true, zone: zone.name, cost: 0 };
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      return { quoteRequired: true, zone: zone.name, customerCharge: 0, method: null };
     }
-    const additional =
-      typeof rate.additional_unit_rate_net === "number"
-        ? rate.additional_unit_rate_net
-        : rate.rate_net;
-    if (!Number.isFinite(additional) || additional < 0) {
-      return { quoteRequired: true, zone: zone.name, cost: 0 };
-    }
-    total += rate.rate_net + (quantity - 1) * additional;
   }
 
-  if (craneUnloading) {
-    if (!Number.isFinite(zone.crane_surcharge_net) || zone.crane_surcharge_net < 0) {
-      return { quoteRequired: true, zone: zone.name, cost: 0 };
-    }
-    total += zone.crane_surcharge_net;
+  if (!Number.isFinite(zone.customer_charge) || zone.customer_charge < 0) {
+    return { quoteRequired: true, zone: zone.name, customerCharge: 0, method: null };
   }
-
-  if (!Number.isFinite(total)) return { quoteRequired: true, zone: zone.name, cost: 0 };
-  return { quoteRequired: false, zone: zone.name, cost: Math.round(total * 100) / 100 };
+  return {
+    quoteRequired: false,
+    zone: zone.name,
+    customerCharge: Math.round(zone.customer_charge * 100) / 100,
+    method: zone.pricing_type === "flat_rate" ? "flat_rate" : "calculated",
+  };
 }

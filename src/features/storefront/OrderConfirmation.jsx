@@ -109,13 +109,17 @@ export default function OrderConfirmation() {
       {order.totals && (
         <section className="bg-white border border-[#E0E2E5] mt-6 px-4 py-4">
           <dl className="space-y-2 text-sm">
-            <div className="flex justify-between"><dt className="text-[#6B7075]">{t("checkout.netSubtotal")}</dt><dd className="font-mono">{formatMoney(order.totals.net_subtotal, order.currency)}</dd></div>
-            <div className="flex justify-between"><dt className="text-[#6B7075]">{t("common.vat")} ({order.totals.vat_rate}%)</dt><dd className="font-mono">{formatMoney(order.totals.vat_amount, order.currency)}</dd></div>
+            <div className="flex justify-between"><dt className="text-[#6B7075]">{t("checkout.itemsSubtotal")}</dt><dd className="font-mono">{formatMoney(order.totals.items_gross ?? order.totals.items_net, order.currency)}</dd></div>
+            <div className="flex justify-between"><dt className="text-[#6B7075]">{t("checkout.flatRateShipping")}</dt><dd className="font-mono">{formatMoney(order.totals.delivery_charge ?? order.totals.delivery_net, order.currency)}</dd></div>
+            <div className="flex justify-between text-xs"><dt className="text-[#6B7075]">{t("checkout.includedVat")} ({order.totals.vat_rate}%)</dt><dd className="font-mono text-[#6B7075]">{formatMoney(order.totals.vat_amount, order.currency)}</dd></div>
             <div className="flex justify-between border-t border-[#E0E2E5] pt-2 font-bold"><dt>{t("common.total")}</dt><dd className="font-mono">{formatMoney(order.totals.gross_total, order.currency)}</dd></div>
           </dl>
           {order.totals.label && <p className="font-mono text-[11px] text-[#6B7075] mt-2">{order.totals.label}</p>}
           {order.delivery_quote_required && (
             <p className="text-sm text-[#795207] mt-2">{t("product.deliveryQuoteRequired")}</p>
+          )}
+          {order.return_transport_charge && (
+            <p className="text-sm text-[#4B5157] mt-3">{t("checkout.returnTransportCharge")}: {order.return_transport_charge}</p>
           )}
         </section>
       )}

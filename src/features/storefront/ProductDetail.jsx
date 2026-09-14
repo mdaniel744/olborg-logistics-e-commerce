@@ -19,7 +19,7 @@ import ProductInfoTabs from "@/components/store/ProductInfoTabs";
 import ProductCard from "@/components/store/ProductCard";
 import { siteOrigin } from "@/lib/siteUrl";
 import { productStructuredData } from "@/lib/productStructuredData";
-import { returnTransportEstimate } from "@/lib/checkoutReadiness";
+import { returnTransportCharge } from "@/lib/checkoutReadiness";
 import { plainText } from "@/lib/merchantFeed";
 
 const colorLabel = (variant, lang) => {
@@ -153,7 +153,7 @@ export default function ProductDetail({ slug, initialProducts }) {
   const price = product.active !== false ? variantGross(product, settings, market) : null;
   const structuredData = productStructuredData(product, {
     lang, origin: siteOrigin, grossPrice: price?.gross,
-    purchasable: Boolean(returnTransportEstimate(settings, market, lang)),
+    purchasable: Boolean(returnTransportCharge(settings, market, lang)),
   });
   const image = product.featured_image;
   const gallery = [image, ...(product.gallery || []).filter((g) => g !== image)].filter(Boolean);
@@ -351,7 +351,7 @@ export default function ProductDetail({ slug, initialProducts }) {
               <div className="flex items-center border border-[#E0E2E5] bg-white h-12">
                 <button className="px-4 h-full text-lg" onClick={() => setQuantity(Math.max(1, quantity - 1))} aria-label="-">−</button>
                 <span className="font-mono w-10 text-center">{quantity}</span>
-                <button className="px-4 h-full text-lg" onClick={() => setQuantity(quantity + 1)} aria-label="+">+</button>
+                <button className="px-4 h-full text-lg disabled:opacity-40" onClick={() => setQuantity(Math.min(100, quantity + 1))} disabled={quantity >= 100} aria-label="+">+</button>
               </div>
             </div>
             <Button
@@ -371,7 +371,7 @@ export default function ProductDetail({ slug, initialProducts }) {
 
           {/* Delivery check */}
           <div className="mt-8">
-            <DeliveryCalculator items={[{ size: product.size, quantity }]} />
+            <DeliveryCalculator />
           </div>
         </div>
       </div>

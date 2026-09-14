@@ -19,18 +19,18 @@ const CONTENT = {
     story: [
       "Olborg Logistics to marka, pod którą działa polska spółka OLBORG LOGISTIC SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ. Zajmujemy się sprzedażą kontenerów i organizacją dostaw dla klientów prywatnych oraz firm.",
       "Rozmowę o wyborze zaczynamy od zastosowania: co trafi do środka, jak będzie załadowane i jak często potrzebny jest dostęp. Te informacje pozwalają porównać rozmiar, układ drzwi i stan kontenera.",
-      "Równie ważne jest miejsce ustawienia. Kod pocztowy, dojazd, podłoże i sposób rozładunku pomagają ustalić warunki transportu. Przy nietypowych wymaganiach możesz przesłać opis i zdjęcia miejsca w zapytaniu o wycenę.",
+      "Równie ważne jest miejsce ustawienia. Kod pocztowy, dojazd, podłoże i miejsce odbioru pomagają potwierdzić warunki standardowej dostawy. Jeśli potrzebujesz opcjonalnej usługi specjalnej, możesz przesłać jej opis i zdjęcia miejsca w zapytaniu o wycenę.",
     ],
     imageAlt: "Wizualizacja samochodu ciężarowego przewożącego kontener",
     imageCaption: "Wizualizacja transportu kontenera; pojazd dostawy jest ustalany dla zamówienia.",
-    logisticsTitle: "Organizacja transportu i rozładunku",
+    logisticsTitle: "Organizacja standardowej dostawy",
     logisticsText:
-      "Zakup kontenera i jego ustawienie trzeba zaplanować razem. Sposób przewozu oraz rozładunku dobieramy do konkretnego zamówienia, masy kontenera i warunków dojazdu.",
+      "Stała stawka obejmuje transport oraz standardowe, bezpieczne przekazanie kontenera pod adresem dostawy. Przed wysyłką potwierdzamy dojazd, miejsce odbioru i termin; klient nie wybiera sposobu rozładunku w kasie.",
     logisticsPoints: [
-      "dobór transportu do rozmiaru i liczby kontenerów",
-      "ustalenie możliwości rozładunku HDS lub odpowiednim sprzętem klienta",
-      "szacunkowy koszt transportu według kodu pocztowego dla obsługiwanych lokalizacji",
-      "indywidualne wyceny dla trudnego dojazdu i bardziej złożonych dostaw",
+      "organizacja transportu dla całego zamówienia",
+      "potwierdzenie dojazdu i bezpiecznego miejsca odbioru",
+      "stała stawka 1 380 PLN w Polsce albo 530 EUR w Niemczech za całe zamówienie",
+      "opcjonalne usługi specjalne tylko na podstawie osobnej wyceny zaakceptowanej przed zakupem",
     ],
     marketsTitle: "Polska i Niemcy",
     markets: [
@@ -43,7 +43,7 @@ const CONTENT = {
     goals: [
       "wybór rozmiaru, typu, stanu i koloru",
       "porównanie danych wybranego wariantu",
-      "uzgodnienie dojazdu i rozładunku",
+      "potwierdzenie dojazdu i miejsca odbioru",
       "zamówienie lub niewiążące zapytanie",
     ],
     ctaTitle: "Znajdź odpowiedni kontener",
@@ -61,18 +61,18 @@ const CONTENT = {
     story: [
       "Olborg Logistics ist die Marke der polnischen Gesellschaft OLBORG LOGISTIC SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ. Wir verkaufen Container und organisieren Lieferungen für Privatpersonen und Unternehmen.",
       "Bei der Auswahl beginnen wir mit dem Einsatz: Was soll hinein, wie wird beladen und wie häufig brauchen Sie Zugang? Damit lassen sich Größe, Türanordnung und Zustand sinnvoll vergleichen.",
-      "Ebenso wichtig ist der Stellplatz. Postleitzahl, Zufahrt, Untergrund und Entlademethode helfen, den Transport abzustimmen. Bei besonderen Anforderungen können Sie Ihrer Angebotsanfrage eine Beschreibung und Standortbilder beifügen.",
+      "Ebenso wichtig ist der Stellplatz. Postleitzahl, Zufahrt, Untergrund und Annahmestelle helfen, die Bedingungen der Standardlieferung zu bestätigen. Benötigen Sie eine optionale Sonderleistung, können Sie Ihrer Angebotsanfrage eine Beschreibung und Standortbilder beifügen.",
     ],
     imageAlt: "Visualisierung eines LKW mit Container",
     imageCaption: "Visualisierung eines Containertransports; das Lieferfahrzeug wird je Bestellung abgestimmt.",
-    logisticsTitle: "Transport und Entladung organisieren",
+    logisticsTitle: "Standardlieferung organisieren",
     logisticsText:
-      "Containerkauf und Aufstellung sollten gemeinsam geplant werden. Transport und Entladung richten sich nach der konkreten Bestellung, dem Containergewicht und den Zufahrtsbedingungen.",
+      "Die Pauschale umfasst den Transport und die sichere Standardübergabe des Containers an der Lieferadresse. Vor dem Versand bestätigen wir Zufahrt, Annahmestelle und Termin; in der Kasse wählen Kunden keine Entlademethode.",
     logisticsPoints: [
-      "Transportwahl nach Containergröße und Anzahl",
-      "Prüfung der Entladung per LKW-Kran oder geeignetem Gerät des Kunden",
-      "voraussichtliche Transportkosten nach Postleitzahl für bediente Regionen",
-      "individuelle Kalkulation bei schwieriger Zufahrt und komplexeren Lieferungen",
+      "Transportorganisation für die gesamte Bestellung",
+      "Bestätigung von Zufahrt und sicherer Annahmestelle",
+      "Pauschale von 1.380 PLN in Polen oder 530 EUR in Deutschland je Bestellung",
+      "optionale Sonderleistungen nur auf Grundlage eines gesonderten, vor dem Kauf angenommenen Angebots",
     ],
     marketsTitle: "Polen und Deutschland",
     markets: [
@@ -85,7 +85,7 @@ const CONTENT = {
     goals: [
       "Größe, Typ, Zustand und Farbe wählen",
       "Daten der gewählten Variante vergleichen",
-      "Zufahrt und Entladung abstimmen",
+      "Zufahrt und Annahmestelle bestätigen",
       "Bestellen oder unverbindlich anfragen",
     ],
     ctaTitle: "Den passenden Container finden",

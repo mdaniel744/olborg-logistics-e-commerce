@@ -24,14 +24,14 @@ export default function DeliveryPage() {
     pl: {
       title: "Polska firma, dostawa do Niemiec",
       customerText:
-        "Przy dostawie do Niemiec podaj pełny adres i niemiecki kod pocztowy, nawet jeśli dane do faktury dotyczą firmy w Polsce. Ustalmy też sposób rozładunku i osobę, która odbierze kontener. Te informacje pozwalają sprawdzić trasę, pojazd oraz koszt do wskazanego miejsca. Zapytanie ofertowe nie zobowiązuje do zakupu.",
+        "Przy dostawie do Niemiec podaj pełny adres i niemiecki kod pocztowy, nawet jeśli dane do faktury dotyczą firmy w Polsce. Stała stawka 530 EUR obejmuje całe standardowe zamówienie, niezależnie od rodzaju klienta, rozmiaru i liczby kontenerów. W kasie nie wybiera się sposobu rozładunku ani osobnej dopłaty. Nadal potwierdzamy dojazd i osobę odbierającą kontener. Tylko opcjonalna usługa specjalna wykraczająca poza standardową dostawę wymaga osobnej wyceny zaakceptowanej przed zakupem.",
       vatText:
         "Dla kwalifikujących się transakcji wewnątrzwspólnotowych B2B możliwe jest zastosowanie stawki 0% VAT po spełnieniu wymogów prawnych i weryfikacji aktywnego numeru VAT UE w systemie VIES. Samo posiadanie numeru VAT UE nie gwarantuje automatycznie zastosowania stawki 0%.",
     },
     de: {
       title: "Polnisches Unternehmen, Lieferung nach Deutschland",
       customerText:
-        "Geben Sie für eine Lieferung nach Deutschland die vollständige Lieferadresse und deutsche Postleitzahl an, auch wenn die Rechnungsanschrift in Polen liegt. Klären Sie außerdem die Entladung und wer den Container vor Ort annimmt. Mit diesen Angaben lassen sich Route, Fahrzeug und Transportpreis für den Standort prüfen. Eine Angebotsanfrage verpflichtet nicht zum Kauf.",
+        "Geben Sie für eine Lieferung nach Deutschland die vollständige Lieferadresse und deutsche Postleitzahl an, auch wenn die Rechnungsanschrift in Polen liegt. Die Pauschale von 530 EUR umfasst die gesamte Standardbestellung, unabhängig von Kundentyp, Größe und Containeranzahl. In der Kasse werden weder Entlademethode noch gesonderter Zuschlag gewählt. Zufahrt und Annahme vor Ort bestätigen wir weiterhin. Nur eine optionale Sonderleistung außerhalb der Standardlieferung erfordert ein gesondertes, vor dem Kauf angenommenes Angebot.",
       vatText:
         "Bei qualifizierten innergemeinschaftlichen B2B-Lieferungen kann nach Erfüllung der gesetzlichen Voraussetzungen und Prüfung einer aktiven USt-IdNr. im VIES-System der Steuersatz von 0% angewendet werden. Der Besitz einer USt-IdNr. allein ist keine automatische Garantie für 0% USt.",
     },
@@ -99,8 +99,8 @@ export default function DeliveryPage() {
 
       <div className="mt-10 bg-[#1A1C1E] text-white p-6 sm:p-8 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <p className="font-semibold text-lg">{t("product.deliveryQuoteRequired")}</p>
-          <p className="text-base leading-7 text-white/75 mt-1">{t("product.quoteHint")}</p>
+          <p className="font-semibold text-lg">{t("delivery.specialServicesTitle")}</p>
+          <p className="text-base leading-7 text-white/75 mt-1">{t("delivery.specialServicesText")}</p>
         </div>
         <Button asChild className="h-11 bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] font-semibold shrink-0">
           <Link href={pathFor("quote", lang)}>{t("common.requestQuote")}</Link>

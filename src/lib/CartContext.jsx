@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { applyCartPriceUpdates, cartItemKey, normalizeStoredCart } from "./cartItems";
 
 const CartContext = createContext(null);
 const STORAGE_KEY = "olborg_cart_v1";
@@ -11,7 +12,8 @@ export function CartProvider({ children }) {
 
   useEffect(() => {
     try {
-      setItems(JSON.parse(localStorage.getItem(STORAGE_KEY)) || []);
+      const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      setItems(normalizeStoredCart(stored));
     } catch {
       setItems([]);
     }
@@ -25,36 +27,43 @@ export function CartProvider({ children }) {
 
   const addItem = useCallback((item) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.sku === item.sku);
+      const key = cartItemKey(item);
+      if (!key) return prev;
+      const addedQuantity = Number.isInteger(item.quantity) ? Math.min(100, Math.max(1, item.quantity)) : 1;
+      const existing = prev.find((i) => cartItemKey(i) === key);
       if (existing) {
         return prev.map((i) =>
-          i.sku === item.sku ? { ...i, quantity: i.quantity + item.quantity } : i
+          cartItemKey(i) === key ? { ...i, quantity: Math.min(100, i.quantity + addedQuantity) } : i
         );
       }
-      return [...prev, item];
+      return [...prev, { ...item, quantity: addedQuantity }];
     });
     setDrawerOpen(true);
   }, []);
 
-  const updateQuantity = useCallback((sku, quantity) => {
+  const updateQuantity = useCallback((key, quantity) => {
     setItems((prev) =>
       quantity <= 0
-        ? prev.filter((i) => i.sku !== sku)
-        : prev.map((i) => (i.sku === sku ? { ...i, quantity } : i))
+        ? prev.filter((i) => cartItemKey(i) !== key)
+        : prev.map((i) => (cartItemKey(i) === key ? { ...i, quantity: Math.min(100, quantity) } : i))
     );
   }, []);
 
-  const removeItem = useCallback((sku) => {
-    setItems((prev) => prev.filter((i) => i.sku !== sku));
+  const removeItem = useCallback((key) => {
+    setItems((prev) => prev.filter((i) => cartItemKey(i) !== key));
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
+
+  const applyPriceUpdates = useCallback((updates, market) => {
+    setItems((prev) => applyCartPriceUpdates(prev, updates, market));
+  }, []);
 
   const count = items.reduce((s, i) => s + i.quantity, 0);
 
   return (
     <CartContext.Provider
-      value={{ items, hydrated, addItem, updateQuantity, removeItem, clearCart, count, drawerOpen, setDrawerOpen }}
+      value={{ items, hydrated, addItem, updateQuantity, removeItem, clearCart, applyPriceUpdates, count, drawerOpen, setDrawerOpen }}
     >
       {children}
     </CartContext.Provider>

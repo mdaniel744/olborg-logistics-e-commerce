@@ -67,7 +67,6 @@ export async function POST(request) {
         items,
         free_text_products: text(body.free_text_products, 2000),
         delivery,
-        unloading_method: text(body.unloading_method, 60),
         site_access_notes: text(body.site_access_notes, 2000),
         customer_type: body.customer_type === "business" ? "business" : "private",
         customer_vat_id: text(customer.vat_id, 20) || undefined,

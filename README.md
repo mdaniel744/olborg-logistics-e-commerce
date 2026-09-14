@@ -40,14 +40,14 @@ With the local server running on port 3001, `node tests/storefront-smoke.mjs` ch
 - `POST /api/vat` validates EU VAT IDs against VIES.
 - `GET /api/merchant-feed?market=pl|de` generates a Google Merchant XML feed.
 
-Orders and quotes are submitted to the configured external dashboard/inquiry service, with a best-effort local backup under `.data/`. Development is not a mock order environment: do not submit real-looking test orders without a designated test backend. Quote images currently use `public/uploads/`; private storage, retention and authorized retrieval remain required follow-up work.
+Orders and quotes are submitted to the configured external dashboard/inquiry service, with a best-effort local backup under `.data/`. The order handoff sends the server-authoritative customer delivery charge as structured `shippingAmount`; Polish orders always record 23% VAT for private and business buyers. Development is not a mock order environment: do not submit real-looking test orders without a designated test backend. Quote images currently use `public/uploads/`; private storage, retention and authorized retrieval remain required follow-up work.
 
 ## Merchant Center / SEO release checks
 
 Read [the dated audit and unresolved business facts](docs/merchant-seo-audit.md) before publishing or requesting a Google review.
 
 - Set `NEXT_PUBLIC_SITE_URL` to the verified public HTTPS origin. Without it the site is non-indexable, the sitemap is empty and the feed returns HTTP 503. The request host is not used as a production canonical domain.
-- Confirm return-transport amounts or defensible maximum estimates before populating `SITE_SETTINGS.returns.transport_estimates.PL` and `.DE`. Each takes approved `{ pl: "…", de: "…" } customer-facing text, with VAT-inclusive amounts in the delivery country's currency. No invented rates are supplied. Private checkout and the market feed remain unavailable until the required estimate is configured; the quote form remains accessible.
+- Checkout uses one final customer delivery charge per order: 1,380 PLN for Poland and 530 EUR for Germany, independent of customer type, container size and quantity. The same country amounts are configured under `SITE_SETTINGS.returns.transport_charges` for Olborg-arranged customer-paid return transport. Keep the website, checkout and Merchant Center shipping/return settings identical if these commercial rates change.
 - Demo products cannot be ordered or advertised. Keep `NEXT_PUBLIC_USE_DEMO_PRODUCTS` off in production. A deployment explicitly enabling demo products is non-indexable.
 - Verify actual delivery rates/times, registered address, return depot, invoices, stock, manufacturer identifiers, translated descriptions and Merchant Center shipping/returns settings. Configuring the two fields above alone does not establish readiness or legal compliance.
 - Public pages have localized metadata, canonical links and hreflang; `/sitemap.xml` excludes demo products, incomplete product translations and transactional pages. Old direct product URLs use permanent redirects to `/produkt/…` and `/de/produkt/…`.

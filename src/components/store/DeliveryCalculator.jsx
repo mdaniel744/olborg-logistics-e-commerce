@@ -4,35 +4,23 @@ import { Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLang } from "@/lib/i18n";
 import { formatMoney } from "@/lib/format";
 import { calcDeliveryClient } from "@/lib/deliveryClient";
 import { pathFor } from "@/lib/routes";
-import { DELIVERY_ZONES, SITE_SETTINGS } from "@/data/catalog";
-import { computeVatTreatment, grossFromNet } from "@/lib/vat";
+import { DELIVERY_ZONES } from "@/data/catalog";
 
-// items: optional [{size, quantity}] — when omitted, user picks a size
-export default function DeliveryCalculator({ items, compact }) {
+export default function DeliveryCalculator({ compact }) {
   const { lang, market, t } = useLang();
   const fieldId = useId();
   const [country, setCountry] = useState(market);
   const [postalCode, setPostalCode] = useState("");
-  const [size, setSize] = useState("20ft");
-  const [crane, setCrane] = useState(false);
   const [calculation, setCalculation] = useState(null);
 
   const currency = country === "DE" ? "EUR" : "PLN";
-  const calcItems = items?.length ? items : [{ size, quantity: 1 }];
-  const requestKey = JSON.stringify({ country, postalCode, items: calcItems, crane });
+  const requestKey = JSON.stringify({ country, postalCode });
   const result = calculation?.requestKey === requestKey ? calculation : null;
-  const { rate: vatRate } = computeVatTreatment(SITE_SETTINGS, {
-    market: country,
-    customerType: "private",
-    vatValid: false,
-    deliveryCountry: country,
-  });
 
   const calculate = (e) => {
     e.preventDefault();
@@ -40,8 +28,7 @@ export default function DeliveryCalculator({ items, compact }) {
       ...calcDeliveryClient(DELIVERY_ZONES, {
         country,
         postalCode,
-        items: calcItems,
-        craneUnloading: crane,
+        items: [{ quantity: 1 }],
       }),
       requestKey,
     });
@@ -71,19 +58,6 @@ export default function DeliveryCalculator({ items, compact }) {
               </SelectContent>
             </Select>
           </div>
-          {!items?.length && (
-            <div className="flex-1">
-              <Label htmlFor={`${fieldId}-size`} className="text-sm text-[#4B5157]">{t("delivery.containerSize")}</Label>
-              <Select value={size} onValueChange={(value) => { setSize(value); setCalculation(null); }}>
-                <SelectTrigger id={`${fieldId}-size`} className="rounded-none mt-1"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10ft">10ft</SelectItem>
-                  <SelectItem value="20ft">20ft</SelectItem>
-                  <SelectItem value="40ft">40ft</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
           <div className="flex-1">
             <Label htmlFor={`${fieldId}-postal`} className="text-sm text-[#4B5157]">
               {t("product.postalCode")} ({country})
@@ -109,10 +83,6 @@ export default function DeliveryCalculator({ items, compact }) {
             </Button>
           </div>
         </div>
-        <label className="flex items-center gap-2 text-sm text-[#3A3E42]">
-          <Checkbox checked={crane} onCheckedChange={(value) => { setCrane(value === true); setCalculation(null); }} />
-          {t("delivery.craneUnloading")}
-        </label>
         <p className="text-xs leading-5 text-[#6B7075]">{t("delivery.currencyHint").replace("{currency}", currency)}</p>
       </form>
 
@@ -131,9 +101,8 @@ export default function DeliveryCalculator({ items, compact }) {
                 {t("delivery.result")}
               </span>
               <div className="text-right">
-                <p className="font-heading text-lg font-bold text-[#1A1C1E]">{formatMoney(grossFromNet(result.cost, vatRate), currency)}</p>
-                <p className="text-xs text-[#6B7075]">{lang === "de" ? `inkl. ${vatRate}% MwSt.` : `w tym ${vatRate}% VAT`}</p>
-                <p className="mt-1 text-xs text-[#6B7075]">{formatMoney(result.cost, currency)} {t("common.netto")}</p>
+                <p className="font-heading text-lg font-bold text-[#1A1C1E]">{formatMoney(result.customerCharge, currency)}</p>
+                <p className="text-xs text-[#6B7075]">{t("delivery.flatRateTaxInfo")}</p>
               </div>
             </div>
           )}

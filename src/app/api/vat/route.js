@@ -7,6 +7,9 @@ export async function POST(request) {
     if (!parsed) {
       return Response.json({ valid: false, error: "invalid_format" });
     }
+    if (body.expected_country && parsed.country !== body.expected_country) {
+      return Response.json({ valid: false, available: true, error: "unexpected_country", country: parsed.country });
+    }
     const result = await checkVat(parsed.country, parsed.number);
     return Response.json({
       vat_id: `${parsed.country}${parsed.number}`,

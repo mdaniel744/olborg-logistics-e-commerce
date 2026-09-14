@@ -27,9 +27,18 @@ export const SITE_SETTINGS = {
     reference_format: "Order {order_number}",
   },
   returns: {
-    // Publish confirmed VAT-inclusive estimates/ranges or maxima before B2C checkout.
-    // Each market needs customer-facing { pl: "...", de: "..." } text in that market's currency.
-    transport_estimates: { PL: null, DE: null },
+    // Confirmed customer-paid return transport charges. The same country rate is
+    // disclosed to private and business customers; statutory defect remedies remain seller-paid.
+    transport_charges: {
+      PL: {
+        pl: "1 380,00 PLN za zwracane zamówienie dostarczone w Polsce.",
+        de: "1.380,00 PLN für eine in Polen zugestellte Rücksendung.",
+      },
+      DE: {
+        pl: "530,00 EUR za zwracane zamówienie dostarczone w Niemczech.",
+        de: "530,00 EUR für eine in Deutschland zugestellte Rücksendung.",
+      },
+    },
   },
   brand: {
     primary_color: "#1A1C1E",
@@ -175,27 +184,19 @@ export const PRODUCTS = [
 
 export const DELIVERY_ZONES = [
   {
-    name: "Polska — wycena standardowa",
+    name: "Polska — stała stawka dostawy",
     country: "PL",
+    pricing_type: "flat_rate",
     postal_prefixes: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    rates: [
-      { size: "10ft", rate_net: 1100, additional_unit_rate_net: 850 },
-      { size: "20ft", rate_net: 1450, additional_unit_rate_net: 1100 },
-      { size: "40ft", rate_net: 2100, additional_unit_rate_net: 1750 },
-    ],
-    crane_surcharge_net: 650,
+    customer_charge: 1380,
     active: true,
   },
   {
-    name: "Deutschland — Standardangebot",
+    name: "Deutschland — Versandpauschale",
     country: "DE",
+    pricing_type: "flat_rate",
     postal_prefixes: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
-    rates: [
-      { size: "10ft", rate_net: 390, additional_unit_rate_net: 310 },
-      { size: "20ft", rate_net: 520, additional_unit_rate_net: 410 },
-      { size: "40ft", rate_net: 760, additional_unit_rate_net: 640 },
-    ],
-    crane_surcharge_net: 240,
+    customer_charge: 530,
     active: true,
   },
 ];

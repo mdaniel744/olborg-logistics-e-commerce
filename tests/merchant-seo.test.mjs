@@ -96,11 +96,10 @@ test("Product schema never fabricates an offer for demo/quotation/unready checko
   assert.equal(data.brand, undefined);
 });
 
-test("checkout cannot submit unknown delivery or undisclosed B2C return transport", () => {
-  const base = { customerType: "private", settings: { returns: { transport_estimates: { DE: { de: "Test estimate 100 EUR incl. VAT" } } } }, market: "DE", lang: "de" };
+test("checkout requires known delivery and return charges for every customer", () => {
+  const base = { settings: { returns: { transport_charges: { DE: { de: "530 EUR" } } } }, market: "DE", lang: "de" };
   assert.equal(checkoutReadiness({ ...base, delivery: null }).ready, false);
-  assert.equal(checkoutReadiness({ ...base, delivery: { quoteRequired: true, cost: 0 } }).ready, false);
-  assert.equal(checkoutReadiness({ ...base, delivery: { quoteRequired: false, cost: 0 } }).ready, true);
-  assert.equal(checkoutReadiness({ ...base, settings: {}, delivery: { quoteRequired: false, cost: 100 } }).ready, false);
-  assert.equal(checkoutReadiness({ ...base, settings: {}, customerType: "business", delivery: { quoteRequired: false, cost: 100 } }).ready, true);
+  assert.equal(checkoutReadiness({ ...base, delivery: { quoteRequired: true, customerCharge: 0 } }).ready, false);
+  assert.equal(checkoutReadiness({ ...base, delivery: { quoteRequired: false, customerCharge: 530 } }).ready, true);
+  assert.equal(checkoutReadiness({ ...base, settings: {}, delivery: { quoteRequired: false, customerCharge: 530 } }).ready, false);
 });

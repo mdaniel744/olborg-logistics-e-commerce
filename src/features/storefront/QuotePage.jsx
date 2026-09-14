@@ -20,7 +20,7 @@ const NO_COLOR = "__not_specified__";
 
 const blankForm = (country) => ({
   freeText: "", country, postal: "", city: "", address: "",
-  unloading: "self", siteAccess: "", name: "", company: "", vatId: "",
+  siteAccess: "", name: "", company: "", vatId: "",
   email: "", phone: "", notes: "",
 });
 
@@ -227,7 +227,6 @@ export default function QuotePage() {
           delivery_postal_code: form.postal,
           delivery_city: form.city,
           delivery_address: form.address,
-          unloading_method: form.unloading === "crane" ? "crane_hds" : "self",
           site_access_notes: form.siteAccess,
           customer_type: customerType,
           customer: { name: form.name, company: form.company, vat_id: form.vatId, email: form.email, phone: form.phone },
@@ -487,13 +486,6 @@ export default function QuotePage() {
               <Input id="q-addr" value={form.address} onChange={set("address")} className="rounded-none mt-1" />
             </div>
             <p className="text-sm text-[#6B7075] sm:col-span-3">{t("quote.countryHint")}</p>
-          </div>
-          <div className="mt-4">
-            <p className="text-sm font-semibold uppercase tracking-[0.12em] text-[#4B5157] mb-2">{t("checkout.unloading")}</p>
-            <RadioGroup value={form.unloading} onValueChange={(v) => setForm((f) => ({ ...f, unloading: v }))} className="space-y-2">
-              <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="self" /> {t("checkout.unloadingSelf")}</label>
-              <label className="flex items-center gap-2 text-sm"><RadioGroupItem value="crane" /> {t("checkout.unloadingCrane")}</label>
-            </RadioGroup>
           </div>
           <div className="mt-4">
             <Label htmlFor="q-access" className="text-sm text-[#4B5157]">{t("quote.siteAccess")} ({t("common.optional")})</Label>

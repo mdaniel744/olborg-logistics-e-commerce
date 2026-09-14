@@ -151,7 +151,7 @@ export default function ProductInfoTabs({ product }) {
               {[
                 { icon: MapPin, title: t("product.shippingAreaTitle"), text: t("product.shippingAreaText") },
                 { icon: Truck, title: t("product.shippingCostTitle"), text: t("product.shippingCostText") },
-                { icon: BadgeCheck, title: t("product.unloadingTitle"), text: t("product.unloadingText") },
+                { icon: BadgeCheck, title: t("product.deliveryPlanningTitle"), text: t("product.deliveryPlanningText") },
               ].map(({ icon: Icon, title, text }) => (
                 <div key={title} className="bg-white p-5 shadow-sm">
                   <Icon className="h-6 w-6 text-[#A66700]" aria-hidden="true" />

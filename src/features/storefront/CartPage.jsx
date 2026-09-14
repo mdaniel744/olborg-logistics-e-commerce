@@ -7,6 +7,7 @@ import { Image } from "@/components/ui/image";
 import { Button } from "@/components/ui/button";
 import { useLang, usePageMeta } from "@/lib/i18n";
 import { useCart } from "@/lib/CartContext";
+import { cartItemKey } from "@/lib/cartItems";
 import { useSettings } from "@/lib/useSettings";
 import { formatMoney, round2 } from "@/lib/format";
 import { computeVatTreatment, vatLabel } from "@/lib/vat";
@@ -14,17 +15,22 @@ import { pathFor } from "@/lib/routes";
 
 export default function CartPage() {
   const { lang, market, currency, t } = useLang();
-  const { items, updateQuantity, removeItem } = useCart();
+  const { items, hydrated, updateQuantity, removeItem } = useCart();
   const { settings } = useSettings();
   usePageMeta(t("cart.title"));
 
   const unitNet = (i) => (market === "DE" ? i.price_eur_net : i.price_pln_net);
-  const netTotal = round2(items.reduce((s, i) => s + (unitNet(i) || 0) * i.quantity, 0));
+  const pricesKnown = items.every((item) => Number.isFinite(unitNet(item)) && unitNet(item) > 0);
+  const netTotal = pricesKnown ? round2(items.reduce((s, i) => s + unitNet(i) * i.quantity, 0)) : null;
   const { rate, treatment } = computeVatTreatment(settings, {
     market, customerType: "private", vatValid: false, deliveryCountry: market,
   });
-  const vatAmount = round2(netTotal * (rate / 100));
-  const gross = round2(netTotal + vatAmount);
+  const vatAmount = pricesKnown ? round2(netTotal * (rate / 100)) : null;
+  const gross = pricesKnown ? round2(netTotal + vatAmount) : null;
+
+  if (!hydrated) {
+    return <div className="py-20 text-center text-[#6B7075]">{t("common.loading")}</div>;
+  }
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 md:py-14">
@@ -40,33 +46,35 @@ export default function CartPage() {
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-4">
-            {items.map((item) => (
-              <div key={item.sku} className="flex gap-4 bg-white border border-[#E0E2E5] p-4">
-                {item.image && (
-                  <Image src={item.image} alt={lang === "de" ? item.name_de : item.name_pl} className="w-24 h-24 object-cover shrink-0" />
-                )}
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-[#1A1C1E]">{lang === "de" ? item.name_de : item.name_pl}</p>
-                  <p className="font-mono text-xs text-[#6B7075] mt-0.5">
-                    {item.sku} · {lang === "de" ? item.variant_label_de : item.variant_label_pl}
-                  </p>
-                  <p className="font-mono text-xs text-[#6B7075] mt-1">
-                    {t("cart.unitPrice")}: {formatMoney(unitNet(item), currency)}
-                  </p>
-                  <div className="flex items-center justify-between mt-3">
-                    <div className="flex items-center border border-[#E0E2E5]">
-                      <button className="p-2" onClick={() => updateQuantity(item.sku, item.quantity - 1)} aria-label="-"><Minus className="w-4 h-4" /></button>
-                      <span className="font-mono w-10 text-center">{item.quantity}</span>
-                      <button className="p-2" onClick={() => updateQuantity(item.sku, item.quantity + 1)} aria-label="+"><Plus className="w-4 h-4" /></button>
+            {items.map((item) => {
+              const itemKey = cartItemKey(item);
+              const itemMeta = [item.sku, lang === "de" ? item.variant_label_de : item.variant_label_pl].filter(Boolean).join(" · ");
+              return (
+                <div key={itemKey} className="flex gap-4 bg-white border border-[#E0E2E5] p-4">
+                  {item.image && (
+                    <Image src={item.image} alt={lang === "de" ? item.name_de : item.name_pl} className="w-24 h-24 object-cover shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-[#1A1C1E]">{lang === "de" ? item.name_de : item.name_pl}</p>
+                    {itemMeta && <p className="font-mono text-xs text-[#6B7075] mt-0.5">{itemMeta}</p>}
+                    <p className="font-mono text-xs text-[#6B7075] mt-1">
+                      {t("cart.unitPrice")}: {formatMoney(unitNet(item), currency)}
+                    </p>
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center border border-[#E0E2E5]">
+                        <button className="p-2" onClick={() => updateQuantity(itemKey, item.quantity - 1)} aria-label="-"><Minus className="w-4 h-4" /></button>
+                        <span className="font-mono w-10 text-center">{item.quantity}</span>
+                        <button className="p-2 disabled:opacity-40" onClick={() => updateQuantity(itemKey, item.quantity + 1)} disabled={item.quantity >= 100} aria-label="+"><Plus className="w-4 h-4" /></button>
+                      </div>
+                      <span className="font-mono font-semibold">{formatMoney(Number.isFinite(unitNet(item)) ? round2(unitNet(item) * item.quantity) : null, currency)} {t("common.netto")}</span>
                     </div>
-                    <span className="font-mono font-semibold">{formatMoney(round2((unitNet(item) || 0) * item.quantity), currency)} {t("common.netto")}</span>
                   </div>
+                  <button onClick={() => removeItem(itemKey)} className="self-start p-1 text-[#6B7075] hover:text-red-600" aria-label={t("common.remove")}>
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-                <button onClick={() => removeItem(item.sku)} className="self-start p-1 text-[#6B7075] hover:text-red-600" aria-label={t("common.remove")}>
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <aside className="bg-white border border-[#E0E2E5] p-5 h-fit">
@@ -77,6 +85,7 @@ export default function CartPage() {
               <div className="flex justify-between border-t border-[#E0E2E5] pt-2 font-bold"><dt>{t("common.total")}</dt><dd className="font-mono">{formatMoney(gross, currency)}</dd></div>
             </dl>
             <p className="font-mono text-[11px] text-[#6B7075] mt-2">{vatLabel(lang, rate, treatment, settings)}</p>
+            {!pricesKnown && <p className="text-sm text-red-600 mt-3">{t("checkout.priceUnavailable")}</p>}
             <p className="text-xs text-[#6B7075] mt-3">{t("cart.deliveryCalculated")}</p>
             <Button asChild className="w-full mt-4 bg-[#F5A623] hover:bg-[#DB930D] !text-[#1A1C1E] rounded-none font-semibold h-11">
               <Link href={pathFor("checkout", lang)}>{t("common.goToCheckout")}</Link>
