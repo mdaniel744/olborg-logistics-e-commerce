@@ -30,7 +30,7 @@ export async function POST(request) {
     const customerType = body.customer_type;
     // Enforce the customer-type boundary on the server. A stale form or crafted request
     // must never attach company, tax or purchase-order data to a private order.
-    const customer = sanitizeCustomerForType(customerType, body.customer);
+    const customer = sanitizeCustomerForType(customerType, body.customer, market);
 
     const submittedBillingAddress = body.billing_address || {};
     const submittedDeliveryAddress = body.delivery_address || {};
@@ -154,9 +154,9 @@ export async function POST(request) {
     };
 
     // The dashboard endpoint has no fields for company/VAT-ID/NIP or a PO reference, so
-    // fold those identity details into the note rather than silently drop them. Shipping
-    // is also sent through its supported structured field below; the note remains a human-
-    // readable audit trail of the exact tax-inclusive amount accepted by the customer.
+    // fold those identity details into the note rather than silently drop them. The dashboard
+    // currently rejects explicit shippingAmount values, so the same note also retains a human-
+    // readable audit trail of the server-authoritative charge accepted by the customer.
     const businessLines = [
       customerType === "business" ? `Contact: ${text(customer.name, 150)}` : null,
       customerType === "business" ? text(customer.company, 200) && `Firma: ${text(customer.company, 200)}` : null,
@@ -179,7 +179,7 @@ export async function POST(request) {
           ...billingAddress,
           company: text(customer.company, 200),
           ...(market === "PL"
-            ? { nip: text(customer.nip, 20).replace(/[\s-]/g, "") }
+            ? text(customer.nip, 20) ? { nip: text(customer.nip, 20).replace(/[\s-]/g, "") } : {}
             : text(customer.vat_id, 20) ? { vat_id: text(customer.vat_id, 20) } : {}),
         }
       : billingAddress;
@@ -196,9 +196,6 @@ export async function POST(request) {
         billingAddress: dashboardBillingAddress,
         deliveryAddress,
         customerNote: businessLines.join(" | ") || undefined,
-        // Dashboard checkout expects the final customer-facing shipping charge. For a
-        // Polish order this is 1,380 PLN including 23% VAT (1,121.95 net + 258.05 VAT).
-        shippingAmount: deliveryCharge,
         lineItems: items.map((item) => ({ productId: item.product_id, quantity: item.quantity })),
       }, idempotencyKey);
     } catch (dashboardError) {
@@ -223,9 +220,9 @@ export async function POST(request) {
         notes: text(customer.notes, 2000),
         ...(customerType === "business" ? {
           company: text(customer.company, 200),
-          vat_id: text(customer.vat_id, 20),
-          nip: text(customer.nip, 20),
           po_reference: text(customer.po_reference, 100),
+          ...(text(customer.vat_id, 20) ? { vat_id: text(customer.vat_id, 20) } : {}),
+          ...(text(customer.nip, 20) ? { nip: text(customer.nip, 20) } : {}),
         } : {}),
       },
       vat_validation: vatValidation,

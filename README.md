@@ -40,7 +40,7 @@ With the local server running on port 3001, `node tests/storefront-smoke.mjs` ch
 - `POST /api/vat` validates EU VAT IDs against VIES.
 - `GET /api/merchant-feed?market=pl|de` generates a Google Merchant XML feed.
 
-Orders and quotes are submitted to the configured external dashboard/inquiry service, with a best-effort local backup under `.data/`. The order handoff sends the server-authoritative customer delivery charge as structured `shippingAmount`; Polish orders always record 23% VAT for private and business buyers. Development is not a mock order environment: do not submit real-looking test orders without a designated test backend. Quote images currently use `public/uploads/`; private storage, retention and authorized retrieval remain required follow-up work.
+Orders and quotes are submitted to the configured external dashboard/inquiry service, with a best-effort local backup under `.data/`. Polish orders always record 23% VAT for private and business buyers. The dashboard currently rejects storefront-supplied `shippingAmount`, so configure matching delivery rules in that dashboard before relying on its generated invoice total; until then the server-authoritative delivery/VAT/total snapshot is retained locally and in the order audit note. Development is not a mock order environment: do not submit real-looking test orders without a designated test backend. Quote images currently use `public/uploads/`; private storage, retention and authorized retrieval remain required follow-up work.
 
 ## Merchant Center / SEO release checks
 

@@ -12,12 +12,9 @@ async function withMockFetch(mockFetch, run) {
   }
 }
 
-test("dashboard checkout forwards flat shipping amounts and the idempotency key unchanged", async () => {
+test("dashboard checkout forwards order identity and idempotency without unsupported monetary fields", async () => {
   const calls = [];
-  const markets = [
-    { locale: "pl", shippingAmount: 1380 },
-    { locale: "de", shippingAmount: 530 },
-  ];
+  const locales = ["pl", "de"];
 
   await withMockFetch(async (url, options) => {
     calls.push({ url, options });
@@ -27,12 +24,11 @@ test("dashboard checkout forwards flat shipping amounts and the idempotency key 
       { status: 201 }
     );
   }, async () => {
-    for (const market of markets) {
+    for (const locale of locales) {
       const order = await submitDashboardOrder(
         "store-123",
         {
-          locale: market.locale,
-          shippingAmount: market.shippingAmount,
+          locale,
           lineItems: [{ productId: "container-20", quantity: 1 }],
         },
         "submission-key-123456"
@@ -41,44 +37,44 @@ test("dashboard checkout forwards flat shipping amounts and the idempotency key 
     }
   });
 
-  assert.equal(calls.length, markets.length);
-  calls.forEach(({ url, options }, index) => {
+  assert.equal(calls.length, locales.length);
+  calls.forEach(({ url, options }) => {
     assert.equal(url, "https://mycontainergmbh.com/api/storefront/checkout/store-123");
     assert.equal(options.method, "POST");
     assert.equal(options.headers["Content-Type"], "application/json");
     assert.equal(options.headers["Idempotency-Key"], "submission-key-123456");
 
     const sent = JSON.parse(options.body);
-    assert.equal(sent.shippingAmount, markets[index].shippingAmount);
-    assert.equal(typeof sent.shippingAmount, "number");
+    assert.equal("shippingAmount" in sent, false);
+    assert.equal("price" in sent.lineItems[0], false);
   });
 });
 
-test("dashboard checkout refuses to create an order without a valid structured shipping amount", async () => {
-  let calls = 0;
-  await withMockFetch(async () => {
-    calls += 1;
-    return Response.json({ order: { id: "order-1", orderNumber: "OLB-1" } }, { status: 201 });
-  }, async () => {
-    for (const shippingAmount of [undefined, Number.NaN, -1, "1380"]) {
-      await assert.rejects(
-        submitDashboardOrder(
-          "store-123",
-          { locale: "pl", shippingAmount, lineItems: [] },
-          "submission-key-123456"
-        ),
-        /invalid shipping amount/
-      );
+test("dashboard order-number aliases and id fallback are normalized after successful creation", async () => {
+  const remoteOrders = [
+    { id: "order-1", order_number: "OLB-1" },
+    { id: "order-2", number: "OLB-2" },
+    { id: "order-3" },
+  ];
+  let responseIndex = 0;
+
+  await withMockFetch(
+    async () => Response.json({ order: remoteOrders[responseIndex++] }, { status: 201 }),
+    async () => {
+      const first = await submitDashboardOrder("store-123", { locale: "pl", lineItems: [] });
+      const second = await submitDashboardOrder("store-123", { locale: "pl", lineItems: [] });
+      const third = await submitDashboardOrder("store-123", { locale: "pl", lineItems: [] });
+      assert.equal(first.orderNumber, "OLB-1");
+      assert.equal(second.orderNumber, "OLB-2");
+      assert.equal(third.orderNumber, "order-3");
     }
-  });
-  assert.equal(calls, 0);
+  );
 });
 
-test("dashboard checkout rejects malformed or missing order identity", async () => {
+test("dashboard checkout rejects failed responses or a missing immutable order id", async () => {
   const malformedResponses = [
     {},
     { order: {} },
-    { order: { id: "order-1" } },
     { order: { orderNumber: "OLB-1" } },
   ];
   let responseIndex = 0;
@@ -90,12 +86,24 @@ test("dashboard checkout rejects malformed or missing order identity", async () 
         await assert.rejects(
           submitDashboardOrder(
             "store-123",
-            { locale: "pl", shippingAmount: 1380, lineItems: [] },
+            { locale: "pl", lineItems: [] },
             "submission-key-123456"
           ),
           /Dashboard checkout submission failed/
         );
       }
+    }
+  );
+});
+
+test("dashboard checkout exposes a remote rejection as a failed submission", async () => {
+  await withMockFetch(
+    async () => Response.json({ error: "Delivery amount is not accepted" }, { status: 422 }),
+    async () => {
+      await assert.rejects(
+        submitDashboardOrder("store-123", { locale: "pl", lineItems: [] }),
+        /Delivery amount is not accepted/
+      );
     }
   );
 });

@@ -37,13 +37,18 @@ test("private checkout requires contact details and both complete addresses", ()
 test("business-only fields do not leak into private validation", () => {
   assert.equal(validateOrderDetails({ ...privateOrder, customer: { ...privateOrder.customer, company: "", nip: "" } }), null);
   assert.equal(validateOrderDetails({ ...privateOrder, customerType: "business" }), "missing_company");
+  assert.equal(validateOrderDetails({
+    ...privateOrder,
+    customerType: "business",
+    customer: { ...privateOrder.customer, company: "Example sp. z o.o.", nip: "" },
+  }), null);
   assert.equal(
     validateOrderDetails({
       ...privateOrder,
       customerType: "business",
       customer: { ...privateOrder.customer, company: "Example sp. z o.o.", nip: "123" },
     }),
-    "missing_tax_id"
+    "invalid_tax_id"
   );
   assert.equal(validateOrderDetails({
     ...privateOrder,
@@ -71,6 +76,24 @@ test("private orders discard stale business identity and purchase-order data", (
     notes: submittedCustomer.notes,
   });
   assert.deepEqual(sanitizeCustomerForType("business", submittedCustomer), submittedCustomer);
+  assert.deepEqual(sanitizeCustomerForType("business", submittedCustomer, "PL"), {
+    name: submittedCustomer.name,
+    email: submittedCustomer.email,
+    phone: submittedCustomer.phone,
+    notes: submittedCustomer.notes,
+    company: submittedCustomer.company,
+    nip: submittedCustomer.nip,
+    po_reference: submittedCustomer.po_reference,
+  });
+  assert.deepEqual(sanitizeCustomerForType("business", submittedCustomer, "DE"), {
+    name: submittedCustomer.name,
+    email: submittedCustomer.email,
+    phone: submittedCustomer.phone,
+    notes: submittedCustomer.notes,
+    company: submittedCustomer.company,
+    vat_id: submittedCustomer.vat_id,
+    po_reference: submittedCustomer.po_reference,
+  });
 });
 
 test("order payload requires an explicit market, paid-order acceptance and strict cart quantities", () => {

@@ -12,7 +12,7 @@ export function sanitizeAddress(address, market) {
   };
 }
 
-export function sanitizeCustomerForType(customerType, customer = {}) {
+export function sanitizeCustomerForType(customerType, customer = {}, market) {
   const commonCustomer = {
     name: customer?.name,
     email: customer?.email,
@@ -22,13 +22,16 @@ export function sanitizeCustomerForType(customerType, customer = {}) {
 
   if (customerType !== "business") return commonCustomer;
 
-  return {
+  const businessCustomer = {
     ...commonCustomer,
     company: customer?.company,
-    nip: customer?.nip,
-    vat_id: customer?.vat_id,
     po_reference: customer?.po_reference,
   };
+  const nip = cleanText(customer?.nip, 20);
+  const vatId = cleanText(customer?.vat_id, 20);
+  if ((!market || market === "PL") && nip) businessCustomer.nip = nip;
+  if ((!market || market === "DE") && vatId) businessCustomer.vat_id = vatId;
+  return businessCustomer;
 }
 
 export function validateOrderPayloadShape(body) {
@@ -69,7 +72,8 @@ export function validateOrderDetails({ market, customerType, customer, billingAd
 
   if (customerType === "business") {
     if (!hasText(customer?.company)) return "missing_company";
-    if (market === "PL" && !/^\d{10}$/.test(String(customer?.nip || "").replace(/[\s-]/g, ""))) return "missing_tax_id";
+    const nip = String(customer?.nip || "").trim();
+    if (market === "PL" && nip && !/^\d{10}$/.test(nip.replace(/[\s-]/g, ""))) return "invalid_tax_id";
   }
 
   for (const address of [billingAddress, deliveryAddress]) {

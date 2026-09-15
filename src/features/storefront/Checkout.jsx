@@ -62,6 +62,7 @@ export default function Checkout() {
     setVatId("");
     setVatResult(null);
     setError(null);
+    setForm((current) => ({ ...current, nip: "" }));
   }, [market]);
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -127,7 +128,10 @@ export default function Checkout() {
         customer: {
           name: form.name, email: form.email, phone: form.phone, notes: form.notes,
           ...(customerType === "business" ? {
-            company: form.company, nip: form.nip, vat_id: vatId, po_reference: form.po,
+            company: form.company,
+            po_reference: form.po,
+            ...(market === "PL" && form.nip.trim() ? { nip: form.nip } : {}),
+            ...(market === "DE" && vatId.trim() ? { vat_id: vatId } : {}),
           } : {}),
         },
         billing_address: billing,
@@ -219,7 +223,7 @@ export default function Checkout() {
                 <>
                   <Field id="c-company" label={t("checkout.company")} autoComplete="organization" required value={form.company} onChange={set("company")} />
                   {market === "PL" ? (
-                    <Field id="c-nip" label={t("checkout.nip")} inputMode="numeric" required value={form.nip} onChange={set("nip")} />
+                    <Field id="c-nip" label={`${t("checkout.nip")} (${t("common.optional")})`} inputMode="numeric" value={form.nip} onChange={set("nip")} />
                   ) : (
                     <div className="sm:col-span-2">
               <VatIdField value={vatId} onChange={setVatId} onResult={setVatResult} expectedCountry="DE" />
