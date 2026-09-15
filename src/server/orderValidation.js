@@ -36,7 +36,7 @@ export function sanitizeCustomerForType(customerType, customer = {}, market) {
 
 export function validateOrderPayloadShape(body) {
   if (!body || !["PL", "DE"].includes(body.market)) return "invalid_market";
-  if (!["pl", "de"].includes(body.language) || body.language !== body.market.toLowerCase()) return "invalid_language";
+  if (!["pl", "de"].includes(body.language)) return "invalid_language";
   if (!["private", "business"].includes(body.customer_type)) return "invalid_customer_type";
   if (body.terms_accepted !== true) return "terms_required";
 

@@ -12,7 +12,7 @@ import { reviewedTotalsMatch, sanitizeAddress, sanitizeCustomerForType, validate
 
 export const runtime = "nodejs";
 
-const text = (value, max = 300) => String(value || "").slice(0, max);
+const text = (value, max = 300) => String(value || "").trim().slice(0, max);
 
 export async function POST(request) {
   try {
@@ -166,6 +166,9 @@ export async function POST(request) {
       `Flat shipping (${delivery.method}): ${deliveryCharge.toFixed(2)} ${currency} customer charge / ${deliveryNet.toFixed(2)} net`,
       `VAT: ${treatment.rate}% / ${vatAmount.toFixed(2)} ${currency}`,
       `Checkout total: ${grossTotal.toFixed(2)} ${currency} gross`,
+      `Process order and issue invoice including the above totals. Payment by bank transfer after invoice; no online payment collected.`,
+      `Customer correspondence language: ${language}`,
+      text(body.delivery_instructions, 2000) && `Delivery instructions: ${text(body.delivery_instructions, 2000)}`,
       `Storefront submission: ${idempotencyKey}`,
       text(customer.notes, 2000),
     ].filter(Boolean);
@@ -187,7 +190,9 @@ export async function POST(request) {
     let dashboardOrder;
     try {
       dashboardOrder = await submitDashboardOrder(STORE_ID, {
-        locale: language,
+        // The dashboard uses locale to choose its price/currency market.
+        // The customer's reading/correspondence language can be different.
+        locale: market.toLowerCase(),
         customerName: customerType === "business"
           ? text(customer.company, 200)
           : text(customer.name, 150),
@@ -250,8 +255,8 @@ export async function POST(request) {
         label: labels[treatment.treatment],
       },
       payment_method: "bank_transfer",
-      payment_status: "awaiting_payment",
-      status: "new",
+      payment_status: "awaiting_invoice",
+      status: "processing",
       checkout_acceptance: {
         submission_key: idempotencyKey,
         terms_accepted: true,
@@ -272,6 +277,8 @@ export async function POST(request) {
       order_number: record.order_number,
       id: record.id,
       currency,
+      status: record.status,
+      payment_status: record.payment_status,
       totals: record.totals,
       return_transport_charge: record.return_transport_charge,
       delivery_quote_required: record.delivery_quote_required,

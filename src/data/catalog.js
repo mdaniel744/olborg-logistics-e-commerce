@@ -186,6 +186,7 @@ export const DELIVERY_ZONES = [
   {
     name: "Polska — stała stawka dostawy",
     country: "PL",
+    nationwide: true,
     pricing_type: "flat_rate",
     postal_prefixes: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
     customer_charge: 1380,
@@ -194,6 +195,7 @@ export const DELIVERY_ZONES = [
   {
     name: "Deutschland — Versandpauschale",
     country: "DE",
+    nationwide: true,
     pricing_type: "flat_rate",
     postal_prefixes: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
     customer_charge: 530,

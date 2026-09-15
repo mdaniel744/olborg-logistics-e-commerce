@@ -2,5 +2,6 @@
 export {
   findZone as findZoneClient,
   calculateDelivery as calcDeliveryClient,
+  flatRateDelivery,
   normalizePostalCode,
 } from "../server/delivery.js";

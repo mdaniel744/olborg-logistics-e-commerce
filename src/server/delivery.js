@@ -26,6 +26,23 @@ export function findZone(zones, country, postalCode) {
   return best;
 }
 
+// A configured nationwide rate is known before a customer enters their address.
+// Postcodes are still validated when the order is submitted.
+export function flatRateDelivery(zones, country) {
+  const zone = (zones || []).find((entry) =>
+    entry.country === country && entry.active !== false && entry.nationwide === true &&
+    entry.pricing_type === "flat_rate" && !entry.manual_quote_only &&
+    Number.isFinite(entry.customer_charge) && entry.customer_charge >= 0
+  );
+  if (!zone) return null;
+  return {
+    quoteRequired: false,
+    zone: zone.name,
+    customerCharge: Math.round(zone.customer_charge * 100) / 100,
+    method: "flat_rate",
+  };
+}
+
 export function calculateDelivery(zones, { country, postalCode, items }) {
   if (!normalizePostalCode(country, postalCode)) {
     return { quoteRequired: true, zone: null, customerCharge: 0, method: null, reason: "invalid_postal_code" };

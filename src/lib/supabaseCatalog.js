@@ -334,8 +334,10 @@ function normalize(row, translationsByEntity) {
 
 // Flat list — one entry per real, independently-routable product row.
 export async function getProducts() {
-  const demoEnabled =
-    process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_USE_DEMO_PRODUCTS === "true";
+  const demoFlag = process.env.NEXT_PUBLIC_USE_DEMO_PRODUCTS;
+  const demoEnabled = demoFlag === "true" || (
+    demoFlag !== "false" && process.env.NODE_ENV !== "production" && !isSupabaseConfigured
+  );
   if (!isSupabaseConfigured || !supabase) return demoEnabled ? demoProductRows() : [];
 
   const { data: rows, error } = await supabase

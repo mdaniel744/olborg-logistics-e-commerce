@@ -42,6 +42,10 @@ With the local server running on port 3001, `node tests/storefront-smoke.mjs` ch
 
 Orders and quotes are submitted to the configured external dashboard/inquiry service, with a best-effort local backup under `.data/`. Polish orders always record 23% VAT for private and business buyers. The dashboard currently rejects storefront-supplied `shippingAmount`, so configure matching delivery rules in that dashboard before relying on its generated invoice total; until then the server-authoritative delivery/VAT/total snapshot is retained locally and in the order audit note. Development is not a mock order environment: do not submit real-looking test orders without a designated test backend. Quote images currently use `public/uploads/`; private storage, retention and authorized retrieval remain required follow-up work.
 
+Checkout submits an order for staff processing; it does not collect a payment. Staff issue the invoice and send bank-transfer details afterwards. The confirmation shows `processing` / `awaiting_invoice` and the exact submitted total. Shipping is displayed before postcode entry, while complete addresses remain required on submission. Delivery country controls currency and VAT independently of interface language. Company tax numbers are optional. Browser storage is best-effort and cannot turn an accepted order into a failure.
+
+For the real local catalog, set `NEXT_PUBLIC_STORE_ID`, `NEXT_PUBLIC_SUPABASE_URL`, and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in ignored `.env.local`, with `NEXT_PUBLIC_USE_DEMO_PRODUCTS=false`. Restart the local server after restoring connection settings. Existing demo items in a stored cart must be replaced with current catalog products. A configured live catalog no longer silently substitutes demo products during an outage. `tests/checkout-flow.test.mjs` exercises the real order handler with isolated catalog, VAT and dashboard responses; it creates no external orders.
+
 ## Merchant Center / SEO release checks
 
 Read [the dated audit and unresolved business facts](docs/merchant-seo-audit.md) before publishing or requesting a Google review.

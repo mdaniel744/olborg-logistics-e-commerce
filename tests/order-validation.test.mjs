@@ -106,7 +106,9 @@ test("order payload requires an explicit market, paid-order acceptance and stric
   };
   assert.equal(validateOrderPayloadShape(body), null);
   assert.equal(validateOrderPayloadShape({ ...body, market: "FR" }), "invalid_market");
-  assert.equal(validateOrderPayloadShape({ ...body, language: "de" }), "invalid_language");
+  assert.equal(validateOrderPayloadShape({ ...body, language: "de" }), null);
+  assert.equal(validateOrderPayloadShape({ ...body, market: "DE", language: "pl" }), null);
+  assert.equal(validateOrderPayloadShape({ ...body, language: "en" }), "invalid_language");
   assert.equal(validateOrderPayloadShape({ ...body, terms_accepted: false }), "terms_required");
   assert.equal(validateOrderPayloadShape({ ...body, unloading_method: "legacy-value" }), null);
   assert.equal(validateOrderPayloadShape({ ...body, items: [{ product_id: "product-1", quantity: 1.5 }] }), "invalid_cart_item");

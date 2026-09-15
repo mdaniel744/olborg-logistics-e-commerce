@@ -22,7 +22,12 @@ export function CartProvider({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    if (!hydrated) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // Browsers can deny storage. The current cart must still work in memory.
+    }
   }, [items, hydrated]);
 
   const addItem = useCallback((item) => {

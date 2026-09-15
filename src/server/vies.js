@@ -11,6 +11,7 @@ export async function checkVat(country, number) {
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
     cache: "no-store",
+    signal: AbortSignal.timeout(8000),
   });
 
   if (!response.ok) {

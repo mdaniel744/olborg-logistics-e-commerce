@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { calculateDelivery, findZone, normalizePostalCode } from "../src/server/delivery.js";
+import { calculateDelivery, findZone, flatRateDelivery, normalizePostalCode } from "../src/server/delivery.js";
 import { calcDeliveryClient } from "../src/lib/deliveryClient.js";
 import { DELIVERY_ZONES } from "../src/data/catalog.js";
 
@@ -71,4 +71,17 @@ test("production checkout uses one nationwide charge per market", () => {
   assert.equal(calculateDelivery(DELIVERY_ZONES, { country: "PL", postalCode: "99-200", items: [{ size: "40ft", quantity: 8 }] }).customerCharge, 1380);
   assert.equal(calculateDelivery(DELIVERY_ZONES, { country: "DE", postalCode: "01067", items }).customerCharge, 530);
   assert.equal(calculateDelivery(DELIVERY_ZONES, { country: "DE", postalCode: "99998", items: [{ size: "10ft", quantity: 2 }, { size: "40ft", quantity: 3 }] }).customerCharge, 530);
+});
+
+test("checkout displays configured nationwide delivery before address entry, matching the submitted order", () => {
+  for (const [country, postalCode, expectedCharge] of [["PL", "99-200", 1380], ["DE", "10115", 530]]) {
+    const preview = flatRateDelivery(DELIVERY_ZONES, country);
+    assert.equal(preview.customerCharge, expectedCharge);
+    assert.deepEqual(preview, calculateDelivery(DELIVERY_ZONES, { country, postalCode, items: [{ quantity: 2 }] }));
+    assert.equal(calculateDelivery(DELIVERY_ZONES, { country, postalCode: "", items: [{ quantity: 1 }] }).quoteRequired, true);
+  }
+  assert.equal(flatRateDelivery(DELIVERY_ZONES, "FR"), null);
+  assert.equal(flatRateDelivery(zones, "PL"), null, "a regional zone must not be advertised nationwide");
+  assert.equal(flatRateDelivery([{ ...DELIVERY_ZONES[0], active: false }], "PL"), null);
+  assert.equal(flatRateDelivery([{ ...DELIVERY_ZONES[0], manual_quote_only: true }], "PL"), null);
 });

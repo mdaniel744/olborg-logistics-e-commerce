@@ -3,47 +3,23 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, Copy, Check } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang, usePageMeta } from "@/lib/i18n";
-import { useSettings } from "@/lib/useSettings";
 import { formatMoney } from "@/lib/format";
 import { pathFor } from "@/lib/routes";
+import { readLastOrder } from "@/lib/orderConfirmation";
 import SellerIdentity from "@/components/store/SellerIdentity";
-
-function CopyRow({ label, value, copyLabel, copiedLabel }) {
-  const [copied, setCopied] = useState(false);
-  if (!value) return null;
-  const copy = () => {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
-  };
-  return (
-    <div className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-      <span className="text-[#6B7075] shrink-0">{label}</span>
-      <span className="font-mono font-semibold text-right break-all">{value}</span>
-      <button type="button" onClick={copy} className="shrink-0 text-[#5F656B] hover:text-[#795207]" aria-label={copyLabel}>
-        {copied ? <Check className="w-4 h-4 text-[#2E7D32]" /> : <Copy className="w-4 h-4" />}
-      </button>
-    </div>
-  );
-}
 
 export default function OrderConfirmation() {
   const { lang, t } = useLang();
-  const { settings } = useSettings();
   const searchParams = useSearchParams();
   const [order, setOrder] = useState(null);
   const [loaded, setLoaded] = useState(false);
   usePageMeta(t("confirmation.title"));
 
   useEffect(() => {
-    try {
-      setOrder(JSON.parse(sessionStorage.getItem("olborg_last_order")));
-    } catch {
-      setOrder(null);
-    }
+    setOrder(readLastOrder());
     setLoaded(true);
   }, []);
 
@@ -60,11 +36,6 @@ export default function OrderConfirmation() {
     );
   }
 
-  const account = order.currency === "EUR" ? settings?.payment?.eur_account : settings?.payment?.pln_account;
-  const hasBankDetails = account?.iban;
-  const reference = (settings?.payment?.reference_format || "Order {order_number}").replace("{order_number}", order.order_number);
-  const deadlineDays = settings?.payment?.payment_deadline_days;
-
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12 md:py-16">
       <div className="text-center mb-10">
@@ -74,36 +45,21 @@ export default function OrderConfirmation() {
           {t("confirmation.orderNumber")}: <span className="font-bold text-[#1A1C1E]">{order.order_number}</span>
         </p>
         <span className="inline-block mt-3 rounded-md bg-[#FFF3E0] text-[#795207] text-sm font-semibold px-3 py-1.5">
-          {t("confirmation.awaitingPayment")}
+          {t("confirmation.processing")}
         </span>
       </div>
 
       <SellerIdentity lang={lang} className="mb-6 text-[#3A3E42]" />
       <section className="bg-white border border-[#E0E2E5]">
         <h2 className="font-heading font-bold text-[#1A1C1E] px-4 py-3 border-b border-[#E0E2E5]">
-          {t("confirmation.payInstructions")}
+          {t("confirmation.nextSteps")}
         </h2>
-        {hasBankDetails ? (
-          <div className="divide-y divide-[#F0F1F3]">
-            <CopyRow label={t("confirmation.accountHolder")} value={account.account_holder} copyLabel={t("confirmation.copy")} />
-            <CopyRow label={t("confirmation.iban")} value={account.iban} copyLabel={t("confirmation.copy")} />
-            <CopyRow label={t("confirmation.bic")} value={account.bic} copyLabel={t("confirmation.copy")} />
-            <CopyRow label={t("confirmation.bank")} value={account.bank_name} copyLabel={t("confirmation.copy")} />
-            <CopyRow label={t("confirmation.reference")} value={reference} copyLabel={t("confirmation.copy")} />
-            <CopyRow
-              label={t("confirmation.amount")}
-              value={order.totals ? formatMoney(order.totals.gross_total, order.currency) : ""}
-              copyLabel={t("confirmation.copy")}
-            />
-          </div>
-        ) : (
-          <p className="px-4 py-4 text-sm text-[#6B7075]">{t("confirmation.bankPending")}</p>
-        )}
-        {typeof deadlineDays === "number" && hasBankDetails && (
-          <p className="px-4 py-3 border-t border-[#E0E2E5] font-mono text-xs text-[#6B7075]">
-            {t("confirmation.deadline", { days: deadlineDays })}
-          </p>
-        )}
+        <div className="px-4 py-4 text-sm leading-relaxed text-[#4B5157] space-y-3">
+          <p>{t("confirmation.invoiceNext")}</p>
+          {order.email && (
+            <p className="break-words">{t("confirmation.invoiceEmail", { email: order.email })}</p>
+          )}
+        </div>
       </section>
 
       {order.totals && (
