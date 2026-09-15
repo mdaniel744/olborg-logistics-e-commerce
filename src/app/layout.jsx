@@ -12,6 +12,9 @@ const poppins = Poppins({
 
 export const metadata = {
   metadataBase: new URL(siteOrigin || "http://localhost:3001"),
+  verification: {
+    google: "9o4tIzR9a7JfLJj4-ALjWaXCVINi8FVPY-hBR96-Weo",
+  },
   robots: !siteOrigin || process.env.NODE_ENV !== "production" || process.env.NEXT_PUBLIC_USE_DEMO_PRODUCTS === "true"
     ? { index: false, follow: false } : { index: true, follow: true },
   title: {
