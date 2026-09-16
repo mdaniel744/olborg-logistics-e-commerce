@@ -2,12 +2,11 @@
 
 import React from "react";
 import Link from "next/link";
-import { MapPin, Package, Truck, Construction } from "lucide-react";
+import { MapPin, Package, Truck, Construction, Clock3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLang, usePageMeta } from "@/lib/i18n";
 import { pathFor } from "@/lib/routes";
 import { POLICIES } from "@/i18n/policies";
-import DeliveryCalculator from "@/components/store/DeliveryCalculator";
 
 export default function DeliveryPage() {
   const { lang, t } = useLang();
@@ -20,6 +19,18 @@ export default function DeliveryPage() {
     { icon: Construction, text: t("delivery.f4") },
   ];
   const shipping = POLICIES.shipping;
+  const deliveryWindows = [
+    {
+      country: t("delivery.poland"),
+      time: t("delivery.polandTime"),
+      rate: "1 380 PLN",
+    },
+    {
+      country: t("delivery.germany"),
+      time: t("delivery.germanyTime"),
+      rate: "530 EUR",
+    },
+  ];
   const internationalCustomers = {
     pl: {
       title: "Polska firma, dostawa do Niemiec",
@@ -42,9 +53,29 @@ export default function DeliveryPage() {
       <h1 className="text-3xl sm:text-4xl font-bold leading-tight text-[#1A1C1E]">{t("delivery.title")}</h1>
       <p className="mt-4 text-base md:text-lg text-[#343A40] max-w-2xl leading-[1.75]">{t("delivery.subtitle")}</p>
 
-      <div className="mt-8">
-        <DeliveryCalculator />
-      </div>
+      <section className="mt-9" aria-labelledby="delivery-times-heading">
+        <div className="max-w-2xl">
+          <h2 id="delivery-times-heading" className="text-2xl font-semibold text-[#1A1C1E]">
+            {t("delivery.timesTitle")}
+          </h2>
+          <p className="mt-3 text-base leading-7 text-[#4B5157]">{t("delivery.timesIntro")}</p>
+        </div>
+        <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {deliveryWindows.map((window) => (
+            <div key={window.country} className="bg-white p-6 shadow-sm">
+              <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-[#795207]">
+                <Clock3 className="h-4 w-4" />
+                {window.country}
+              </div>
+              <p className="mt-3 text-2xl font-bold text-[#1A1C1E]">{window.time}</p>
+              <p className="mt-2 text-sm text-[#5F656B]">
+                {t("delivery.flatRateLabel")}: <span className="font-semibold text-[#1A1C1E]">{window.rate}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-4 text-sm leading-6 text-[#5F656B]">{t("delivery.timesNote")}</p>
+      </section>
 
       <section className="mt-12">
         <h2 className="text-2xl font-semibold text-[#1A1C1E] mb-5">{t("delivery.factorsTitle")}</h2>

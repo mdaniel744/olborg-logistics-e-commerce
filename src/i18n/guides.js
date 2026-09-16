@@ -133,11 +133,11 @@ Vergleichen Sie [neue](/de/neue-container) und [gebrauchte Container](/de/gebrau
 
 Podaj kraj, kod pocztowy, liczbę kontenerów i ich rozmiary. Opisz dojazd od drogi publicznej, szerokość bramy, nawierzchnię i miejsce postoju samochodu. Zdjęcia wjazdu oraz planowanego ustawienia pomagają ocenić warunki.
 
-## Transport i rozładunek to dwa ustalenia
+## Standardowa dostawa i usługi specjalne
 
-Przewóz nie oznacza automatycznie rozładunku dźwigiem. Sprawdź, czy oferta obejmuje samochód z HDS, odrębny dźwig, czy sprzęt organizujesz we własnym zakresie. Zasięg i udźwig żurawia zależą od urządzenia, masy oraz odległości podnoszenia.
+Stała stawka obejmuje transport i standardowe, bezpieczne przekazanie kontenera pod adresem dostawy. Szczególne ustawienie, dodatkowy dźwig lub inna usługa wykraczająca poza standardową dostawę wymaga osobnej wyceny zaakceptowanej przed zakupem. Zasięg i udźwig urządzenia zawsze zależą od masy oraz odległości podnoszenia.
 
-Nie planuj prac na podstawie samego szacunku z kalkulatora. Termin i warunki dostawy powinny być uzgodnione dla zamówienia. Jeżeli kalkulator nie obsługuje danej konfiguracji, wyślij [zapytanie o transport](/wycena).
+Dostawa dostępnego kontenera trwa zwykle około 3–7 dni w Polsce i około 4–9 dni do Niemiec, licząc od przyjęcia zamówienia i zaksięgowania płatności. Dokładny dzień oraz warunki dojazdu potwierdzamy indywidualnie. Jeśli potrzebujesz usługi specjalnej, wyślij [zapytanie o transport](/wycena).
 
 ## W dniu odbioru
 
@@ -150,11 +150,11 @@ Szczegóły kosztów i warunków znajdziesz na stronie [dostawy](/dostawa). Prze
 
 Nennen Sie Land, Postleitzahl, Anzahl und Größen der Container. Beschreiben Sie Zufahrt ab der öffentlichen Straße, Torbreite, Untergrund und Fahrzeugstandort. Bilder von Einfahrt und Stellplatz helfen bei der Beurteilung.
 
-## Transport und Entladung getrennt klären
+## Standardlieferung und Sonderleistungen
 
-Der Transport umfasst nicht automatisch eine Kranentladung. Prüfen Sie, ob ein LKW-Kran oder separater Kran vorgesehen ist oder ob Sie geeignetes Gerät selbst bereitstellen. Reichweite und Tragfähigkeit hängen vom Kran, Gewicht und Hubabstand ab.
+Die Pauschale umfasst den Transport und die sichere Standardübergabe des Containers an der Lieferadresse. Eine besondere Aufstellung, ein zusätzlicher Kran oder eine andere Leistung außerhalb der Standardlieferung erfordert ein gesondertes, vor dem Kauf angenommenes Angebot. Reichweite und Tragfähigkeit des eingesetzten Geräts hängen stets von Gewicht und Hubabstand ab.
 
-Planen Sie Arbeiten nicht allein anhand einer Schätzung im Lieferrechner. Termin und Lieferbedingungen müssen für die Bestellung abgestimmt sein. Unterstützt der Rechner Ihre Konfiguration nicht, stellen Sie eine [Transportanfrage](/de/angebot).
+Die Lieferung eines verfügbaren Containers dauert ab Bestellannahme und Zahlungseingang gewöhnlich etwa 3–7 Tage innerhalb Polens und etwa 4–9 Tage nach Deutschland. Den konkreten Tag und die Zufahrtsbedingungen bestätigen wir individuell. Für eine Sonderleistung senden Sie eine [Transportanfrage](/de/angebot).
 
 ## Bei der Anlieferung
 

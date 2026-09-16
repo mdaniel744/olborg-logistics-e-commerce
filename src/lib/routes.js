@@ -11,6 +11,7 @@ export const R = {
   checkout: { pl: "/zamowienie", de: "/de/kasse" },
   confirmation: { pl: "/potwierdzenie", de: "/de/bestellbestaetigung" },
   quote: { pl: "/wycena", de: "/de/angebot" },
+  imprint: { pl: "/dane-prawne", de: "/de/impressum" },
   terms: { pl: "/regulamin", de: "/de/agb" },
   shippingPolicy: { pl: "/dostawa#versand-und-lieferung", de: "/de/lieferung#versand-und-lieferung" },
   returns: { pl: "/zwroty", de: "/de/rueckgabe" },

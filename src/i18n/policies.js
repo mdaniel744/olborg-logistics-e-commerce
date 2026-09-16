@@ -1,10 +1,47 @@
-// Identity confirmed by the business. The registered address, return depot,
-// delivery windows and the legal registered-office classification require verification.
+// Identity confirmed by the business. The address below is intentionally identified as
+// the customer-facing contact/correspondence address, not an unverified registered office.
 const SELLER = "OLBORG LOGISTIC SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ";
 const EMAIL = "info@olborglogistics.com";
 const PHONE = "+48 505 611 446";
+const CONTACT_ADDRESS = "Jana III Sobieskiego 9/23, 99-200 Poddębice, Polska";
 
 export const POLICIES = {
+  imprint: {
+    title_pl: "Dane prawne i dane sprzedawcy",
+    title_de: "Impressum",
+    sections: [
+      {
+        h_pl: "Podmiot prowadzący serwis",
+        h_de: "Anbieter und Diensteanbieter",
+        p_pl: `${SELLER}, polska spółka z ograniczoną odpowiedzialnością działająca pod marką OLBORG LOGISTICS. Spółka jest sprzedawcą kontenerów, stroną umów zawieranych przez sklep oraz wystawcą faktur.`,
+        p_de: `${SELLER}, eine polnische Gesellschaft mit beschränkter Haftung, tätig unter der Marke OLBORG LOGISTICS. Die Gesellschaft ist Verkäuferin der Container, Vertragspartnerin für Bestellungen über den Shop und Rechnungsausstellerin.`,
+      },
+      {
+        h_pl: "Dane rejestrowe i podatkowe",
+        h_de: "Register- und Steuerangaben",
+        p_pl: "Krajowy Rejestr Sądowy (KRS): 0000662755\nNumer identyfikacji podatkowej (NIP): 8281415227\nREGON: 366537890",
+        p_de: "Polnisches Handelsregister (KRS): 0000662755\nPolnische Steuernummer (NIP): 8281415227\nREGON: 366537890",
+      },
+      {
+        h_pl: "Kontakt i adres korespondencyjny",
+        h_de: "Kontakt- und Korrespondenzanschrift",
+        p_pl: `OLBORG LOGISTICS\n${CONTACT_ADDRESS}\nTelefon: ${PHONE}\nE-mail: ${EMAIL}`,
+        p_de: `OLBORG LOGISTICS\nJana III Sobieskiego 9/23, 99-200 Poddębice, Polen\nTelefon: ${PHONE}\nE-Mail: ${EMAIL}`,
+      },
+      {
+        h_pl: "Informacje o rejestrze",
+        h_de: "Hinweis zum Register",
+        p_pl: "Aktualny odpis spółki, w tym oficjalną siedzibę i sposób reprezentacji, można sprawdzić w publicznej wyszukiwarce Krajowego Rejestru Sądowego, używając numeru KRS 0000662755.",
+        p_de: "Der aktuelle Registerauszug mit offiziellem Sitz und Vertretungsregelung kann im öffentlichen polnischen Handelsregister anhand der KRS-Nummer 0000662755 abgerufen werden.",
+      },
+      {
+        h_pl: "Obsługa klienta i treści serwisu",
+        h_de: "Kundenservice und redaktionelle Verantwortung",
+        p_pl: `W sprawach dotyczących produktów, zamówień, dostawy, praw konsumenta lub treści serwisu skontaktuj się z OLBORG LOGISTICS pod adresem ${EMAIL} albo numerem ${PHONE}. Zasady sprzedaży, zwrotów i ochrony danych znajdują się w dokumentach dostępnych w stopce.`,
+        p_de: `Bei Fragen zu Produkten, Bestellungen, Lieferung, Verbraucherrechten oder den Inhalten dieses Shops kontaktieren Sie OLBORG LOGISTICS unter ${EMAIL} oder ${PHONE}. Verkaufs-, Rückgabe- und Datenschutzinformationen finden Sie in den Rechtsseiten im Footer.`,
+      },
+    ],
+  },
   terms: {
     title_pl: "Regulamin sklepu",
     title_de: "Allgemeine Geschäftsbedingungen",
@@ -30,8 +67,8 @@ export const POLICIES = {
       {
         h_pl: "4. Dostawa",
         h_de: "4. Lieferung",
-        p_pl: "Organizujemy dostawy w Polsce i do Niemiec. W kasie nie wybiera się sposobu rozładunku i nie doliczamy osobnej dopłaty za rozładunek. Stała stawka obejmuje transport oraz standardowe, bezpieczne przekazanie kontenera pod adresem dostawy. Przed wysyłką potwierdzamy dojazd, miejsce odbioru i termin. Jeśli adres wymaga usługi specjalnej wykraczającej poza standardową dostawę, należy uzyskać odrębną wycenę przed złożeniem zamówienia. Szczegóły przygotowania miejsca opisuje strona Dostawa.",
-        p_de: "Wir organisieren Lieferungen in Polen und Deutschland. In der Kasse wird keine Entlademethode gewählt und kein gesonderter Entladezuschlag berechnet. Die Pauschale umfasst den Transport und die sichere Standardübergabe des Containers an der Lieferadresse. Vor dem Versand bestätigen wir Zufahrt, Annahmestelle und Termin. Erfordert der Standort eine Sonderleistung außerhalb der Standardlieferung, ist vor der Bestellung ein gesondertes Angebot einzuholen. Hinweise zur Standortvorbereitung finden Sie auf der Seite Lieferung.",
+        p_pl: "Organizujemy dostawy w Polsce i do Niemiec. Standardowa dostawa dostępnego kontenera trwa zwykle około 3–7 dni na terenie Polski i około 4–9 dni do Niemiec, licząc od przyjęcia zamówienia i zaksięgowania płatności. W kasie nie wybiera się sposobu rozładunku i nie doliczamy osobnej dopłaty za rozładunek. Stała stawka obejmuje transport oraz standardowe, bezpieczne przekazanie kontenera pod adresem dostawy. Przed wysyłką potwierdzamy dojazd, miejsce odbioru i dokładny termin. Jeśli adres wymaga usługi specjalnej wykraczającej poza standardową dostawę, należy uzyskać odrębną wycenę przed złożeniem zamówienia.",
+        p_de: "Wir organisieren Lieferungen in Polen und Deutschland. Die Standardlieferung eines verfügbaren Containers dauert ab Bestellannahme und Zahlungseingang gewöhnlich etwa 3–7 Tage innerhalb Polens und etwa 4–9 Tage nach Deutschland. In der Kasse wird keine Entlademethode gewählt und kein gesonderter Entladezuschlag berechnet. Die Pauschale umfasst den Transport und die sichere Standardübergabe des Containers an der Lieferadresse. Vor dem Versand bestätigen wir Zufahrt, Annahmestelle und den konkreten Termin. Erfordert der Standort eine Sonderleistung außerhalb der Standardlieferung, ist vor der Bestellung ein gesondertes Angebot einzuholen.",
       },
       {
         h_pl: "5. Zwroty i reklamacje",
@@ -66,8 +103,8 @@ export const POLICIES = {
       {
         h_pl: "Termin dostawy",
         h_de: "Lieferfrist",
-        p_pl: "Termin zależy od dostępności wariantu i transportu. Wiążący termin lub okres dostawy należy uzgodnić przed zawarciem umowy; później ustala się szczegóły przyjazdu. Sama informacja o dostępności nie oznacza dostawy w konkretnym dniu. W sprzedaży konsumenckiej, jeśli nie uzgodniono inaczej, towar powinien zostać wydany bez zbędnej zwłoki, najpóźniej w ciągu 30 dni od zawarcia umowy. Uzgodnienie późniejszej dostawy nie wyłącza ustawowych praw w razie opóźnienia.",
-        p_de: "Die Lieferfrist hängt von Variante und Transportplanung ab. Ein verbindlicher Termin oder Lieferzeitraum ist vor Vertragsschluss festzulegen; danach werden die Einzelheiten der Anfahrt abgestimmt. Eine Verfügbarkeitsangabe allein ist keine Zusage für einen bestimmten Liefertag. Bei Verbraucherkäufen gilt ohne andere Vereinbarung die Lieferung ohne unnötige Verzögerung, spätestens innerhalb von 30 Tagen nach Vertragsschluss. Auch bei einem vereinbarten späteren Termin bleiben gesetzliche Rechte wegen Lieferverzugs bestehen.",
+        p_pl: "Dla dostępnych kontenerów standardowa dostawa trwa zwykle około 3–7 dni na terenie Polski i około 4–9 dni do Niemiec, licząc od przyjęcia zamówienia i zaksięgowania płatności. Jest to przewidywany przedział: dokładny dzień przyjazdu potwierdzamy indywidualnie po sprawdzeniu dostępności transportu i warunków dojazdu. Kontener niestandardowy, niedostępny od ręki albo wymagający dodatkowych prac może mieć inny termin, który podajemy przed przyjęciem zamówienia.",
+        p_de: "Für verfügbare Container dauert die Standardlieferung ab Bestellannahme und Zahlungseingang gewöhnlich etwa 3–7 Tage innerhalb Polens und etwa 4–9 Tage nach Deutschland. Dies ist ein voraussichtlicher Zeitraum; den konkreten Anliefertag bestätigen wir nach Prüfung der Transportverfügbarkeit und Zufahrt individuell. Für nicht sofort verfügbare, kundenspezifische oder zusätzlich bearbeitete Container gilt der vor Bestellannahme mitgeteilte abweichende Zeitraum.",
       },
       {
         h_pl: "Standardowa dostawa i miejsce odbioru",

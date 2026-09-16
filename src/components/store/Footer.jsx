@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Phone, Mail, MapPin } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { pathFor, CATEGORY_LANDINGS } from "@/lib/routes";
-import SellerIdentity from "@/components/store/SellerIdentity";
 
 export default function Footer() {
   const { lang, t } = useLang();
@@ -19,6 +18,7 @@ export default function Footer() {
     { label: t("nav.quoteCta"), key: "quote" },
   ];
   const copyrightLinks = [
+    { label: lang === "de" ? "Impressum" : "Dane prawne", key: "imprint" },
     { label: lang === "de" ? "AGB" : "Regulamin", key: "terms" },
     { label: lang === "de" ? "Rückgabe und Rückerstattung" : "Zwroty i zwroty płatności", key: "returns" },
     { label: lang === "de" ? "Datenschutz" : "Prywatność", key: "privacy" },
@@ -56,7 +56,7 @@ export default function Footer() {
               </div>
             </div>
             <address className="not-italic text-sm text-white/70 space-y-2.5">
-              <SellerIdentity lang={lang} className="text-white/80" />
+              <p className="font-semibold tracking-[0.08em] text-white">OLBORG LOGISTICS</p>
               <p className="flex items-start gap-2">
                 <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#F5A623]" />
                 <span>{lang === "de" ? "Kontaktadresse" : "Adres kontaktowy"}:<br />

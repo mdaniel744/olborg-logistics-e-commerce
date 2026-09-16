@@ -13,7 +13,6 @@ import { formatMoney } from "@/lib/format";
 import { variantGross, vatLabel } from "@/lib/vat";
 import { pathFor, productPath, productSlugFromPathname, productLanguagePaths } from "@/lib/routes";
 import PageNotFound from "@/lib/PageNotFound";
-import DeliveryCalculator from "@/components/store/DeliveryCalculator";
 import ProductGallery from "@/components/store/ProductGallery";
 import ProductInfoTabs from "@/components/store/ProductInfoTabs";
 import ProductCard from "@/components/store/ProductCard";
@@ -368,11 +367,6 @@ export default function ProductDetail({ slug, initialProducts }) {
           <p className="mt-3 text-sm leading-6 text-[#5F656B] flex items-start gap-1.5">
             <Truck className="w-3.5 h-3.5" /> {t("product.quoteHint")}
           </p>
-
-          {/* Delivery check */}
-          <div className="mt-8">
-            <DeliveryCalculator />
-          </div>
         </div>
       </div>
 

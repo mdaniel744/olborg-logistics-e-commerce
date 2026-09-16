@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowRight, Settings2 } from "lucide-react";
+import { ArrowDown, ArrowRight, Mail, Phone, Settings2 } from "lucide-react";
 import { useLang, usePageMeta } from "@/lib/i18n";
 import { POLICIES } from "@/i18n/policies";
 import { pathFor } from "@/lib/routes";
@@ -38,6 +38,7 @@ export default function PolicyPage({ policyKey }) {
   const isTerms = policyKey === "terms";
   const complaints = POLICIES.complaints;
   const relatedLinks = [
+    { key: "imprint", pl: "Dane prawne", de: "Impressum" },
     { key: "delivery", pl: "Dostawa i rozładunek", de: "Lieferung und Entladung" },
     { key: "returns", pl: "Zwroty i reklamacje", de: "Rückgabe und Reklamationen" },
     { key: "withdrawal", pl: "Prawo odstąpienia i formularz", de: "Widerrufsrecht und Formular" },
@@ -58,6 +59,31 @@ export default function PolicyPage({ policyKey }) {
           </Link>
         ))}
       </nav>
+      <aside className="mt-8 bg-[#1A1C1E] p-5 sm:p-6 text-white" aria-label={lang === "de" ? "Kontakt zu Olborg Logistics" : "Kontakt z Olborg Logistics"}>
+        <div className="flex flex-col gap-5">
+          <div>
+            <p className="font-semibold text-lg">
+              {lang === "de" ? "Fragen zu diesen Informationen?" : "Masz pytania do tych informacji?"}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-white/70">
+              {lang === "de"
+                ? "Unser Team hilft bei Fragen zu Bestellung, Lieferung, Rückgabe und Datenschutz."
+                : "Nasz zespół pomoże w sprawach zamówień, dostawy, zwrotów i ochrony danych."}
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-x-5 gap-y-3 text-sm">
+            <a href="tel:+48505611446" className="inline-flex items-center gap-2 whitespace-nowrap font-semibold text-white hover:text-[#F5A623]">
+              <Phone className="h-4 w-4 text-[#F5A623]" /> +48 505 611 446
+            </a>
+            <a href="mailto:info@olborglogistics.com" className="inline-flex items-center gap-2 whitespace-nowrap font-semibold text-white hover:text-[#F5A623]">
+              <Mail className="h-4 w-4 text-[#F5A623]" /> info@olborglogistics.com
+            </a>
+            <Link href={pathFor("contact", lang)} className="inline-flex items-center gap-2 font-semibold text-[#F5A623] hover:text-white">
+              {lang === "de" ? "Kontaktseite" : "Strona kontaktowa"} <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </aside>
       <div className="long-form-content mt-10">
         {policy.sections.map((s) => (
           <section key={s.h_de} className="border-t border-[#D7DADF] pt-7">

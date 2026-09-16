@@ -65,10 +65,10 @@ export const FAQ = [
         a_de: "Wir liefern Container innerhalb Polens und nach Deutschland. Für die gesamte Standardbestellung gilt eine Pauschale: 1.380 PLN an eine Adresse in Polen oder 530 EUR an eine Adresse in Deutschland. Sie ist für Privat- und Geschäftskunden gleich, unabhängig von Containergröße und Anzahl. Die Postleitzahl bestätigt das Lieferland.",
       },
       {
-        q_pl: "Co jeśli kalkulator nie pokazuje ceny dostawy?",
-        q_de: "Was, wenn der Rechner keinen Lieferpreis anzeigt?",
-        a_pl: "Dla prawidłowego polskiego lub niemieckiego kodu pocztowego kalkulator powinien pokazać stałą stawkę dla całego zamówienia. Sprawdź wybrany kraj i format kodu, a jeśli wynik nadal się nie pojawia, skontaktuj się z nami. Osobna wycena dotyczy wyłącznie opcjonalnej usługi specjalnej wykraczającej poza standardową dostawę.",
-        a_de: "Bei einer gültigen polnischen oder deutschen Postleitzahl sollte der Rechner die Pauschale für die gesamte Bestellung anzeigen. Prüfen Sie Lieferland und Format der Postleitzahl und kontaktieren Sie uns, falls weiterhin kein Ergebnis erscheint. Ein gesondertes Angebot betrifft ausschließlich eine optionale Sonderleistung außerhalb der Standardlieferung.",
+        q_pl: "Ile kosztuje dostawa i jak długo trwa?",
+        q_de: "Was kostet die Lieferung und wie lange dauert sie?",
+        a_pl: "Dla całego standardowego zamówienia obowiązuje stała stawka 1 380 PLN na adres w Polsce albo 530 EUR na adres w Niemczech. Dostawa dostępnego kontenera trwa zwykle około 3–7 dni w Polsce i około 4–9 dni do Niemiec, licząc od przyjęcia zamówienia i zaksięgowania płatności. Dokładny dzień potwierdzamy indywidualnie.",
+        a_de: "Für die gesamte Standardbestellung gilt eine Pauschale von 1.380 PLN an eine Adresse in Polen oder 530 EUR an eine Adresse in Deutschland. Die Lieferung eines verfügbaren Containers dauert ab Bestellannahme und Zahlungseingang gewöhnlich etwa 3–7 Tage innerhalb Polens und etwa 4–9 Tage nach Deutschland. Den konkreten Tag bestätigen wir individuell.",
       },
       {
         q_pl: "Jak wygląda przekazanie kontenera na miejscu?",
@@ -91,8 +91,8 @@ export const FAQ = [
       {
         q_pl: "Kiedy zamówienie jest realizowane?",
         q_de: "Wann wird die Bestellung ausgeführt?",
-        a_pl: "Realizację rozpoczynamy po zaksięgowaniu płatności. Termin dostawy uzgadniamy indywidualnie.",
-        a_de: "Die Ausführung beginnt nach Zahlungseingang. Den Liefertermin stimmen wir individuell ab.",
+        a_pl: "Realizację rozpoczynamy po przyjęciu zamówienia i zaksięgowaniu płatności. Dostawa dostępnego kontenera trwa zwykle około 3–7 dni w Polsce i około 4–9 dni do Niemiec. Dokładny dzień uzgadniamy indywidualnie.",
+        a_de: "Die Ausführung beginnt nach Bestellannahme und Zahlungseingang. Die Lieferung eines verfügbaren Containers dauert gewöhnlich etwa 3–7 Tage innerhalb Polens und etwa 4–9 Tage nach Deutschland. Den konkreten Tag stimmen wir individuell ab.",
       },
       {
         q_pl: "Czym różni się zamówienie od zapytania o wycenę?",

@@ -25,7 +25,13 @@ for (let i = 0; i < paths.length; i += 4) {
     assert.match(html, /<title>[^<]+<\/title>/, `${path}: title`);
     assert.match(html, /name="description" content="[^"]+"/, `${path}: description`);
     assert.match(html, /rel="canonical"/, `${path}: canonical`);
-    assert.match(html, /8281415227/, `${path}: seller identity`);
+    const imprintPath = path === "/de" || path.startsWith("/de/") ? "/de/impressum" : "/dane-prawne";
+    assert.match(html, new RegExp(`href="${imprintPath}"`), `${path}: legal identity link`);
+    if (path === imprintPath) {
+      assert.match(html, /OLBORG LOGISTIC SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ/, `${path}: legal seller name`);
+      assert.match(html, /8281415227/, `${path}: tax identity`);
+      assert.match(html, /0000662755/, `${path}: register identity`);
+    }
     assert.doesNotMatch(html, /name="google" content="notranslate"/, `${path}: browser translation metadata`);
     assert.doesNotMatch(html, /<(?:html|body)[^>]*translate="no"/, `${path}: global browser translation attribute`);
     assert.match(

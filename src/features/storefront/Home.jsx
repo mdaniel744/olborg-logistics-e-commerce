@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   ArrowRight,
   Building2,
-  Calculator,
   CheckCircle2,
   FileText,
   PackageCheck,
@@ -21,7 +20,6 @@ import { useProducts } from "@/lib/useSettings";
 import { pathFor, CATEGORY_LANDINGS } from "@/lib/routes";
 import { IMAGES } from "@/lib/images";
 import ProductCard from "@/components/store/ProductCard";
-import DeliveryCalculator from "@/components/store/DeliveryCalculator";
 import CompanySection from "@/components/store/CompanySection";
 
 export default function Home() {
@@ -219,12 +217,31 @@ export default function Home() {
             </ul>
             <Button asChild className="mt-7 rounded-xl bg-[#1A1C1E] px-6 font-semibold text-white hover:bg-black">
               <Link href={pathFor("delivery", lang)}>
-                <Calculator className="w-4 h-4 mr-2" />
+                <Truck className="w-4 h-4 mr-2" />
                 {t("home.deliveryCta")}
               </Link>
             </Button>
           </div>
-          <DeliveryCalculator />
+          <div className="bg-[#1A1C1E] p-6 sm:p-8 text-white shadow-sm">
+            <p className="font-mono text-xs uppercase tracking-[0.22em] text-[#F5A623]">{t("delivery.timesTitle")}</p>
+            <div className="mt-5 divide-y divide-white/15">
+              <div className="pb-5 flex items-end justify-between gap-4">
+                <div>
+                  <p className="font-semibold">{t("delivery.poland")}</p>
+                  <p className="mt-1 text-sm text-white/65">1 380 PLN</p>
+                </div>
+                <p className="text-xl font-bold text-[#F5A623]">{t("delivery.polandTime")}</p>
+              </div>
+              <div className="pt-5 flex items-end justify-between gap-4">
+                <div>
+                  <p className="font-semibold">{t("delivery.germany")}</p>
+                  <p className="mt-1 text-sm text-white/65">530 EUR</p>
+                </div>
+                <p className="text-xl font-bold text-[#F5A623]">{t("delivery.germanyTime")}</p>
+              </div>
+            </div>
+            <p className="mt-6 text-sm leading-6 text-white/65">{t("delivery.timesNote")}</p>
+          </div>
         </div>
       </section>
 

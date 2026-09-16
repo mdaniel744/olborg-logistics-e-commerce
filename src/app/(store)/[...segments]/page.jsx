@@ -50,6 +50,8 @@ const staticRoutes = {
 };
 
 const policyRoutes = {
+  "dane-prawne": "imprint",
+  "de/impressum": "imprint",
   regulamin: "terms",
   "de/agb": "terms",
   zwroty: "returns",

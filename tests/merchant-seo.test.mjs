@@ -7,6 +7,7 @@ import { publicPageMetadata, PUBLIC_PAGE_KEYS } from "../src/lib/pageMetadata.js
 import { R } from "../src/lib/routes.js";
 import { productStructuredData } from "../src/lib/productStructuredData.js";
 import { checkoutReadiness } from "../src/lib/checkoutReadiness.js";
+import { POLICIES } from "../src/i18n/policies.js";
 
 const product = {
   id: "product-20-used-blue", sku: "20U-BL", active: true, merchant_eligible: true,
@@ -102,4 +103,18 @@ test("checkout requires known delivery and return charges for every customer", (
   assert.equal(checkoutReadiness({ ...base, delivery: { quoteRequired: true, customerCharge: 0 } }).ready, false);
   assert.equal(checkoutReadiness({ ...base, delivery: { quoteRequired: false, customerCharge: 530 } }).ready, true);
   assert.equal(checkoutReadiness({ ...base, settings: {}, delivery: { quoteRequired: false, customerCharge: 530 } }).ready, false);
+});
+
+test("delivery and imprint policies publish the supplied operational and legal facts", () => {
+  const deliveryWindow = POLICIES.shipping.sections.find((section) => section.h_de === "Lieferfrist");
+  assert.match(deliveryWindow.p_pl, /3–7 dni/);
+  assert.match(deliveryWindow.p_pl, /4–9 dni/);
+  assert.match(deliveryWindow.p_de, /3–7 Tage/);
+  assert.match(deliveryWindow.p_de, /4–9 Tage/);
+  const imprintText = POLICIES.imprint.sections.flatMap((section) => [section.p_pl, section.p_de]).join(" ");
+  assert.match(imprintText, /OLBORG LOGISTIC SPÓŁKA Z OGRANICZONĄ ODPOWIEDZIALNOŚCIĄ/);
+  assert.match(imprintText, /8281415227/);
+  assert.match(imprintText, /0000662755/);
+  assert.match(imprintText, /366537890/);
+  assert.match(imprintText, /Jana III Sobieskiego 9\/23/);
 });
